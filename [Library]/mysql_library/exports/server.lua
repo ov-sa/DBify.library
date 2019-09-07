@@ -90,7 +90,7 @@ function getRowData(tableName, key, keyColumnName, dataColumnName)
     local query = connectedDB:query("SELECT "..dataColumnName.." FROM "..tableName.." WHERE "..keyColumnName.."='"..key.."'")
     if not query then return false end
     local result = query:poll(-1)
-    if query 
+    if query then
         query:free()
     end
     if result and type(result) == "table" and #result > 0 then
