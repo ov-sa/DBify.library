@@ -1,6 +1,6 @@
 <meta>
 
-    <info author="Tron" name="Mysql" type="script" version="1.0.0"/>
+    <info author="Tron" name="Mysql Library" type="script" version="1.0.0"/>
 	<oop>true</oop>
 
 	<!-- Settings -->
