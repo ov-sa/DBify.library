@@ -15,10 +15,10 @@
 
 connection = {
 
-	hostname = "remoteconnection.com",
-	username = "BYwEAap5Kz",
-	password = "sguF3VFcOs",
-	database = "BYwEAap5Kz"
+	hostname = "",
+	username = "",
+	password = "",
+	database = ""
 
 }
 
