@@ -27,7 +27,7 @@ end
 function doesTableExist(tableName)
 
     if not connectedDB or not tableName then return false end
-    local query = connectedDB:query("SELECT table_name FROM information_schema.tables where table_schema='"..(connection.database).."'")
+    local query = connectedDB:query("SELECT table_name FROM information_schema.tables WHERE table_schema='"..(connection.database).."'")
     if not query then return false end
     local result = query:poll(-1)
     if query then
