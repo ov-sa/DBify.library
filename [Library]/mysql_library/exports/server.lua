@@ -109,7 +109,7 @@ end
 
 function setRowData(tableName, key, keyColumnName, dataColumnName, data)
 
-    if not connectedDB or not tableName or not key or not keyColumnName or not dataColumnName or not data then return false end
+    if not connectedDB or not tableName or not key or not keyColumnName or not dataColumnName then return false end
     local isKeyColumn = doesColumnExist(tableName, keyColumnName)
     if not isKeyColumn then return false end
     local isDataColumn = doesColumnExist(tableName, dataColumnName)
