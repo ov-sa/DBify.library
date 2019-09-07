@@ -1,0 +1,27 @@
+<meta>
+
+    <info author="Tron" name="Mysql" type="script" version="1.0.0"/>
+	<oop>true</oop>
+
+	<!-- Settings -->
+	<script src="settings/server.lua" type="server"/>
+
+	<!-- Exports -->
+	<script src="exports/server.lua" type="server"/>
+
+	<!-- Params: getDatabase() | Returns Connection; Else false Boolean -->
+	<export function="getDatabase" type="server"/>
+
+	<!-- Params: doesTableExist(tableName) | Returns Boolean -->
+	<export function="doesTableExist" type="server"/>
+	
+	<!-- Params: doesColumnExist(tableName, columnName) | Returns Boolean -->
+	<export function="doesColumnExist" type="server"/>
+
+	<!-- Params: getRowData(tableName, key, keyColumnName, dataColumnName) | Returns Data; Else false Boolean -->
+	<export function="getRowData" type="server"/>
+
+	<!-- Params: setRowData(tableName, key, keyColumnName, dataColumnName, data) | Returns Boolean -->
+	<export function="setRowData" type="server"/>
+	
+</meta>
