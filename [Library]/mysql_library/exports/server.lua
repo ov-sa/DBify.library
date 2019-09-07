@@ -35,7 +35,7 @@ function doesTableExist(tableName)
     end
     if result and type(result) == "table" and #result > 0 then
        for i, j in ipairs(result) do
-           if tableName == j.TABLE_NAME then
+           if tableName == j.table_name then
               return true
            end
        end
@@ -114,11 +114,11 @@ function setRowData(tableName, key, keyColumnName, dataColumnName, data)
     if not isKeyColumn then return false end
     local isDataColumn = doesColumnExist(tableName, dataColumnName)
     if not isDataColumn then
-       connectedDB:exec("ALTER TABLE "..tableName.." ADD COLUMN "..dataColumnName.." TEXT");
-       connectedDB:exec("UPDATE "..tableName.." SET "..dataColumnName.."='"..data.."' WHERE "..keyColumnName.."='"..key.."'")
+        connectedDB:exec("ALTER TABLE "..tableName.." ADD COLUMN "..dataColumnName.." TEXT");
+        connectedDB:exec("UPDATE "..tableName.." SET "..dataColumnName.."='"..data.."' WHERE "..keyColumnName.."='"..key.."'")
     else
         connectedDB:exec("UPDATE "..tableName.." SET "..dataColumnName.."='"..data.."' WHERE "..keyColumnName.."='"..key.."'")
     end
     return true
-    
+
 end
