@@ -15,10 +15,10 @@
 
 connection = {
 
-	hostname = "",
-	username = "",
-	password = "",
-	database = ""
+    hostname = "",
+    username = "",
+    password = "",
+    database = ""
 
 }
 
