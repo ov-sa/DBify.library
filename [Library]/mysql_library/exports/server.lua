@@ -34,14 +34,14 @@ function doesTableExist(tableName)
         query:free()
     end
     if result and type(result) == "table" and #result > 0 then
-       for i, j in ipairs(result) do
-           if tableName == j.table_name then
-              return true
-           end
-       end
-       return false
+        for i, j in ipairs(result) do
+            if tableName == j[string.lower("TABLE_NAME")] or tableName == j[string.upper("TABLE_NAME")] then
+                return true
+            end
+        end
+        return false
     else
-       return false
+        return false
     end
     
 end
@@ -63,14 +63,14 @@ function doesColumnExist(tableName, columnName)
         query:free()
     end
     if result and type(result) == "table" and #result > 0 then
-       for i, j in ipairs(result) do
-           if columnName == j.Field then 
-              return true
-           end
-       end
-       return false
+        for i, j in ipairs(result) do
+            if columnName == j.Field then 
+                return true
+            end
+        end
+        return false
     else
-       return false
+        return false
     end
     
 end
@@ -94,10 +94,10 @@ function getRowData(tableName, key, keyColumnName, dataColumnName)
         query:free()
     end
     if result and type(result) == "table" and #result > 0 then
-       local value = result[1]
-       return value[dataColumnName]
+        local value = result[1]
+        return value[dataColumnName]
     else
-       return false
+        return false
     end
     
 end
