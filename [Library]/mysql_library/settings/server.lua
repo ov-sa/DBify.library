@@ -4,7 +4,7 @@
      Server: -
      Author: Tron
      Developer: -
-     Last Edit: 06/09/2019 (Tron)
+     DOC: 06/09/2019 (Tron)
      Desc: Server Sided Settings ]]--
 ----------------------------------------------------------------
 
