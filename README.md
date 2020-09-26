@@ -1,6 +1,6 @@
 ***
 # Resource Name: Mysql Library
-## Developer(s): Tron
+## Developer(s): OvileAmriam
 ***
 
 ### Keypoints:

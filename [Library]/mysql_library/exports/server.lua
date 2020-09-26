@@ -2,9 +2,9 @@
 --[[ Resource: Mysql Library
      Script: exports: server.lua
      Server: -
-     Author: Tron
+     Author: OvileAmriam
      Developer: -
-     DOC: 06/09/2019 (Tron)
+     DOC: 06/09/2019 (OvileAmriam)
      Desc: Server Sided Exports ]]--
 ----------------------------------------------------------------
 
