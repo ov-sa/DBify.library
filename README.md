@@ -4,7 +4,7 @@
 ***
 
 ### Keypoints:
-> Connects to Mysql server and performs queries on it. Requires a Mysql Host!
+> ***Connects to Mysql server and performs queries on it. Requires a Mysql Host!***
 
 ### Exports:
   - **Function:** _getDatabase()_ **| Type:** _server_ **| Returns:** _connection; else false bool_
