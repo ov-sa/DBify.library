@@ -1,5 +1,5 @@
 ***
-# Resource Name: Mysql Library
+# Resource: Mysql Library
 ## Developer(s): OvileAmriam
 ***
 
