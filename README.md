@@ -6,9 +6,7 @@
 ### Keypoints:
   :heavy_check_mark: **Eases out MySQL querying.**
 
-  :heavy_check_mark: **Multi Resource APIs.**
-
-  :heavy_check_mark: **Easily Integratable.**
+  :heavy_check_mark: **Easy to understand & integrate APIs.**
 
   :warning: **Sync version** [Don't overuse it frequently; Instead cache your datas]
 
