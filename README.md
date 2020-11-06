@@ -10,6 +10,8 @@
 
   :heavy_check_mark: **Easily Integratable.**
 
+  :warning: **Sync version** [Don't overuse it frequently; Instead cache your datas]
+
 ### Prerequisites:
   :heavy_plus_sign: **MySQL host**
 
