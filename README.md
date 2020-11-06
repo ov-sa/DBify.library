@@ -6,7 +6,9 @@
 ### Keypoints:
   :heavy_check_mark: **Eases out MySQL querying.**
 
-  :heavy_check_mark: **Multi Resource APIs**
+  :heavy_check_mark: **Multi Resource APIs.**
+
+  :heavy_check_mark: **Easily Integratable.**
 
 ### Prerequisites:
   :heavy_plus_sign: **MySQL host**
