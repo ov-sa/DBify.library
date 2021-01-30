@@ -11,7 +11,7 @@
   :warning: **Sync version** [Don't overuse it frequently; Instead cache your datas]
 
 ### Prerequisites:
-  :heavy_plus_sign: **MySQL host**
+  - **MySQL host**
 
 ### Exports:
   - **Function:** _getDatabase()_ **| Type:** _server_ **| Returns:** _connection; else false bool_
