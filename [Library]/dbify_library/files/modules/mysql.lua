@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: DBify Library
-     Script: handlers: modules: mysql.lua
+     Files: modules: mysql.lua
      Server: -
      Author: OvileAmriam
      Developer: Aviril
