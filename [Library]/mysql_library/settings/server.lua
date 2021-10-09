@@ -1,10 +1,10 @@
 ----------------------------------------------------------------
---[[ Resource: Mysql Library
+--[[ Resource: DBify Library
      Script: settings: server.lua
      Server: -
      Author: OvileAmriam
-     Developer: -
-     DOC: 06/09/2019 (OvileAmriam)
+     Developer: Aviril
+     DOC: 09/10/2021 (OvileAmriam)
      Desc: Server Sided Settings ]]--
 ----------------------------------------------------------------
 
@@ -13,13 +13,11 @@
 --[[ Settings ]]--
 ------------------
 
-connection = {
-
-    hostname = "",
+dbSettings = {
     username = "",
     password = "",
-    database = ""
-
+    database = "",
+    host = "",
+    port = "3306",
+    options = ""
 }
-
-connectedDB = Connection("mysql", "dbname="..connection.database..";host="..connection.hostname..";charset=utf8", connection.username, connection.password)

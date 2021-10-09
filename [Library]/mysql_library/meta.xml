@@ -1,27 +1,16 @@
 <meta>
 
-    <info author="OvileAmriam" name="Mysql Library" type="Library" version="1.0.0"/>
-    <oop>true</oop>
+    <info author="OvileAmriam" name="DBify Library" type="Library" version="1.0.0"/>
 
-    <!-- Exports -->
-    <script src="exports/server.lua" type="server"/>
-
-    <!-- Settings -->
+    <!-- Settings & Utilities -->
+    <script src="utilities/server.lua" type="server"/>
     <script src="settings/server.lua" type="server"/>
 
-    <!-- Params: getDatabase() | Returns Connection; Else false Boolean -->
-    <export function="getDatabase" type="server"/>
+    <!-- Handlers -->
+    <script src="handlers/bundler.lua" type="server"/>
 
-    <!-- Params: doesTableExist(tableName) | Returns Boolean -->
-    <export function="doesTableExist" type="server"/>
-    
-    <!-- Params: doesColumnExist(tableName, columnName) | Returns Boolean -->
-    <export function="doesColumnExist" type="server"/>
+    <!-- Exports -->
+    <export function="fetchImports" type="server"/>
+    <export function="fetchDatabase" type="server"/>
 
-    <!-- Params: getRowData(tableName, key, keyColumnName, dataColumnName) | Returns Data; Else false Boolean -->
-    <export function="getRowData" type="server"/>
-
-    <!-- Params: setRowData(tableName, key, keyColumnName, dataColumnName, data) | Returns Boolean -->
-    <export function="setRowData" type="server"/>
-    
 </meta>
