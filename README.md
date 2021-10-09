@@ -1,4 +1,5 @@
 ***
+#README WILL BE UPDATED SOON (AVIRIL)
 ## Resource: Mysql Library
 ## Developer(s): OvileAmriam
 ***
