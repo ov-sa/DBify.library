@@ -14,6 +14,7 @@
 -----------------
 
 local imports = {
+    call = call,
     type = type,
     ipairs = ipairs,
     tostring = tostring,

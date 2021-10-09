@@ -14,8 +14,8 @@
 -----------------
 
 local imports = {
+    resourceName = getResourceName(getThisResource()),
     addEventHandler = addEventHandler,
-    getResourceName = getResourceName,
     fetchFileData = fetchFileData,
     dbConnect = dbConnect,
     table = {
@@ -35,11 +35,19 @@ local bundlerData = false
 --[[ Functions: Fetches Imports/Database ]]--
 ---------------------------------------------
 
-function fetchImports()
+function fetchImports(recieveData)
 
     if not bundlerData then return false end
 
-    return bundlerData
+    if recieveData == true then
+        return bundlerData
+    else
+        return [[
+        for i, j in ipairs(call(getResourceFromName("]]..imports.resourceName..[["), "fetchImports", true) do
+            loadstring(j)()
+        end
+        ]]
+    end
 
 end
 
@@ -58,20 +66,21 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
 
     dbSettings.instance = imports.dbConnect("mysql", "dbname="..dbSettings.database..";host="..dbSettings.host..";port="..dbSettings.port..";charset=utf8;", dbSettings.username, dbSettings.password, dbSettings.options) or false
     
-    local resourceName = imports.getResourceName(resourceSource)
     local importedModules = {
         bundler = [[
             local imports = {
-                call = call
+                call = call,
+                resource = getResourceFromName("]]..imports.resourceName..[[")
             }
 
             dbify = {}
         ]],
         modules = {
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[
+                imports.resource = getResourceFromName("]]..imports.resourceName..[[")
                 dbify.db.instance = {
                     instance = function()
-                        dbify.db.instance = exports.]]..resourceName..[[:fetchDatabase()
+                        dbify.db.instance = imports.call(imports.resource, "fetchDatabase")
                     end
                 end
                 dbify.db.instance()
