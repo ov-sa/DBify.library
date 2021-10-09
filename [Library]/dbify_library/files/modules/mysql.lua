@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
 --[[ Resource: DBify Library
-     Script: handlers: modules: mysql.lua
+     Files: modules: mysql.lua
      Server: -
      Author: OvileAmriam
      Developer: Aviril
@@ -114,8 +114,8 @@ dbify["db"] = {
                 }) or false, ((i >= #dataColumns) and {...}) or false)
             end
             return true
-        
         end,
+
         get = function(tableName, dataColumns, keyColumns, soloFetch, callback, ...)
             if not dbify.db.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) or not callback or (imports.type(callback) ~= "function") then return false end
