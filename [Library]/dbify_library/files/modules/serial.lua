@@ -92,9 +92,9 @@ dbify["serial"] = {
 }
 
 
-------------------------------------------------
---[[ Events: On Resource-Start/Player-Login ]]--
-------------------------------------------------
+-----------------------------------------------
+--[[ Events: On Resource-Start/Player-Join ]]--
+-----------------------------------------------
 
 imports.addEventHandler("onResourceStart", resourceRoot, function()
 

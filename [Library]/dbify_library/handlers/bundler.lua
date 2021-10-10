@@ -81,7 +81,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
             ]],
             serial = imports.fetchFileData("files/modules/serial.lua")..[[
-                dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncSerials)..[[
+                dbify.serial.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncSerials)..[[
             ]]
         }
     }
@@ -90,5 +90,6 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
     imports.table.insert(bundlerData, importedModules.bundler)
     imports.table.insert(bundlerData, importedModules.modules.mysql)
     imports.table.insert(bundlerData, importedModules.modules.account)
+    imports.table.insert(bundlerData, importedModules.modules.serial)
 
 end)
