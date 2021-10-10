@@ -6,7 +6,7 @@
 
 **DBify Library** is a open-source MySQL based Async database management library made by **Aviril** for [Multi Theft Auto \(MTA\)](https://multitheftauto.com/).
 
-**DBify** integrates & synchronizes default MTA Accounts & Serials w/ MySQL towards gamemode perspective for efficient & reliable database management, thus giving you more time to focus on your gamemode rather than managing redundant database queries or reinventing the wheel. DBify helps you to process your queries efficiently without freezing your server due to its Async nature. This library is a complete overhaul of **mysql_library**, **accounts_library** & **serials_library** developed by **[Tron](https://github.com/OvileAmriam)** with efficient & reliable methodology.
+**DBify** integrates & synchronizes default MTA Accounts & Serials w/ MySQL aiming towards gamemode perspective for efficient & reliable database management, thus giving you more time to focus on your gamemode rather than managing redundant database queries or reinventing the wheel. DBify helps you to process your queries efficiently without freezing your server due to its Async nature. This library is a complete overhaul of **mysql_library**, **accounts_library** & **serials_library** developed by **[Tron](https://github.com/OvileAmriam)** with efficient & reliable methodology.
 
 ## ━ Features
 
@@ -53,7 +53,6 @@ loadstring(exports.dbify_library:fetchImports())()
 ### ━ How to Invoke the APIs?
 
 Since you have initialized and imported **DBify's** module, you can invoke APIs now as below:
-
 
 ## ━ Contents
 
