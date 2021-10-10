@@ -108,11 +108,11 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
 
 end)
 
-imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
+imports.addEventHandler("onPlayerLogin", root, function(_, playerAccount)
 
     if not dbify.db.__connection__.instance then return false end
     if dbify.account.__connection__.autoSync then
-        dbify.account.addUser(imports.getAccountName(currAccount))
+        dbify.account.addUser(imports.getAccountName(playerAccount))
     end
 
 end)
