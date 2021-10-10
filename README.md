@@ -70,8 +70,8 @@ dbify.mysql.column.isValid(tableName, columnName, callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
---Objective: Sets column datas of a valid MySQL table
-dbify.mysql.data.set("serialdata", {
+--Objective: Sets column datas of valid MySQL table & columns
+dbify.mysql.data.set(tableName, {
     --These are column datas to be updated
     {data_columnName1, data_columnValue1},
     {data_columnName2, data_columnValue2},
@@ -87,10 +87,18 @@ dbify.mysql.data.set("serialdata", {
 end, ...)
 
 --Objective: Fetches column datas of a valid MySQL table
-dbify.db.data.get("serialdata", {"serial", "character"}, {
-    {"serial", "1"},
-    {"character", "1"}
-}, true, function(result)
+dbify.db.data.get(tableName, {
+    --These are column datas to be fetched
+    data_columnName1,
+    data_columnName2,
+    ...
+}, {
+    --These are key datas to be used for the condition query
+    {key_columnName1, key_columnValue1},
+    {key_columnName2, key_columnValue2},
+    ...
+}, isSoloFetch, callback(result, arguments)
     print(toJSON(result))
-end)
+    print(toJSON(arguments))
+end, ...)
 ```
