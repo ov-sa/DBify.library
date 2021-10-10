@@ -50,7 +50,7 @@ loadstring(exports.dbify_library:fetchImports())()
 
 ## ━ Module APIs
 
-### 📚 MySQL Module
+#### 📚 MySQL Module
 ```lua
 --Objective: Validates existence of a MySQL table
 dbify.mysql.table.isValid(tableName, callback(result, arguments)
