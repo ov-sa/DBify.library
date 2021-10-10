@@ -26,7 +26,6 @@
 ## ━ Contents
 
 * [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
-* [**Installation Guide**](https://github.com/ov-sa/DBify-Library#installation)
 * [**Documentations**](https://github.com/ov-sa/DBify-Library#installation)
 * [**Discord Community**](http://discord.gg/sVCnxPW)
 
@@ -57,7 +56,6 @@ Add the below code once in either of the server-sided `.lua` script of the resou
 loadstring(exports.dbify_library:fetchImports())()
 ```
 
-### ━ How to Invoke the APIs?
+### ━ API List
 
-Since you have initialized and imported **DBify's** module, you can invoke APIs now as below:
 
