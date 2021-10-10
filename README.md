@@ -1,27 +1,35 @@
-***
-#README WILL BE UPDATED SOON (AVIRIL)
-## Resource: Mysql Library
-## Developer(s): OvileAmriam
-***
+# ━ S Y N O P S I S
 
-### Keypoints:
-  :heavy_check_mark: **Eases out MySQL querying.**
+![](https://raw.githubusercontent.com/ov-sa/DBify-Library/Documentation/assets/dbify_banner.png)
 
-  :heavy_check_mark: **Easy to understand & integrate APIs.**
+##### ━ Maintainer(s): [Aviril](https://github.com/Aviril)
 
-  :warning: **Sync version** [Don't overuse it frequently; Instead cache your datas]
+**DBify Library** is a open-source MySQL based Async database management library made by **Aviril** for [Multi Theft Auto \(MTA\)](https://multitheftauto.com/).
 
-### Prerequisites:
-  - **MySQL Host**
+**DBify** integrates & synchronizes default MTA Accounts & Serials w/ MySQL towards gamemode perspective for efficient & reliable database management, thus giving you more time to focus on your gamemode rather than managing redundant database queries or reinventing the wheel. DBify helps you to process your queries efficiently without freezing your server due to its Async nature. This library is a complete overhaul of **mysql_library**, **accounts_library** & **serials_library** developed by **[Tron](https://github.com/OvileAmriam)** with efficient & reliable methodology.
 
-### Exports:
-  - **Function:** _getDatabase()_ **| Type:** _server_ **| Returns:** _connection; else false bool_
-      ```
-      @Returns
+## ━ Features
 
-      connection: Database's Instance
-      ```
-  - **Function:** _doesTableExist(tableName)_ **| Type:** _server_ **| Returns:** _bool_
-  - **Function:** _doesColumnExist(tableName, columnName)_ **| Type:** _server_ **| Returns:** _bool_
-  - **Function:** _getRowData(tableName, key, keyColumnName, dataColumnName)_ **| Type:** _shared_ **| Returns:** _data; else false bool_
-  - **Function:** _setRowData(tableName, key, keyColumnName, dataColumnName, data)_ **| Type:** _server_ **| Returns:** _bool_
+💎**CONSIDER** [**SPONSORING**](https://ko-fi.com/ovileamriam) **US TO SUPPORT THE DEVELOPMENT.**
+
+* Completely Open-Source
+* Procedure Oriented Programming
+* Completely Performance-Friendly
+* MySQL Based
+* Gamemode Perspective
+* Async Data-Handling
+* Synchronizes default MTA Accounts
+* Synchronizes default MTA Serials
+* Supports Direct-Embedding (No exports required)
+* Necessary Integration APIs
+
+## Installation
+
+
+## ━ Contents
+
+* [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
+* [**Installation Guide**](#)
+* [**Documentations**](#)
+* [**Discord Community**](http://discord.gg/sVCnxPW)
+
