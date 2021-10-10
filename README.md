@@ -30,13 +30,6 @@
 
 ## ━ Installation
 
-### BEFORE YOU CONSIDER THIS FRAMEWORK
-
-* You need to be self-starting and self-learning.
-* You need to know how to use Lua & Debug scripts.
-* You need to not ask the Developer\(s\) for support on how to run the clearly stated instructions in the Documentation.
-* You can approach on our [Discord Community](http://discord.gg/sVCnxPW) for further queries/reports.
-
 ### ━ How to get started?
 
 1. Head over to [DBify's Releases](https://github.com/ov-sa/DBify-Library/releases) and download the latest build.
