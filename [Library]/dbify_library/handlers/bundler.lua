@@ -77,8 +77,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 dbify.db.__connection__.databaseName = "]]..dbSettings.database..[["
                 dbify.db.__connection__.instance()
             ]],
-            accounts = imports.fetchFileData("files/modules/accounts.lua")..[[
-                dbify.accounts.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
+            account = imports.fetchFileData("files/modules/account.lua")..[[
+                dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
             ]]
         }
     }
@@ -86,6 +86,6 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
     bundlerData = {}
     imports.table.insert(bundlerData, importedModules.bundler)
     imports.table.insert(bundlerData, importedModules.modules.mysql)
-    imports.table.insert(bundlerData, importedModules.modules.accounts)
+    imports.table.insert(bundlerData, importedModules.modules.account)
 
 end)
