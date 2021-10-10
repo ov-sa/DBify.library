@@ -65,7 +65,7 @@ end
 imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource)
 
     dbSettings.instance = imports.dbConnect("mysql", "dbname="..dbSettings.database..";host="..dbSettings.host..";port="..dbSettings.port..";charset=utf8;", dbSettings.username, dbSettings.password, dbSettings.options) or false
-    
+
     local importedModules = {
         bundler = [[
             dbify = {}
@@ -73,11 +73,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
         modules = {
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[
                 imports.resource = getResourceFromName("]]..imports.resourceName..[[")
-                dbify.db.instance = function()
-                    dbify.db.instance = imports.call(imports.resource, "fetchDatabase")
-                end
-                dbify.db.databaseName = "]]..dbSettings.database..[["
-                dbify.db.instance()
+                dbify.db.__connection__.databaseName = "]]..dbSettings.database..[["
+                dbify.db.__connection__.instance()
             ]]
         }
     }
