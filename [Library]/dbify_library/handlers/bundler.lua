@@ -68,11 +68,6 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
     
     local importedModules = {
         bundler = [[
-            local imports = {
-                call = call,
-                resource = getResourceFromName("]]..imports.resourceName..[[")
-            }
-
             dbify = {}
         ]],
         modules = {
