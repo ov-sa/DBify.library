@@ -52,7 +52,7 @@ loadstring(exports.dbify_library:fetchImports())()
 
 #### 📚 MySQL Module
 ```lua
---Objective: Validates existence of a MySQL table
+--Objective: Validates the existence of a MySQL table
 dbify.mysql.table.isValid(tableName, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
@@ -64,24 +64,29 @@ dbify.mysql.table.fetchContents(tableName, callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
---Objective: Validates existence of a MySQL table's column
+--Objective: Validates the existence of a valid MySQL table's column
 dbify.mysql.column.isValid(tableName, columnName, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
 
--->> Sets Data
+--Objective: Sets column datas of a valid MySQL table
 dbify.mysql.data.set("serialdata", {
-    {"serial_TEST", "1"}
+    --These are column datas to be updated
+    {data_columnName1, data_columnValue1},
+    {data_columnName2, data_columnValue2},
+    ...
 }, {
-    {"serial", "1"},
-    {"character", "1"},
-}, function(result, arguments)
+    --These are key datas to be used for the condition query
+    {key_columnName1, key_columnValue1},
+    {key_columnName2, key_columnValue2},
+    ...
+}, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
-end, "testArg1", "testArg2")
+end, ...)
 
--->> Gets Data
+--Objective: Fetches column datas of a valid MySQL table
 dbify.db.data.get("serialdata", {"serial", "character"}, {
     {"serial", "1"},
     {"character", "1"}
