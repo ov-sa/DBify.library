@@ -152,7 +152,7 @@ dbify["db"] = {
                 else
                     local callbackReference = callback
                     if callbackReference and (imports.type(callbackReference) == "function") then
-                        callbackReference(false, arguments)
+                        callbackReference(false, arguments[2])
                     end
                 end
             end, {
