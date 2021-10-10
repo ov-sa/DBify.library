@@ -66,8 +66,15 @@ dbify.mysql.table.fetchContents(tableName, callback(result, arguments)
 end, ...)
 
 
---Objective: Validates the existence of a valid MySQL table's column
+--Objective: Validates the existence of column of a valid MySQL table
 dbify.mysql.column.isValid(tableName, columnName, callback(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+
+
+--Objective: Validates the existence of multiple columns of a valid MySQL table
+dbify.mysql.column.areValid(tableName, columns, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
