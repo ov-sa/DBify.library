@@ -51,19 +51,13 @@ dbify["db"] = {
                 local callbackReference = callback
                 local result = imports.dbPoll(queryHandler, 0)
                 if result and #result > 0 then
-                    for i, j in imports.ipairs(result) do
-                        if (tableName == j[imports.string.lower("TABLE_NAME")]) or (tableName == j[imports.string.upper("TABLE_NAME")]) then
-                            if callbackReference and (imports.type(callbackReference) == "function") then
-                                callbackReference(true, arguments)
-                            end
-                            return true
-                        end
-                    end
+                    callbackReference(true, arguments)
+                    return true
                 end
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(false, arguments)
                 end
-            end, {tableName, {...}}, dbify.db.__connection__.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=?", dbify.db.__connection__.databaseName)
+            end, {tableName, {...}}, dbify.db.__connection__.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.db.__connection__.databaseName, tableName)
             return true
         end
     },
