@@ -58,17 +58,20 @@ dbify.mysql.table.isValid(tableName, callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
+
 --Objective: Fetches complete contents of a valid MySQL table
 dbify.mysql.table.fetchContents(tableName, callback(result, arguments)
     print(toJSON(result))
     print(toJSON(arguments))
 end, ...)
 
+
 --Objective: Validates the existence of a valid MySQL table's column
 dbify.mysql.column.isValid(tableName, columnName, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
+
 
 --Objective: Sets column datas of valid MySQL table & columns
 dbify.mysql.data.set(tableName, {
@@ -85,6 +88,7 @@ dbify.mysql.data.set(tableName, {
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
+
 
 --Objective: Fetches column datas of a valid MySQL table
 dbify.db.data.get(tableName, {
