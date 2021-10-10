@@ -35,13 +35,18 @@ dbify["account"] = {
         keyColumn = "name"
     },
 
-    addUser = function(accountName, callback, ...)
-        if not dbify.db.__connection__.instance then return false end
+    fetchAll = function(callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
+        return dbify.mysql.table.fetchContents(dbify.account.__connection__.table, callback, ...)
+    end,
+
+    add = function(accountName, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
         if not accountName then return false end
-        return dbify.account.getUserData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
+        return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if not result then
-                result = imports.dbExec(dbify.db.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
+                result = imports.dbExec(dbify.mysql.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -53,13 +58,13 @@ dbify["account"] = {
         end, ...)
     end,
 
-    delUser = function(accountName, callback, ...)
-        if not dbify.db.__connection__.instance then return false end
+    delete = function(accountName, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
         if not accountName then return false end
-        return dbify.account.getUserData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
+        return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = imports.dbExec(dbify.db.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
+                result = imports.dbExec(dbify.mysql.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -71,18 +76,18 @@ dbify["account"] = {
         end, ...)
     end,
 
-    setUserData = function(accountName, dataColumns, callback, ...)
-        if not dbify.db.__connection__.instance then return false end
+    setData = function(accountName, dataColumns, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.db.data.set(dbify.account.__connection__.table, dataColumns, {
+        return dbify.mysql.data.set(dbify.account.__connection__.table, dataColumns, {
             {dbify.account.__connection__.keyColumn, accountName},
         }, callback, ...)
     end,
 
-    getUserData = function(accountName, dataColumns, callback, ...)
-        if not dbify.db.__connection__.instance then return false end
+    getData = function(accountName, dataColumns, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.db.data.get(dbify.account.__connection__.table, dataColumns, {
+        return dbify.mysql.data.get(dbify.account.__connection__.table, dataColumns, {
             {dbify.account.__connection__.keyColumn, accountName},
         }, true, callback, ...)
     end
@@ -95,13 +100,13 @@ dbify["account"] = {
 
 imports.addEventHandler("onResourceStart", resourceRoot, function()
 
-    if not dbify.db.__connection__.instance then return false end
-    imports.dbExec(dbify.db.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn)
+    if not dbify.mysql.__connection__.instance then return false end
+    imports.dbExec(dbify.mysql.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn)
     if dbify.account.__connection__.autoSync then
         for i, j in imports.ipairs(imports.getElementsByType("player")) do
             local playerAccount = imports.getPlayerAccount(j)
             if playerAccount and not imports.isGuestAccount(playerAccount) then
-                dbify.account.addUser(imports.getAccountName(playerAccount))
+                dbify.account.add(imports.getAccountName(playerAccount))
             end
         end
     end
@@ -110,23 +115,9 @@ end)
 
 imports.addEventHandler("onPlayerLogin", root, function(_, playerAccount)
 
-    if not dbify.db.__connection__.instance then return false end
+    if not dbify.mysql.__connection__.instance then return false end
     if dbify.account.__connection__.autoSync then
-        dbify.account.addUser(imports.getAccountName(playerAccount))
+        dbify.account.add(imports.getAccountName(playerAccount))
     end
 
 end)
-
---[[
-    function getAllUserAccounts()
-
-    local query = connection.database:query("SELECT * FROM `??`", connection.tableName)
-    if not query then return false end
-    local result = query:poll(-1)
-    if query then
-        query:free()
-    end
-    return result
-
-end
-]]

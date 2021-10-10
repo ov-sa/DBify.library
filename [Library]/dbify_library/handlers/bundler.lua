@@ -74,8 +74,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
         modules = {
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[
                 imports.resource = getResourceFromName("]]..imports.resourceName..[[")
-                dbify.db.__connection__.databaseName = "]]..dbSettings.database..[["
-                dbify.db.__connection__.instance()
+                dbify.mysql.__connection__.databaseName = "]]..dbSettings.database..[["
+                dbify.mysql.__connection__.instance()
             ]],
             account = imports.fetchFileData("files/modules/account.lua")..[[
                 dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
