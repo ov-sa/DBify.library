@@ -14,8 +14,8 @@
 ------------------
 
 syncSettings = {
-    syncAccounts = false,
-    syncSerials = false
+    syncAccounts = true,
+    syncSerials = true
 }
 
 dbSettings = {
