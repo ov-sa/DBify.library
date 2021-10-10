@@ -23,7 +23,7 @@
 * Supports Direct-Embedding (No exports required)
 * Necessary Integration APIs
 
-## ━ Contents
+## ━ Glossary
 
 * [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
 * [**Discord Community**](http://discord.gg/sVCnxPW)
@@ -46,6 +46,18 @@ Add the below code once in either of the server-sided `.lua` script of the resou
 ```lua
 -- Declare it globally once
 loadstring(exports.dbify_library:fetchImports())()
+```
+
+### How to turn off auto Account/Serial synchronization?
+
+1. Head over to `dbify_library/settings/server.lua`
+2. Modify synchronization settings within the `syncSettings`
+```lua
+syncSettings = {
+    syncAccounts = true,
+    syncSerials = true
+}
+
 ```
 
 ## ━ Module APIs
