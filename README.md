@@ -44,7 +44,7 @@
 Add the below code once in either of the server-sided `.lua` script of the resource you want to use within:
 
 ```lua
--- Declare it globally once
+--Declare it globally only once
 loadstring(exports.dbify_library:fetchImports())()
 ```
 
