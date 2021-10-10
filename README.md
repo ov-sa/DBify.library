@@ -63,7 +63,8 @@ syncSettings = {
 
 ## ━ Module APIs
 
-#### 📚 MySQL Module
+### 📚 MySQL Module
+---
 ```lua
 --Objective: Validates the existence of a MySQL table
 dbify.mysql.table.isValid(tableName, callback(result, arguments)
@@ -127,7 +128,8 @@ dbify.db.data.get(tableName, {
 end, ...)
 ```
 
-#### 📚 Account Module
+### 📚 Account Module
+---
 ```lua
 --Objective: Fetches all existing accounts
 dbify.account.fetchAll(callback(result, arguments)
@@ -174,7 +176,8 @@ dbify.account.getData(accountName, {
 end, ...)
 ```
 
-#### 📚 Serial Module
+### 📚 Serial Module
+---
 ```lua
 --Objective: Fetches all existing serials
 dbify.serial.fetchAll(callback(result, arguments)
