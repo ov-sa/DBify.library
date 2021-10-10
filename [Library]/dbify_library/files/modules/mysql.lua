@@ -16,11 +16,15 @@
 local imports = {
     call = call,
     type = type,
+    unpack = unpack,
     ipairs = ipairs,
     tostring = tostring,
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
+    table = {
+        insert = table.insert
+    },
     string = {
         lower = string.lower,
         upper = string.upper
@@ -43,9 +47,9 @@ dbify["db"] = {
         isValid = function(tableName, callback, ...)
             if not dbify.db.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
-            imports.dbQuery(function(query, tableName, arguments)
+            imports.dbQuery(function(queryHandler, tableName, arguments)
                 local callbackReference = callback
-                local result = imports.dbPoll(query, 0)
+                local result = imports.dbPoll(queryHandler, 0)
                 if result and #result > 0 then
                     for i, j in imports.ipairs(result) do
                         if (tableName == j[imports.string.lower("TABLE_NAME")]) or (tableName == j[imports.string.upper("TABLE_NAME")]) then
@@ -70,9 +74,9 @@ dbify["db"] = {
             if not tableName or (imports.type(tableName) ~= "string") or not columnName or (imports.type(columnName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
             dbify.db.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
-                    imports.dbQuery(function(query, columnName, arguments)
+                    imports.dbQuery(function(queryHandler, columnName, arguments)
                         local callbackReference = callback
-                        local result = imports.dbPoll(query, 0)
+                        local result = imports.dbPoll(queryHandler, 0)
                         if result and #result > 0 then
                             for i, j in imports.ipairs(result) do
                                 if j.Field and (imports.string.lower(columnName) == imports.string.lower(j.Field)) then
@@ -110,7 +114,7 @@ dbify["db"] = {
                         imports.dbExec(dbify.db.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
                     end
                     if arguments[3] then
-                        local result = imports.dbExec(dbify.db.__connection__.instance, "UPDATE `??` SET ?? WHERE ??", tableName, arguments[3].dataColumnQuery, arguments[3].keyColumnQuery)
+                        local result = imports.dbExec(dbify.db.__connection__.instance, "UPDATE `??` SET ?? WHERE ??", arguments[1], arguments[3].dataColumnQuery, arguments[3].keyColumnQuery)
                         if callbackReference and (imports.type(callbackReference) == "function") then
                             callbackReference(result, arguments[4])
                         end
@@ -127,16 +131,21 @@ dbify["db"] = {
             if not dbify.db.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) or not callback or (imports.type(callback) ~= "function") then return false end
             soloFetch = (soloFetch and true) or false
-            local dataColumnQuery, keyColumnQuery = "", ""
+            local queryString, queryArguments = "SELECT", {}
             for i, j in imports.ipairs(dataColumns) do
-                dataColumnQuery = dataColumnQuery.."`"..imports.tostring(j)..(((i < #dataColumns) and "`, ") or "`")
+                imports.table.insert(queryArguments, imports.tostring(j))
+                queryString = queryString.." `??`"..(((i < #dataColumns) and ",") or "")
             end
+            queryString = queryString.." FROM `??` WHERE"
+            imports.table.insert(queryArguments, tableName)
             for i, j in imports.ipairs(keyColumns) do
-                keyColumnQuery = keyColumnQuery..(((i <= 1) and "`") or " AND `")..imports.tostring(j[1]).."`="..imports.tostring(j[2])
+                imports.table.insert(queryArguments, tostring(j[1]))
+                imports.table.insert(queryArguments, tostring(j[2]))
+                queryString = queryString.." `??`=?"..(((i < #keyColumns) and " AND") or "")
             end
-            imports.dbQuery(function(query, soloFetch, arguments)
+            imports.dbQuery(function(queryHandler, soloFetch, arguments)
                 local callbackReference = callback
-                local result = imports.dbPoll(query, 0)
+                local result = imports.dbPoll(queryHandler, 0)
                 if result and #result > 0 then
                     if callbackReference and (imports.type(callbackReference) == "function") then
                         callbackReference((soloFetch and result[1]) or result, arguments)
@@ -146,7 +155,7 @@ dbify["db"] = {
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(false, arguments)
                 end
-            end, {soloFetch, {...}}, dbify.db.__connection__.instance, "SELECT ?? FROM `??` WHERE ??", dataColumnQuery, tableName, keyColumnQuery)
+            end, {soloFetch, {...}}, dbify.db.__connection__.instance, queryString, imports.unpack(queryArguments))
             return true
         end
     }

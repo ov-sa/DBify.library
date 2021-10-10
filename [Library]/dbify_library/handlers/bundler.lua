@@ -75,12 +75,14 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 imports.resource = getResourceFromName("]]..imports.resourceName..[[")
                 dbify.db.__connection__.databaseName = "]]..dbSettings.database..[["
                 dbify.db.__connection__.instance()
-            ]]
+            ]],
+            accounts = imports.fetchFileData("files/modules/accounts.lua")
         }
     }
 
     bundlerData = {}
     imports.table.insert(bundlerData, importedModules.bundler)
     imports.table.insert(bundlerData, importedModules.modules.mysql)
+    imports.table.insert(bundlerData, importedModules.modules.accounts)
 
 end)
