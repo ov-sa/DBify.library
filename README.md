@@ -30,7 +30,7 @@
 
 ## ━ Installation
 
-### ━ How to get started?
+### How to get started?
 
 1. Head over to [DBify's Releases](https://github.com/ov-sa/DBify-Library/releases) and download the latest build.
 2. Drag and drop the **\[Library\]** folder into your `YourMTAFolder\server\mods\deathmatch\resources` after unzipping.
@@ -39,7 +39,7 @@
 5. Presuming you have installed the library, this page guides you on how to get started with the framework!
 6. Initialize **DBify's** module within the resource you want to use it.
 
-### ━ How to Initialize the Module?
+### How to Initialize the Module?
 
 Add the below code once in either of the server-sided `.lua` script of the resource you want to use within:
 
@@ -48,6 +48,44 @@ Add the below code once in either of the server-sided `.lua` script of the resou
 loadstring(exports.dbify_library:fetchImports())()
 ```
 
-### ━ API List
+## ━ Module APIs
 
+### 📚 MySQL Module
+```lua
+--Objective: Validates existence of a MySQL table
+dbify.mysql.table.isValid(tableName, callback(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
 
+--Objective: Fetches complete contents of the specified MySQL table
+dbify.mysql.table.fetchContents(tableName, callback(result, arguments)
+    print(toJSON(result))
+    print(toJSON(arguments))
+end, ...)
+
+--Objective: Validates existence of a MySQL table's column
+dbify.mysql.column.isValid(tableName, columnName, callback(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+
+-->> Sets Data
+dbify.mysql.data.set("serialdata", {
+    {"serial_TEST", "1"}
+}, {
+    {"serial", "1"},
+    {"character", "1"},
+}, function(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, "testArg1", "testArg2")
+
+-->> Gets Data
+dbify.db.data.get("serialdata", {"serial", "character"}, {
+    {"serial", "1"},
+    {"character", "1"}
+}, true, function(result)
+    print(toJSON(result))
+end)
+```
