@@ -79,6 +79,9 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
             ]],
             account = imports.fetchFileData("files/modules/account.lua")..[[
                 dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
+            ]],
+            serial = imports.fetchFileData("files/modules/serial.lua")..[[
+                dbify.account.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncSerials)..[[
             ]]
         }
     }
