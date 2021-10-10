@@ -39,7 +39,7 @@
 3. Type `refresh` in the console to load the library.
 4. Type `start dbify_library` in the console and the library shall be successfully started. [**Note: Make sure this library should be started prior to scripts using it**]
 5. Presuming you have installed the library, this page guides you on how to get started with the framework!
-6. Initialize **DBify's** module within the script you want to use it.
+6. Initialize **DBify's** module within the resource you want to use it.
 
 ### ━ How to Initialize the Module?
 
