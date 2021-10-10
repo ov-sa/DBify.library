@@ -30,7 +30,7 @@
 * [**Documentations**](https://github.com/ov-sa/DBify-Library#installation)
 * [**Discord Community**](http://discord.gg/sVCnxPW)
 
-## Installation
+## ━ Installation
 
 ### BEFORE YOU CONSIDER THIS FRAMEWORK
 
