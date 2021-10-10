@@ -164,29 +164,29 @@ end, ...)
 #### 📚 Serial Module
 ```lua
 --Objective: Fetches all existing serials
-dbify.account.fetchAll(callback(result, arguments)
+dbify.serial.fetchAll(callback(result, arguments)
     print(toJSON(result))
     print(toJSON(arguments))
 end, ...)
 
 
 --Objective: Adds a new serial
-dbify.account.add(serial, callback(result, arguments)
+dbify.serial.add(serial, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
 
 
 --Objective: Deletes an existing serial
-dbify.account.delete(serial, callback(result, arguments)
+dbify.serial.delete(serial, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
 
 
 --Objective: Sets serial datas of a valid serial
-dbify.account.setData(serial, {
-    --These are account datas to be updated
+dbify.serial.setData(serial, {
+    --These are serial datas to be updated
     {dataName1, dataValue1},
     {dataName2, dataValue2},
     ...
@@ -197,8 +197,8 @@ end, ...)
 
 
 --Objective: Retrieves serial datas of a valid serial
-dbify.account.getData(serial, {
-    --These are account datas to be retrieved
+dbify.serial.getData(serial, {
+    --These are serial datas to be retrieved
     dataName1,
     dataName2,
     ...
