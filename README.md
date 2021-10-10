@@ -23,6 +23,13 @@
 * Supports Direct-Embedding (No exports required)
 * Necessary Integration APIs
 
+## ━ Contents
+
+* [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
+* [**Installation Guide**](https://github.com/ov-sa/DBify-Library#installation)
+* [**Documentations**](https://github.com/ov-sa/DBify-Library#installation)
+* [**Discord Community**](http://discord.gg/sVCnxPW)
+
 ## Installation
 
 ### BEFORE YOU CONSIDER THIS FRAMEWORK
@@ -53,11 +60,4 @@ loadstring(exports.dbify_library:fetchImports())()
 ### ━ How to Invoke the APIs?
 
 Since you have initialized and imported **DBify's** module, you can invoke APIs now as below:
-
-## ━ Contents
-
-* [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
-* [**Installation Guide**](#)
-* [**Documentations**](#)
-* [**Discord Community**](http://discord.gg/sVCnxPW)
 
