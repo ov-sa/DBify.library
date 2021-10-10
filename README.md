@@ -113,3 +113,35 @@ dbify.db.data.get(tableName, {
     print(toJSON(arguments))
 end, ...)
 ```
+
+#### 📚 Account Module
+```lua
+--Objective: Fetches all existing accounts
+dbify.account.fetchAll(callback(result, arguments)
+    print(toJSON(result))
+    print(toJSON(arguments))
+end, ...)
+
+--Objective: Adds a new account
+dbify.account.add(accountName, callback(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+
+--Objective: Deletes an existing account
+dbify.account.delete(accountName, callback(result, arguments)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+
+--Objective: Sets data of a valid account
+dbify.account.setData(accountName, {
+    --These are account datas to be updated
+    {dataName1, dataValue1},
+    {dataName2, dataValue2},
+    ...
+}, function(result)
+    print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+```
