@@ -113,52 +113,53 @@ dbify["db"] = {
         set = function(tableName, dataColumns, keyColumns, callback, ...)
             if not dbify.db.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
-            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, arguments = {}}
-            for i, j in imports.ipairs(keyColumns) do
-                j[1] = imports.tostring(j[1])
-                imports.table.insert(queryArguments.arguments, j[1])
-                imports.table.insert(queryArguments.arguments, imports.tostring(j[2]))
-                queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #keyColumns) and " AND") or "")
-            end
-            queryArguments.subLength = #queryArguments.arguments
-            imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, tableName)
             local validateKeyColumns = {}
             for i, j in imports.ipairs(keyColumns) do
                 imports.table.insert(validateKeyColumns, j[1])
             end
             dbify.db.column.areValid(tableName, validateKeyColumns, function(areValid, arguments)
                 if areValid then
-                    print("exectue..")
-                    --[[
-                    for i, j in imports.ipairs(dataColumns) do
+                    local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, arguments = {}}
+                    for i, j in imports.ipairs(arguments[1].keyColumns) do
+                        j[1] = imports.tostring(j[1])
+                        imports.table.insert(queryArguments.arguments, j[1])
+                        imports.table.insert(queryArguments.arguments, imports.tostring(j[2]))
+                        queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
+                    end
+                    queryArguments.subLength = #queryArguments.arguments
+                    imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, arguments[1].tableName)
+                    for i, j in imports.ipairs(arguments[1].dataColumns) do
                         j[1] = imports.tostring(j[1])
                         imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
                         imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, imports.tostring(j[2]))
-                        queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #dataColumns) and ",") or "")
-                        dbify.db.column.isValid(tableName, j[1], function(isValid, arguments)
+                        queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #arguments[1].dataColumns) and ",") or "")
+                        dbify.db.column.isValid(arguments[1].tableName, j[1], function(isValid, arguments)
                             local callbackReference = callback
                             if not isValid then
                                 imports.dbExec(dbify.db.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
                             end
                             if arguments[3] then
-                                print("EXECTURED...")
                                 local result = imports.dbExec(dbify.db.__connection__.instance, arguments[3].queryString, imports.unpack(arguments[3].queryArguments))
                                 if callbackReference and (imports.type(callbackReference) == "function") then
                                     callbackReference(result, arguments[4])
                                 end
                             end
-                        end, tableName, j[1], ((i >= #dataColumns) and {
+                        end, arguments[1].tableName, j[1], ((i >= #arguments[1].dataColumns) and {
                             queryString = queryStrings[1]..queryStrings[2],
                             queryArguments = queryArguments.arguments
-                        }) or false, ((i >= #dataColumns) and {...}) or false)
-                    end]]
+                        }) or false, ((i >= #arguments[1].dataColumns) and arguments[2]) or false)
+                    end
                 else
                     local callbackReference = callback
                     if callbackReference and (imports.type(callbackReference) == "function") then
                         callbackReference(false, arguments)
                     end
                 end
-            end, ...)
+            end, {
+                tableName = tableName,
+                dataColumns = dataColumns,
+                keyColumns = keyColumns
+            }, {...})
             return true
         end,
 
