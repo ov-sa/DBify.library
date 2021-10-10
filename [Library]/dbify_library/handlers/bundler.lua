@@ -81,7 +81,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 dbify.db.instance = function()
                     dbify.db.instance = call(imports.resource, "fetchDatabase")
                 end
-                dbify.db.databaseName = ]]..dbSettings.database..[[
+                dbify.db.databaseName = "]]..dbSettings.database..[["
                 dbify.db.instance()
             ]]
         }
