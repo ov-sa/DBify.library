@@ -51,8 +51,8 @@ loadstring(exports.dbify_library:fetchImports())()
 
 ### How to turn off auto Account/Serial synchronization?
 
-1. Head over to `dbify_library/settings/server.lua`
-2. Modify synchronization settings within the `syncSettings`
+1. Head over to `dbify_library/settings/server.lua`.
+2. Modify synchronization settings within the `syncSettings`.
 ```lua
 syncSettings = {
     syncAccounts = true,
