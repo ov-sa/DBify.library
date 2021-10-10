@@ -24,10 +24,6 @@ local imports = {
     dbExec = dbExec,
     table = {
         insert = table.insert
-    },
-    string = {
-        lower = string.lower,
-        upper = string.upper
     }
 }
 
@@ -118,8 +114,8 @@ dbify["db"] = {
                 imports.table.insert(queryArguments, imports.tostring(j))
                 queryString = queryString.." `??`"..(((i < #dataColumns) and ",") or "")
             end
-            queryString = queryString.." FROM `??` WHERE"
             imports.table.insert(queryArguments, tableName)
+            queryString = queryString.." FROM `??` WHERE"
             for i, j in imports.ipairs(keyColumns) do
                 imports.table.insert(queryArguments, tostring(j[1]))
                 imports.table.insert(queryArguments, tostring(j[2]))
