@@ -58,7 +58,7 @@ dbify.mysql.table.isValid(tableName, callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
---Objective: Fetches complete contents of the specified MySQL table
+--Objective: Fetches complete contents of a valid MySQL table
 dbify.mysql.table.fetchContents(tableName, callback(result, arguments)
     print(toJSON(result))
     print(toJSON(arguments))
