@@ -25,6 +25,35 @@
 
 ## Installation
 
+### BEFORE YOU CONSIDER THIS FRAMEWORK
+
+* You need to be self-starting and self-learning.
+* You need to know how to use Lua & Debug scripts.
+* You need to not ask the Developer\(s\) for support on how to run the clearly stated instructions in the Documentation.
+* You can approach on our [Discord Community](http://discord.gg/sVCnxPW) for further queries/reports.
+
+### ━ How to get started?
+
+1. Head over to [DBify's Releases](https://github.com/ov-sa/DBify-Library/releases) and download the latest build.
+2. Drag and drop the **\[Library\]** folder into your `YourMTAFolder\server\mods\deathmatch\resources` after unzipping.
+3. Type `refresh` in the console to load the library.
+4. Type `start dbify_library` in the console and the library shall be successfully started. (**Note: Make sure this library should be started prior to scripts using it.)
+5. Presuming you have installed the library, this page guides you on how to get started with the framework!
+6. Initialize **DBify's** module within the script you want to use it.
+
+### ━ How to Initialize the Module?
+
+Add the below code once in either of the server-sided `.lua` script of the resource you want to use within:
+
+```lua
+-- Declare it globally once
+loadstring(exports.dbify_library:fetchImports())()
+```
+
+### ━ How to Invoke the APIs?
+
+Since you have initialized and imported **DBify's** module, you can invoke APIs now as below:
+
 
 ## ━ Contents
 
