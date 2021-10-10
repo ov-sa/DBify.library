@@ -18,6 +18,7 @@
 * MySQL Based
 * Gamemode Perspective
 * Async Data-Handling
+* Supports Multiple Queries
 * Synchronizes default MTA Accounts
 * Synchronizes default MTA Serials
 * Supports Direct-Embedding (No exports required)
