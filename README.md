@@ -37,7 +37,7 @@
 1. Head over to [DBify's Releases](https://github.com/ov-sa/DBify-Library/releases) and download the latest build.
 2. Drag and drop the **\[Library\]** folder into your `YourMTAFolder\server\mods\deathmatch\resources` after unzipping.
 3. Type `refresh` in the console to load the library.
-4. Type `start dbify_library` in the console and the library shall be successfully started. (**Note: Make sure this library should be started prior to scripts using it.)
+4. Type `start dbify_library` in the console and the library shall be successfully started. [**Note: Make sure this library should be started prior to scripts using it**]
 5. Presuming you have installed the library, this page guides you on how to get started with the framework!
 6. Initialize **DBify's** module within the script you want to use it.
 
