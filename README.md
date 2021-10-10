@@ -26,7 +26,6 @@
 ## ━ Contents
 
 * [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
-* [**Documentations**](https://github.com/ov-sa/DBify-Library#installation)
 * [**Discord Community**](http://discord.gg/sVCnxPW)
 
 ## ━ Installation
