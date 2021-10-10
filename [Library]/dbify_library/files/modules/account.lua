@@ -101,7 +101,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
         for i, j in imports.ipairs(imports.getElementsByType("player")) do
             local playerAccount = imports.getPlayerAccount(j)
             if playerAccount and not imports.isGuestAccount(playerAccount) then
-                dbify.account.addUser(imports.getAccountName(currAccount))
+                dbify.account.addUser(imports.getAccountName(playerAccount))
             end
         end
     end
