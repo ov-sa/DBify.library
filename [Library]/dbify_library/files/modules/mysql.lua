@@ -47,17 +47,14 @@ dbify["db"] = {
         isValid = function(tableName, callback, ...)
             if not dbify.db.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
-            imports.dbQuery(function(queryHandler, tableName, arguments)
+            imports.dbQuery(function(queryHandler, arguments)
                 local callbackReference = callback
                 local result = imports.dbPoll(queryHandler, 0)
-                if result and #result > 0 then
-                    callbackReference(true, arguments)
-                    return true
-                end
+                result = ((result and (#result > 0)) and true) or false
                 if callbackReference and (imports.type(callbackReference) == "function") then
-                    callbackReference(false, arguments)
+                    callbackReference(result, arguments)
                 end
-            end, {tableName, {...}}, dbify.db.__connection__.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.db.__connection__.databaseName, tableName)
+            end, {{...}}, dbify.db.__connection__.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.db.__connection__.databaseName, tableName)
             return true
         end
     },
@@ -68,23 +65,14 @@ dbify["db"] = {
             if not tableName or (imports.type(tableName) ~= "string") or not columnName or (imports.type(columnName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
             dbify.db.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
-                    imports.dbQuery(function(queryHandler, columnName, arguments)
+                    imports.dbQuery(function(queryHandler, arguments)
                         local callbackReference = callback
                         local result = imports.dbPoll(queryHandler, 0)
-                        if result and #result > 0 then
-                            for i, j in imports.ipairs(result) do
-                                if j.Field and (imports.string.lower(columnName) == imports.string.lower(j.Field)) then
-                                    if callbackReference and (imports.type(callbackReference) == "function") then
-                                        callbackReference(true, arguments)
-                                    end
-                                    return true
-                                end
-                            end
-                        end
+                        result = ((result and (#result > 0)) and true) or false
                         if callbackReference and (imports.type(callbackReference) == "function") then
-                            callbackReference(false, arguments)
+                            callbackReference(result, arguments)
                         end
-                    end, {columnName, arguments}, dbify.db.__connection__.instance, "DESCRIBE `??`", tableName)
+                    end, {arguments}, dbify.db.__connection__.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.db.__connection__.databaseName, tableName, columnName)
                 end
             end, ...)
             return true
