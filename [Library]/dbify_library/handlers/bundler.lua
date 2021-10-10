@@ -43,7 +43,7 @@ function fetchImports(recieveData)
         return bundlerData
     else
         return [[
-        for i, j in ipairs(call(getResourceFromName("]]..imports.resourceName..[["), "fetchImports", true) do
+        for i, j in ipairs(call(getResourceFromName("]]..imports.resourceName..[["), "fetchImports", true)) do
             loadstring(j)()
         end
         ]]
@@ -78,10 +78,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
         modules = {
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[
                 imports.resource = getResourceFromName("]]..imports.resourceName..[[")
-                dbify.db.instance = {
-                    instance = function()
-                        dbify.db.instance = imports.call(imports.resource, "fetchDatabase")
-                    end
+                dbify.db.instance = function()
+                    dbify.db.instance = call(imports.resource, "fetchDatabase")
                 end
                 dbify.db.instance()
             ]]
