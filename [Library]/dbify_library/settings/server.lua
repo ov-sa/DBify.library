@@ -13,6 +13,11 @@
 --[[ Settings ]]--
 ------------------
 
+syncSettings = {
+    syncAccounts = false,
+    syncSerials = false
+}
+
 dbSettings = {
     username = "",
     password = "",
