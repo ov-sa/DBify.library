@@ -97,9 +97,9 @@ dbify.mysql.data.set(tableName, {
 end, ...)
 
 
---Objective: Fetches column datas of a valid MySQL table
+--Objective: Retrieves column datas of a valid MySQL table
 dbify.db.data.get(tableName, {
-    --These are column datas to be fetched
+    --These are column datas to be retrieved
     data_columnName1,
     data_columnName2,
     ...
@@ -122,11 +122,13 @@ dbify.account.fetchAll(callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
+
 --Objective: Adds a new account
 dbify.account.add(accountName, callback(result, arguments)
     print(tostring(result))
     print(toJSON(arguments))
 end, ...)
+
 
 --Objective: Deletes an existing account
 dbify.account.delete(accountName, callback(result, arguments)
@@ -134,14 +136,27 @@ dbify.account.delete(accountName, callback(result, arguments)
     print(toJSON(arguments))
 end, ...)
 
---Objective: Sets data of a valid account
+
+--Objective: Sets account datas of a valid account
 dbify.account.setData(accountName, {
     --These are account datas to be updated
     {dataName1, dataValue1},
     {dataName2, dataValue2},
     ...
-}, function(result)
+}, callback(result, arguments)
     print(tostring(result))
+    print(toJSON(arguments))
+end, ...)
+
+
+--Objective: Retrieves account datas of a valid account
+dbify.account.getData(accountName, {
+    --These are account datas to be retrieved
+    dataName1,
+    dataName2,
+    ...
+}, callback(result, arguments)
+    print(toJSON(result))
     print(toJSON(arguments))
 end, ...)
 ```
