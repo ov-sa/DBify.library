@@ -79,7 +79,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[
                 imports.resource = getResourceFromName("]]..imports.resourceName..[[")
                 dbify.db.instance = function()
-                    dbify.db.instance = call(imports.resource, "fetchDatabase")
+                    dbify.db.instance = imports.call(imports.resource, "fetchDatabase")
                 end
                 dbify.db.databaseName = "]]..dbSettings.database..[["
                 dbify.db.instance()
