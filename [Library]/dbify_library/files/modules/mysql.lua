@@ -53,7 +53,7 @@ dbify["db"] = {
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(false, arguments)
                 end
-            end, {tableName, {...}}, dbify.db.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=?", dbSettings.database)
+            end, {tableName, {...}}, dbify.db.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=?", dbify.db.databaseName)
             return true
         end
     },
@@ -62,7 +62,7 @@ dbify["db"] = {
         isValid = function(tableName, columnName, callback, ...)
             if not dbify.db.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not columnName or (imports.type(columnName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
-            dbify.table.isValid(tableName, function(isValid, arguments)
+            dbify.db.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
                     imports.dbQuery(function(query, columnName, arguments)
                         local callbackReference = callback
@@ -98,7 +98,7 @@ dbify["db"] = {
             for i, j in imports.ipairs(dataColumns) do
                 j[1] = imports.tostring(j[1])
                 dataColumnQuery = dataColumnQuery..(((i <= 1) and "`") or " AND `")..j[1].."`="..imports.tostring(j[2])
-                dbify.column.isValid(tableName, j[1], function(isValid, arguments)
+                dbify.db.column.isValid(tableName, j[1], function(isValid, arguments)
                     local callbackReference = callback
                     if not isValid then
                         imports.dbExec(dbify.db.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
