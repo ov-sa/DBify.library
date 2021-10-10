@@ -79,27 +79,33 @@ dbify["db"] = {
         set = function(tableName, dataColumns, keyColumns, callback, ...)
             if not dbify.db.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
-            local dataColumnQuery, keyColumnQuery = "", ""
+            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, arguments = {}}
             for i, j in imports.ipairs(keyColumns) do
-                keyColumnQuery = keyColumnQuery..(((i <= 1) and "`") or " AND `")..imports.tostring(j[1]).."`="..imports.tostring(j[2])
+                imports.table.insert(queryArguments.arguments, imports.tostring(j[1]))
+                imports.table.insert(queryArguments.arguments, imports.tostring(j[2]))
+                queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #keyColumns) and " AND") or "")
             end
+            queryArguments.subLength = #queryArguments.arguments
+            imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, tableName)
             for i, j in imports.ipairs(dataColumns) do
                 j[1] = imports.tostring(j[1])
-                dataColumnQuery = dataColumnQuery..(((i <= 1) and "`") or " AND `")..j[1].."`="..imports.tostring(j[2])
+                imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
+                imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, imports.tostring(j[2]))
+                queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #dataColumns) and ",") or "")
                 dbify.db.column.isValid(tableName, j[1], function(isValid, arguments)
                     local callbackReference = callback
                     if not isValid then
                         imports.dbExec(dbify.db.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
                     end
                     if arguments[3] then
-                        local result = imports.dbExec(dbify.db.__connection__.instance, "UPDATE `??` SET ?? WHERE ??", arguments[1], arguments[3].dataColumnQuery, arguments[3].keyColumnQuery)
+                        local result = imports.dbExec(dbify.db.__connection__.instance, arguments[3].queryString, imports.unpack(arguments[3].queryArguments))
                         if callbackReference and (imports.type(callbackReference) == "function") then
                             callbackReference(result, arguments[4])
                         end
                     end
                 end, tableName, j[1], ((i >= #dataColumns) and {
-                    dataColumnQuery = dataColumnQuery,
-                    keyColumnQuery = keyColumnQuery
+                    queryString = queryStrings[1]..queryStrings[2],
+                    queryArguments = queryArguments.arguments
                 }) or false, ((i >= #dataColumns) and {...}) or false)
             end
             return true
