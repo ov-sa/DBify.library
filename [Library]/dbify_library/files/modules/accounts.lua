@@ -96,25 +96,24 @@ dbify["accounts"] = {
 imports.addEventHandler("onResourceStart", resourceRoot, function()
 
     if not dbify.db.__connection__.instance then return false end
-    --TODO: ADD DELAY OR REAL TIME TRACKING
     imports.dbExec(dbify.db.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.accounts.__connection__.table, dbify.accounts.__connection__.keyColumn)
-    --if syncSettings.syncAccounts then
+    if dbify.accounts.__connection__.autoSync then
         for i, j in imports.ipairs(imports.getElementsByType("player")) do
             local playerAccount = imports.getPlayerAccount(j)
             if playerAccount and not imports.isGuestAccount(playerAccount) then
                 dbify.accounts.addUser(imports.getAccountName(currAccount))
             end
         end
-    --end
+    end
 
 end)
 
 imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
 
     if not dbify.db.__connection__.instance then return false end
-    --if syncSettings.syncAccounts and currAccount then
+    if dbify.accounts.__connection__.autoSync then
         dbify.accounts.addUser(imports.getAccountName(currAccount))
-    --end
+    end
 
 end)
 

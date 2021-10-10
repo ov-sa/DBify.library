@@ -14,6 +14,7 @@
 -----------------
 
 local imports = {
+    tostring = tostring,
     resourceName = getResourceName(getThisResource()),
     addEventHandler = addEventHandler,
     fetchFileData = fetchFileData,
@@ -76,7 +77,9 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 dbify.db.__connection__.databaseName = "]]..dbSettings.database..[["
                 dbify.db.__connection__.instance()
             ]],
-            accounts = imports.fetchFileData("files/modules/accounts.lua")
+            accounts = imports.fetchFileData("files/modules/accounts.lua")..[[
+                dbify.accounts.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncAccounts)..[[
+            ]]
         }
     }
 
