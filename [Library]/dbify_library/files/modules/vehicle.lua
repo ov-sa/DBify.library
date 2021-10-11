@@ -47,7 +47,7 @@ dbify["vehicle"] = {
             if callbackReference and (imports.type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, dbify.mysql.__connection__.instance, "INSERT INTO `??`", dbify.vehicle.__connection__.table)
+        end, {{...}}, dbify.mysql.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn)
         return true
     end,
 
@@ -87,9 +87,9 @@ dbify["vehicle"] = {
 }
 
 
------------------------------------
---[[ Events: On Resource-Start ]]--
------------------------------------
+----------------------------------
+--[[ Event: On Resource-Start ]]--
+----------------------------------
 
 imports.addEventHandler("onResourceStart", resourceRoot, function()
 
