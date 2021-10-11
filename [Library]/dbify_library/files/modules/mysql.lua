@@ -193,6 +193,7 @@ dbify["mysql"] = {
             if not dbify.mysql.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) or not callback or (imports.type(callback) ~= "function") then return false end
             soloFetch = (soloFetch and true) or false
+            --TODO: VERIFY IF ALL dataColumns & keyColumns are valid prior to proceeding ahead like setter
             local queryString, queryArguments = "SELECT", {}
             for i, j in imports.ipairs(dataColumns) do
                 imports.table.insert(queryArguments, imports.tostring(j))

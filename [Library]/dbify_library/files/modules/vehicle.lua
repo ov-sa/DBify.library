@@ -79,7 +79,7 @@ dbify["vehicle"] = {
 
     getData = function(vehicleID, dataColumns, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not vehicleID or (imports.type(vehicleID) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
+        if not vehicleID or (imports.type(vehicleID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.vehicle.__connection__.table, dataColumns, {
             {dbify.vehicle.__connection__.keyColumn, vehicleID},
         }, true, callback, ...)
