@@ -15,6 +15,8 @@
 
 local imports = {
     type = type,
+    dbQuery = dbQuery,
+    dbPoll = dbPoll,
     dbExec = dbExec
 }
 
@@ -36,13 +38,15 @@ dbify["vehicle"] = {
 
     add = function(callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        --TODO: ADD VEHICLE AND AUTOGENERATE ID..
-        --TTODO: RETURN ID AS RESULT...
-        --[[
-        local result = imports.dbExec(dbify.mysql.__connection__.instance, "INSERT INTO `??`", dbify.vehicle.__connection__.table)
-        if callbackReference and (imports.type(callbackReference) == "function") then
-            callbackReference(result, arguments)
-        end]]
+        if not callback or (imports.type(callback) ~= "function") then return false end
+        imports.dbQuery(function(queryHandler, arguments)
+            local callbackReference = callback
+            local _, _, vehicleID = imports.dbPoll(queryHandler, 0)
+            local result = vehicleID or false
+            if callbackReference and (imports.type(callbackReference) == "function") then
+                callbackReference(result, arguments)
+            end
+        end, {{...}}, dbify.mysql.__connection__.instance, "INSERT INTO `??`", dbify.vehicle.__connection__.table)
         return true
     end,
 
