@@ -24,7 +24,7 @@
 * Supports Direct-Embedding (No exports required)
 * Necessary Integration APIs
 
-## ━ Glossary
+## ━ Contents
 
 * [**Official Releases**](https://github.com/OvileAmriam/MTA-DBify-Library/releases)
 * [**Installation Guide**](https://github.com/ov-sa/DBify-Library/wiki)
