@@ -40,7 +40,7 @@ dbify["serial"] = {
 
     add = function(serial, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not serial then return false end
+        if not serial or (imports.type(serial) ~= "string") then return false end
         return dbify.serial.getData(serial, {dbify.serial.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if not result then
@@ -58,7 +58,7 @@ dbify["serial"] = {
 
     delete = function(serial, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not serial then return false end
+        if not serial or (imports.type(serial) ~= "string") then return false end
         return dbify.serial.getData(serial, {dbify.serial.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then

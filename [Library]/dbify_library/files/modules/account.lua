@@ -42,7 +42,7 @@ dbify["account"] = {
 
     add = function(accountName, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not accountName then return false end
+        if not accountName or (imports.type(accountName) ~= "string") then return false end
         return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if not result then
@@ -60,7 +60,7 @@ dbify["account"] = {
 
     delete = function(accountName, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not accountName then return false end
+        if not accountName or (imports.type(accountName) ~= "string") then return false end
         return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
