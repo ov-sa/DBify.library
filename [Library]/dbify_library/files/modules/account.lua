@@ -40,7 +40,7 @@ dbify["account"] = {
         return dbify.mysql.table.fetchContents(dbify.account.__connection__.table, keyColumns, callback, ...)
     end,
 
-    add = function(accountName, callback, ...)
+    create = function(accountName, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
         if not accountName or (imports.type(accountName) ~= "string") then return false end
         return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
@@ -106,7 +106,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
         for i, j in imports.ipairs(imports.getElementsByType("player")) do
             local playerAccount = imports.getPlayerAccount(j)
             if playerAccount and not imports.isGuestAccount(playerAccount) then
-                dbify.account.add(imports.getAccountName(playerAccount))
+                dbify.account.create(imports.getAccountName(playerAccount))
             end
         end
     end
@@ -117,7 +117,7 @@ imports.addEventHandler("onPlayerLogin", root, function(_, playerAccount)
 
     if not dbify.mysql.__connection__.instance then return false end
     if dbify.account.__connection__.autoSync then
-        dbify.account.add(imports.getAccountName(playerAccount))
+        dbify.account.create(imports.getAccountName(playerAccount))
     end
 
 end)

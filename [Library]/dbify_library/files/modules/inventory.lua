@@ -48,7 +48,7 @@ dbify["inventory"] = {
         return dbify.mysql.table.fetchContents(dbify.inventory.__connection__.table, keyColumns, callback, ...)
     end,
 
-    add = function(callback, ...)
+    create = function(callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
         if not callback or (imports.type(callback) ~= "function") then return false end
         imports.dbQuery(function(queryHandler, arguments)
@@ -90,7 +90,50 @@ dbify["inventory"] = {
                 if result then
                     result = result[1]
                     for i, j in imports.ipairs(arguments[1].items) do
-                        j[1] = imports.tostring(j[1])
+                        j[1] = "item_"..imports.tostring(j[1])
+                        j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
+                        local prevItemData = result[(j[1])]
+                        prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
+                        if prevItemData then
+                            prevItemData.amount = j[2] + imports.math.max(0, imports.tonumber(prevItemData.amount) or 0)
+                            arguments[1].items[i][2] = prevItemData
+                        else
+                            arguments[1].items[i][2] = {
+                                amount = j[2]
+                            }
+                        end
+                        arguments[1].items[i][2] = imports.toJSON(j[2])
+                    end
+                    dbify.mysql.data.set(dbify.inventory.__connection__.table, arguments[1].items, {
+                        {dbify.inventory.__connection__.keyColumn, arguments[1].inventoryID}
+                    }, function(result, arguments)
+                        local callbackReference = callback
+                        if callbackReference and (imports.type(callbackReference) == "function") then
+                            callbackReference(result, arguments)
+                        end
+                    end, arguments[2])
+                else
+                    local callbackReference = callback
+                    if callbackReference and (imports.type(callbackReference) == "function") then
+                        callbackReference(false, arguments[2])
+                    end
+                end
+            end, {
+                inventoryID = inventoryID,
+                items = items
+            }, {...})
+        end,
+
+        remove = function(inventoryID, items, callback, ...)
+            if not dbify.mysql.__connection__.instance then return false end
+            if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) then return false end
+            return dbify.inventory.fetchAll({
+                {dbify.inventory.__connection__.keyColumn, inventoryID},
+            }, function(result, arguments)
+                if result then
+                    result = result[1]
+                    for i, j in imports.ipairs(arguments[1].items) do
+                        j[1] = "item_"..imports.tostring(j[1])
                         j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                         local prevItemData = result[(j[1])]
                         prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false

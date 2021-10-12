@@ -38,7 +38,7 @@ dbify["serial"] = {
         return dbify.mysql.table.fetchContents(dbify.serial.__connection__.table, keyColumns, callback, ...)
     end,
 
-    add = function(serial, callback, ...)
+    create = function(serial, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
         if not serial or (imports.type(serial) ~= "string") then return false end
         return dbify.serial.getData(serial, {dbify.serial.__connection__.keyColumn}, function(result, arguments)
@@ -103,7 +103,7 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
     if dbify.serial.__connection__.autoSync then
         for i, j in imports.ipairs(imports.getElementsByType("player")) do
             local playerSerial = imports.getPlayerSerial(j)
-            dbify.serial.add(playerSerial)
+            dbify.serial.create(playerSerial)
         end
     end
 
@@ -114,7 +114,7 @@ imports.addEventHandler("onPlayerJoin", root, function(_, playerSerial)
     if not dbify.mysql.__connection__.instance then return false end
     if dbify.serial.__connection__.autoSync then
         local playerSerial = imports.getPlayerSerial(source)
-        dbify.serial.add(playerSerial)
+        dbify.serial.create(playerSerial)
     end
 
 end)

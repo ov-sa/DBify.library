@@ -37,7 +37,7 @@ dbify["character"] = {
         return dbify.mysql.table.fetchContents(dbify.character.__connection__.table, keyColumns, callback, ...)
     end,
 
-    add = function(callback, ...)
+    create = function(callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
         if not callback or (imports.type(callback) ~= "function") then return false end
         imports.dbQuery(function(queryHandler, arguments)
