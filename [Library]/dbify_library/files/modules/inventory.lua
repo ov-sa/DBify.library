@@ -97,13 +97,12 @@ dbify["inventory"] = {
                         if prevItemData then
                             prevItemData.amount = j[2] + imports.math.max(0, imports.tonumber(prevItemData.amount) or 0)
                             arguments[1].items[i][2] = prevItemData
-                        end
-                        if not prevItemData then
+                        else
                             arguments[1].items[i][2] = {
                                 amount = j[2]
                             }
                         end
-                        arguments[1].items[i][2] = toJSON(j[2])
+                        arguments[1].items[i][2] = imports.toJSON(j[2])
                     end
                     dbify.mysql.data.set(dbify.inventory.__connection__.table, arguments[1].items, {
                         {dbify.inventory.__connection__.keyColumn, arguments[1].inventoryID}
