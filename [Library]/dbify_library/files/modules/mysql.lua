@@ -71,28 +71,17 @@ dbify["mysql"] = {
                             imports.table.insert(queryArguments, imports.tostring(j[2]))
                             queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                         end
-                        --[[
-                        for i, j in imports.ipairs(arguments[1].dataColumns) do
-                            j[1] = imports.tostring(j[1])
-                            imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
-                            imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, imports.tostring(j[2]))
-                            queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #arguments[1].dataColumns) and ",") or "")
-                            dbify.mysql.column.isValid(arguments[1].tableName, j[1], function(isValid, arguments)
-                                local callbackReference = callback
-                                if not isValid then
-                                    imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
+                        imports.dbQuery(function(queryHandler, arguments)
+                            local callbackReference = callback
+                            local result = imports.dbPoll(queryHandler, 0)
+                            if result and (#result > 0) then
+                                if callbackReference and (imports.type(callbackReference) == "function") then
+                                    callbackReference(result, arguments)
                                 end
-                                if arguments[3] then
-                                    local result = imports.dbExec(dbify.mysql.__connection__.instance, arguments[3].queryString, imports.unpack(arguments[3].queryArguments))
-                                    if callbackReference and (imports.type(callbackReference) == "function") then
-                                        callbackReference(result, arguments[4])
-                                    end
-                                end
-                            end, arguments[1].tableName, j[1], ((i >= #arguments[1].dataColumns) and {
-                                queryString = queryStrings[1]..queryStrings[2],
-                                queryArguments = queryArguments.arguments
-                            }) or false, ((i >= #arguments[1].dataColumns) and arguments[2]) or false)
-                        end]]
+                            else
+                                callbackReference(false, arguments)
+                            end
+                        end, {arguments[2]}, dbify.mysql.__connection__.instance, queryString, imports.unpack(queryArguments))
                     else
                         local callbackReference = callback
                         if callbackReference and (imports.type(callbackReference) == "function") then
