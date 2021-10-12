@@ -80,6 +80,28 @@ dbify["inventory"] = {
         end, ...)
     end,
 
+    setData = function(inventoryID, dataColumns, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
+        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
+        for i, j in imports.ipairs(dataColumns) do
+            j[1] = "data_"..imports.tostring(j[1])
+        end
+        return dbify.mysql.data.set(dbify.inventory.__connection__.table, dataColumns, {
+            {dbify.inventory.__connection__.keyColumn, inventoryID}
+        }, callback, ...)
+    end,
+
+    getData = function(inventoryID, dataColumns, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
+        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
+        for i, j in imports.ipairs(dataColumns) do
+            j[1] = "data_"..imports.tostring(j[1])
+        end
+        return dbify.mysql.data.get(dbify.inventory.__connection__.table, dataColumns, {
+            {dbify.inventory.__connection__.keyColumn, inventoryID}
+        }, true, callback, ...)
+    end,
+
     item = {
         add = function(inventoryID, items, callback, ...)
             if not dbify.mysql.__connection__.instance then return false end
@@ -173,24 +195,8 @@ dbify["inventory"] = {
                 inventoryID = inventoryID,
                 items = items
             }, {...})
-        end,
-    },
-
-    setData = function(inventoryID, dataColumns, callback, ...)
-        if not dbify.mysql.__connection__.instance then return false end
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.mysql.data.set(dbify.inventory.__connection__.table, dataColumns, {
-            {dbify.inventory.__connection__.keyColumn, inventoryID}
-        }, callback, ...)
-    end,
-
-    getData = function(inventoryID, dataColumns, callback, ...)
-        if not dbify.mysql.__connection__.instance then return false end
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.mysql.data.get(dbify.inventory.__connection__.table, dataColumns, {
-            {dbify.inventory.__connection__.keyColumn, inventoryID}
-        }, true, callback, ...)
-    end
+        end
+    }
 }
 
 
