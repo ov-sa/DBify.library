@@ -94,12 +94,16 @@ dbify["inventory"] = {
                         j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                         local prevItemData = result[(j[1])]
                         prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
+                        prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
                         if prevItemData then
-                            prevItemData.amount = j[2] + imports.math.max(0, imports.tonumber(prevItemData.amount) or 0)
+                            prevItemData.item.amount = j[2] + imports.math.max(0, imports.tonumber(prevItemData.item.amount) or 0)
                             arguments[1].items[i][2] = prevItemData
                         else
                             arguments[1].items[i][2] = {
-                                amount = j[2]
+                                data = {},
+                                item = {
+                                    amount = j[2]
+                                }
                             }
                         end
                         arguments[1].items[i][2] = imports.toJSON(j[2])
@@ -137,12 +141,16 @@ dbify["inventory"] = {
                         j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                         local prevItemData = result[(j[1])]
                         prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
+                        prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
                         if prevItemData then
-                            prevItemData.amount = j[2] + imports.math.max(0, imports.tonumber(prevItemData.amount) or 0)
+                            prevItemData.item.amount = j[2] - imports.math.max(0, imports.tonumber(prevItemData.item.amount) or 0)
                             arguments[1].items[i][2] = prevItemData
                         else
                             arguments[1].items[i][2] = {
-                                amount = j[2]
+                                data = {},
+                                item = {
+                                    amount = j[2]
+                                }
                             }
                         end
                         arguments[1].items[i][2] = imports.toJSON(j[2])
@@ -165,7 +173,7 @@ dbify["inventory"] = {
                 inventoryID = inventoryID,
                 items = items
             }, {...})
-        end
+        end,
     },
 
     setData = function(inventoryID, dataColumns, callback, ...)
