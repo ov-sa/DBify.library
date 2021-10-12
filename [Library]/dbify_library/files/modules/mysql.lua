@@ -250,7 +250,6 @@ dbify["mysql"] = {
             end
             return dbify.mysql.column.areValid(tableName, validateColumns, function(areValid, arguments)
                 if areValid then
-                    print("VALID 1")
                     local queryString, queryArguments = "SELECT", {}
                     for i, j in imports.ipairs(arguments[1].dataColumns) do
                         imports.table.insert(queryArguments, imports.tostring(j))
@@ -264,11 +263,9 @@ dbify["mysql"] = {
                         queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                     end
                     imports.dbQuery(function(queryHandler, soloFetch, arguments)
-                        print("VALID 2")
                         local callbackReference = callback
                         local result = imports.dbPoll(queryHandler, 0)
                         if result and (#result > 0) then
-                            print("VALID 3")
                             if callbackReference and (imports.type(callbackReference) == "function") then
                                 callbackReference((soloFetch and result[1]) or result, arguments)
                             end
@@ -279,7 +276,6 @@ dbify["mysql"] = {
                         end
                     end, {arguments[1].soloFetch, arguments[2]}, dbify.mysql.__connection__.instance, queryString, imports.unpack(queryArguments))
                 else
-                    print("INVALID 1")
                     local callbackReference = callback
                     if callbackReference and (imports.type(callbackReference) == "function") then
                         callbackReference(false, arguments[2])
