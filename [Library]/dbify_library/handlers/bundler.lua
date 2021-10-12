@@ -84,7 +84,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
                 dbify.serial.__connection__.autoSync = ]]..imports.tostring(syncSettings.syncSerials)..[[
             ]],
             character = imports.fetchFileData("files/modules/character.lua"),
-            vehicle = imports.fetchFileData("files/modules/vehicle.lua")
+            vehicle = imports.fetchFileData("files/modules/vehicle.lua"),
+            inventory = imports.fetchFileData("files/modules/inventory.lua")
         }
     }
 
@@ -95,5 +96,6 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
     imports.table.insert(bundlerData, importedModules.modules.serial)
     imports.table.insert(bundlerData, importedModules.modules.character)
     imports.table.insert(bundlerData, importedModules.modules.vehicle)
+    imports.table.insert(bundlerData, importedModules.modules.inventory)
 
 end)
