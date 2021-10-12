@@ -73,7 +73,7 @@ dbify["character"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.character.__connection__.table, dataColumns, {
-            {dbify.character.__connection__.keyColumn, characterID},
+            {dbify.character.__connection__.keyColumn, characterID}
         }, callback, ...)
     end,
 
@@ -81,7 +81,7 @@ dbify["character"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.character.__connection__.table, dataColumns, {
-            {dbify.character.__connection__.keyColumn, characterID},
+            {dbify.character.__connection__.keyColumn, characterID}
         }, true, callback, ...)
     end
 }

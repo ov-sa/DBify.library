@@ -78,7 +78,7 @@ dbify["serial"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.serial.__connection__.table, dataColumns, {
-            {dbify.serial.__connection__.keyColumn, serial},
+            {dbify.serial.__connection__.keyColumn, serial}
         }, callback, ...)
     end,
 
@@ -86,7 +86,7 @@ dbify["serial"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.serial.__connection__.table, dataColumns, {
-            {dbify.serial.__connection__.keyColumn, serial},
+            {dbify.serial.__connection__.keyColumn, serial}
         }, true, callback, ...)
     end
 }

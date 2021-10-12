@@ -80,7 +80,7 @@ dbify["account"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.account.__connection__.table, dataColumns, {
-            {dbify.account.__connection__.keyColumn, accountName},
+            {dbify.account.__connection__.keyColumn, accountName}
         }, callback, ...)
     end,
 
@@ -88,7 +88,7 @@ dbify["account"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.account.__connection__.table, dataColumns, {
-            {dbify.account.__connection__.keyColumn, accountName},
+            {dbify.account.__connection__.keyColumn, accountName}
         }, true, callback, ...)
     end
 }

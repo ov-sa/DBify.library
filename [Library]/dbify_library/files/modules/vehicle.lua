@@ -73,7 +73,7 @@ dbify["vehicle"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not vehicleID or (imports.type(vehicleID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.vehicle.__connection__.table, dataColumns, {
-            {dbify.vehicle.__connection__.keyColumn, vehicleID},
+            {dbify.vehicle.__connection__.keyColumn, vehicleID}
         }, callback, ...)
     end,
 
@@ -81,7 +81,7 @@ dbify["vehicle"] = {
         if not dbify.mysql.__connection__.instance then return false end
         if not vehicleID or (imports.type(vehicleID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.vehicle.__connection__.table, dataColumns, {
-            {dbify.vehicle.__connection__.keyColumn, vehicleID},
+            {dbify.vehicle.__connection__.keyColumn, vehicleID}
         }, true, callback, ...)
     end
 }
