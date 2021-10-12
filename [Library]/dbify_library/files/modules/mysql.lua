@@ -65,17 +65,13 @@ dbify["mysql"] = {
                 end
                 return dbify.mysql.column.areValid(tableName, validateKeyColumns, function(areValid, arguments)
                     if areValid then
-                        print("ARE VALID")
-                        --[[
-                        local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, arguments = {}}
+                        local queryString, queryArguments = "SELECT * FROM `??` WHERE", {arguments[1].tableName}
                         for i, j in imports.ipairs(arguments[1].keyColumns) do
-                            j[1] = imports.tostring(j[1])
-                            imports.table.insert(queryArguments.arguments, j[1])
-                            imports.table.insert(queryArguments.arguments, imports.tostring(j[2]))
-                            queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
+                            imports.table.insert(queryArguments, imports.tostring(j[1]))
+                            imports.table.insert(queryArguments, imports.tostring(j[2]))
+                            queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                         end
-                        queryArguments.subLength = #queryArguments.arguments
-                        imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, arguments[1].tableName)
+                        --[[
                         for i, j in imports.ipairs(arguments[1].dataColumns) do
                             j[1] = imports.tostring(j[1])
                             imports.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
