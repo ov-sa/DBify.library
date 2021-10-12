@@ -32,9 +32,9 @@ dbify["vehicle"] = {
         keyColumn = "id"
     },
 
-    fetchAll = function(callback, ...)
+    fetchAll = function(keyColumns, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        return dbify.mysql.table.fetchContents(dbify.vehicle.__connection__.table, callback, ...)
+        return dbify.mysql.table.fetchContents(dbify.vehicle.__connection__.table, keyColumns, callback, ...)
     end,
 
     add = function(callback, ...)

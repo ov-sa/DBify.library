@@ -54,29 +54,34 @@ dbify["mysql"] = {
             return true
         end,
 
-        fetchContents = function(tableName, callback, ...)
+        fetchContents = function(tableName, keyColumns, callback, ...)
             if not dbify.mysql.__connection__.instance then return false end
             if not tableName or (imports.type(tableName) ~= "string") or not callback or (imports.type(callback) ~= "function") then return false end
-            dbify.mysql.table.isValid(tableName, function(isValid, arguments)
-                if isValid then
-                    imports.dbQuery(function(queryHandler, arguments)
-                        local callbackReference = callback
-                        local result = imports.dbPoll(queryHandler, 0)
-                        if result and (#result > 0) then
-                            if callbackReference and (imports.type(callbackReference) == "function") then
-                                callbackReference(result, arguments)
+            keyColumns = ((keyColumns and (imports.type(keyColumns) == "table") and (#keyColumns > 0)) and keyColumns) or false
+            if keyColumns then
+                --TODO: HAS TO BE DONE...
+            else
+                dbify.mysql.table.isValid(tableName, function(isValid, arguments)
+                    if isValid then
+                        imports.dbQuery(function(queryHandler, arguments)
+                            local callbackReference = callback
+                            local result = imports.dbPoll(queryHandler, 0)
+                            if result and (#result > 0) then
+                                if callbackReference and (imports.type(callbackReference) == "function") then
+                                    callbackReference(result, arguments)
+                                end
+                            else
+                                callbackReference(false, arguments)
                             end
-                        else
+                        end, {arguments}, dbify.mysql.__connection__.instance, "SELECT * FROM `??`", tableName)
+                    else
+                        local callbackReference = callback
+                        if callbackReference and (imports.type(callbackReference) == "function") then
                             callbackReference(false, arguments)
                         end
-                    end, {arguments}, dbify.mysql.__connection__.instance, "SELECT * FROM `??`", tableName)
-                else
-                    local callbackReference = callback
-                    if callbackReference and (imports.type(callbackReference) == "function") then
-                        callbackReference(false, arguments)
                     end
-                end
-            end, ...)
+                end, ...)
+            end
             return true
         end
     },
