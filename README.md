@@ -18,10 +18,12 @@
 * MySQL Based
 * Gamemode Perspective
 * Async Data-Handling
-* Supports Multiple Queries
-* Synchronizes default MTA Accounts
-* Synchronizes default MTA Serials
+* Supports Multiple-Queries
+* Supports Module-Extension
 * Supports Direct-Embedding (No exports required)
+* Built-In `Account`, `Serial`, `Character` & `Vehicle` modules
+* Synchronizes default MTA accounts
+* Synchronizes default MTA serials
 * Necessary Integration APIs
 
 ## ━ Contents
