@@ -28,6 +28,9 @@ local imports = {
     table = {
         insert = table.insert
     },
+    string = {
+        gsub = string.gsub
+    },
     math = {
         max = math.max
     }
@@ -143,58 +146,83 @@ dbify["inventory"] = {
                     items = items,
                     processType = processType
                 }, {...})
-            end
+            end,
+
+            data = {
+                setnget = function(inventoryID, items, dataColumns, processType, callback, ...)
+                    if not dbify.mysql.__connection__.instance then return false end
+                    if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
+                    for i, j in imports.ipairs(items) do
+                        items[i] = "item_"..imports.tostring(j)
+                    end
+                    return dbify.inventory.getData(inventoryID, items, function(result, arguments)
+                        local callbackReference = callback
+                        if result then
+                            local dataColumns = {}
+                            for i, j in imports.pairs(result) do
+                                j = (j and imports.fromJSON(j)) or false
+                                j = (j and j.data and (imports.type(j.data) == "table") and j.item and (imports.type(j.item) == "table") and j) or false
+                                if arguments[1].processType == "set" then
+                                    if not j then
+                                        j = {
+                                            data = {},
+                                            item = {
+                                                amount = 0
+                                            }
+                                        }
+                                    end
+                                    for k, v in imports.ipairs(arguments[1].dataColumns) do
+                                        j.data[imports.tostring(v[1])] = v[2]
+                                    end
+                                    imports.table.insert(dataColumns, {i, imports.toJSON(j)})
+                                    dbify.inventory.setData(arguments[1].inventoryID, dataColumns, function(result, arguments)
+                                        local callbackReference = callback
+                                        if callbackReference and (imports.type(callbackReference) == "function") then
+                                            callbackReference(result, arguments)
+                                        end
+                                    end, arguments[2])
+                                else
+                                    local itemIndex = imports.string.gsub(i, "item_", "", 1)
+                                    dataColumns[itemIndex] = {}
+                                    if j then
+                                        for k, v in imports.ipairs(arguments[1].dataColumns) do
+                                            v = imports.tostring(v)
+                                            dataColumns[itemIndex][v] = j.data[v]
+                                        end
+                                    end
+                                    if callbackReference and (imports.type(callbackReference) == "function") then
+                                        callbackReference(dataColumns, arguments[2])
+                                    end
+                                end
+                            end
+                        else
+                            if callbackReference and (imports.type(callbackReference) == "function") then
+                                callbackReference(false, arguments[2])
+                            end
+                        end
+                    end, {
+                        inventoryID = inventoryID,
+                        dataColumns = dataColumns,
+                        processType = processType
+                    }, {...})
+                end
+            }
         },
 
         add = function(inventoryID, items, callback, ...)
-            return dbify.inventory.item__utilities__.pushnpop(inventoryID, items, "push", callback, ...)
+            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "push", callback, ...)
         end,
 
         remove = function(inventoryID, items, callback, ...)
-            return dbify.inventory.item__utilities__.pushnpop(inventoryID, items, "pop", callback, ...)
+            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "pop", callback, ...)
         end,
 
-        setData = function(inventoryID, items, dataColumns, callback, ...)
-            if not dbify.mysql.__connection__.instance then return false end
-            if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            for i, j in imports.ipairs(items) do
-                items[i] = "item_"..imports.tostring(j)
-            end
-            return dbify.inventory.getData(inventoryID, items, function(result, arguments)
-                local callbackReference = callback
-                if result then
-                    local dataColumns = {}
-                    for i, j in imports.pairs(result) do
-                        j = (j and imports.fromJSON(j)) or false
-                        j = (j and j.data and (imports.type(j.data) == "table") and j.item and (imports.type(j.item) == "table") and j) or false
-                        if not j then
-                            j = {
-                                data = {},
-                                item = {
-                                    amount = 0
-                                }
-                            }
-                        end
-                        for k, v in imports.ipairs(arguments[1].dataColumns) do
-                            j.data[imports.tostring(v[1])] = v[2]
-                        end
-                        imports.table.insert(dataColumns, {i, imports.toJSON(j)})
-                    end
-                    dbify.inventory.setData(arguments[1].inventoryID, dataColumns, function(result, arguments)
-                        local callbackReference = callback
-                        if callbackReference and (imports.type(callbackReference) == "function") then
-                            callbackReference(result, arguments)
-                        end
-                    end, arguments[2])
-                else
-                    if callbackReference and (imports.type(callbackReference) == "function") then
-                        callbackReference(false, arguments[2])
-                    end
-                end
-            end, {
-                inventoryID = inventoryID,
-                dataColumns = dataColumns
-            }, {...})
+        setData = function(inventoryID, items, dataColumns, callback, ...)        
+            return dbify.inventory.item.__utilities__.data.setnget(inventoryID, items, dataColumns, "set", callback, ...)
+        end,
+
+        getData = function(inventoryID, items, dataColumns, callback, ...)        
+            return dbify.inventory.item.__utilities__.data.setnget(inventoryID, items, dataColumns, "get", callback, ...)
         end
     }
 }
