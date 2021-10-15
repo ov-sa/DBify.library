@@ -50,10 +50,10 @@ dbify["account"] = {
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
-                return true
-            end
-            if callbackReference and (imports.type(callbackReference) == "function") then
-                callbackReference(false, arguments)
+            else
+                if callbackReference and (imports.type(callbackReference) == "function") then
+                    callbackReference(false, arguments)
+                end
             end
         end, ...)
     end,
@@ -68,10 +68,10 @@ dbify["account"] = {
                 if callbackReference and (imports.type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
-                return true
-            end
-            if callbackReference and (imports.type(callbackReference) == "function") then
-                callbackReference(false, arguments)
+            else
+                if callbackReference and (imports.type(callbackReference) == "function") then
+                    callbackReference(false, arguments)
+                end
             end
         end, ...)
     end,
