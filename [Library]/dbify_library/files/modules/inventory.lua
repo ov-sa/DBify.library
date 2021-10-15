@@ -52,6 +52,71 @@ dbify["inventory"] = {
         return dbify.mysql.table.fetchContents(dbify.inventory.__connection__.table, keyColumns, callback, ...)
     end,
 
+    ensureItems = function(items, callback, ...)
+        if not dbify.mysql.__connection__.instance then return false end
+        if not items or (imports.type(items) ~= "table") or not callback or (imports.type(callback) ~= "function") then return false end
+        imports.dbQuery(function(queryHandler, arguments)
+            local callbackReference = callback
+            local result = imports.dbPoll(queryHandler, 0)
+            local itemsToBeAdded = {}
+            if result and (#result > 0) then
+                local itemsToBeDeleted = {}
+                for i, j in imports.ipairs(result) do
+                    local columnName = j["COLUMN_NAME"]
+                    local itemIndex = imports.string.gsub(columnName, "item_", "", 1)
+                    if not arguments[1].items[itemIndex] then
+                        imports.table.insert(itemsToBeDeleted, columnName)
+                    end
+                end
+                if #itemsToBeDeleted > 0 then
+                    dbify.mysql.column.delete(dbify.inventory.__connection__.table, itemsToBeDeleted, function(result, arguments)
+                        if result then
+                            for i, j in imports.ipairs(arguments[1].items) do
+                                dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                                    local callbackReference = callback
+                                    if not isValid then
+                                        imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                                    end
+                                    if arguments[2] then
+                                        if callbackReference and (imports.type(callbackReference) == "function") then
+                                            callbackReference(true, arguments[2])
+                                        end
+                                    end
+                                end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
+                            end
+                        else
+                            local callbackReference = callback
+                            if callbackReference and (imports.type(callbackReference) == "function") then
+                                callbackReference(result, arguments[2])
+                            end
+                        end
+                    end, arguments[1], arguments[2])
+                    return
+                end
+            end
+            for i, j in imports.pairs(arguments[1].items) do
+                imports.table.insert(itemsToBeAdded, "item_"..i)
+            end
+            arguments[1].items = itemsToBeAdded
+            for i, j in imports.ipairs(arguments[1].items) do
+                dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                    local callbackReference = callback
+                    if not isValid then
+                        imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                    end
+                    if arguments[2] then
+                        if callbackReference and (imports.type(callbackReference) == "function") then
+                            callbackReference(true, arguments[2])
+                        end
+                    end
+                end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
+            end
+        end, {{{
+            items = items
+        }, {...}}}, dbify.mysql.__connection__.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.mysql.__connection__.databaseName, dbify.inventory.__connection__.table)
+        return true
+    end,
+
     create = function(callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
         if not callback or (imports.type(callback) ~= "function") then return false end
@@ -117,7 +182,7 @@ dbify["inventory"] = {
                             prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
                             prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
                             if prevItemData then
-                                prevItemData.item.amount = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.item.amount) or 0)*((arguments[1].processType == "push" and 1) or -1))
+                                prevItemData.propery.amount = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.propery.amount) or 0)*((arguments[1].processType == "push" and 1) or -1))
                                 arguments[1].items[i][2] = prevItemData
                             else
                                 arguments[1].items[i][2] = {
@@ -166,7 +231,7 @@ dbify["inventory"] = {
                                     if not j then
                                         j = {
                                             data = {},
-                                            item = {
+                                            propery = {
                                                 amount = 0
                                             }
                                         }
