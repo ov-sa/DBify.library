@@ -44,8 +44,9 @@ function fetchImports(recieveData)
         return bundlerData
     else
         return [[
-        for i, j in ipairs(call(getResourceFromName("]]..imports.resourceName..[["), "fetchImports", true)) do
-            loadstring(j)()
+        local importList = call(getResourceFromName("]]..imports.resourceName..[["), "fetchImports", true)
+        for i = 1, #importList, 1 do
+            loadstring(importList[i])()
         end
         ]]
     end

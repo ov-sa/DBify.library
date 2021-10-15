@@ -15,7 +15,6 @@
 
 local imports = {
     type = type,
-    ipairs = ipairs,
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerAccount = getPlayerAccount,
@@ -103,8 +102,9 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
     if not dbify.mysql.__connection__.instance then return false end
     imports.dbExec(dbify.mysql.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn)
     if dbify.account.__connection__.autoSync then
-        for i, j in imports.ipairs(imports.getElementsByType("player")) do
-            local playerAccount = imports.getPlayerAccount(j)
+        local playerList = imports.getElementsByType("player")
+        for i = 1, #playerList, 1 do
+            local playerAccount = imports.getPlayerAccount(playerList[i])
             if playerAccount and not imports.isGuestAccount(playerAccount) then
                 dbify.account.create(imports.getAccountName(playerAccount))
             end

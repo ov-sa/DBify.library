@@ -15,7 +15,6 @@
 
 local imports = {
     type = type,
-    ipairs = ipairs,
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerSerial = getPlayerSerial,
@@ -101,8 +100,9 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
     if not dbify.mysql.__connection__.instance then return false end
     imports.dbExec(dbify.mysql.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.serial.__connection__.table, dbify.serial.__connection__.keyColumn)
     if dbify.serial.__connection__.autoSync then
-        for i, j in imports.ipairs(imports.getElementsByType("player")) do
-            local playerSerial = imports.getPlayerSerial(j)
+        local playerList = imports.getElementsByType("player")
+        for i = 1, #playerList, 1 do
+            local playerSerial = imports.getPlayerSerial(playerList[i])
             dbify.serial.create(playerSerial)
         end
     end
