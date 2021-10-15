@@ -166,6 +166,30 @@ dbify["mysql"] = {
                     end
                 end
             end, columns, {...})
+        end,
+
+        delete = function(tableName, columns, callback, ...)
+            if not dbify.mysql.__connection__.instance then return false end
+            if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return false end
+            return dbify.mysql.table.isValid(tableName, function(isValid, arguments)
+                if isValid then
+                    local callbackReference = callback
+                    local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
+                    for i, j in imports.ipairs(arguments[1]) do
+                        imports.table.insert(queryArguments, imports.tostring(j))
+                        queryString = queryString.." DROP COLUMN `??`"..(((i < #arguments[1]) and ", ") or "")
+                    end
+                    local result = imports.dbExec(dbify.mysql.__connection__.instance, queryString, imports.unpack(queryArguments))
+                    if callbackReference and (imports.type(callbackReference) == "function") then
+                        callbackReference(result, arguments[2])
+                    end
+                else
+                    local callbackReference = callback
+                    if callbackReference and (imports.type(callbackReference) == "function") then
+                        callbackReference(false, arguments[2])
+                    end
+                end
+            end, columns, {...})
         end
     },
 
