@@ -145,7 +145,7 @@ dbify["inventory"] = {
                 }, {...})
             end
         },
-    
+
         add = function(inventoryID, items, callback, ...)
             return dbify.inventory.item__utilities__.pushnpop(inventoryID, items, "push", callback, ...)
         end,
@@ -180,7 +180,7 @@ dbify["inventory"] = {
                         end
                         imports.table.insert(dataColumns, {i, imports.toJSON(j)})
                     end
-                    return dbify.inventory.setData(arguments[1].inventoryID, dataColumns, function(result, arguments)
+                    dbify.inventory.setData(arguments[1].inventoryID, dataColumns, function(result, arguments)
                         local callbackReference = callback
                         if callbackReference and (imports.type(callbackReference) == "function") then
                             callbackReference(result, arguments)
