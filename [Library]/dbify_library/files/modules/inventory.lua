@@ -58,9 +58,8 @@ dbify["inventory"] = {
         imports.dbQuery(function(queryHandler, arguments)
             local callbackReference = callback
             local result = imports.dbPoll(queryHandler, 0)
-            local itemsToBeAdded = {}
+            local itemsToBeAdded, itemsToBeDeleted = {}, {}
             if result and (#result > 0) then
-                local itemsToBeDeleted = {}
                 for i, j in imports.ipairs(result) do
                     local columnName = j["COLUMN_NAME"]
                     local itemIndex = imports.string.gsub(columnName, "item_", "", 1)
@@ -68,48 +67,48 @@ dbify["inventory"] = {
                         imports.table.insert(itemsToBeDeleted, columnName)
                     end
                 end
-                if #itemsToBeDeleted > 0 then
-                    dbify.mysql.column.delete(dbify.inventory.__connection__.table, itemsToBeDeleted, function(result, arguments)
-                        if result then
-                            for i, j in imports.ipairs(arguments[1].items) do
-                                dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
-                                    local callbackReference = callback
-                                    if not isValid then
-                                        imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
-                                    end
-                                    if arguments[2] then
-                                        if callbackReference and (imports.type(callbackReference) == "function") then
-                                            callbackReference(true, arguments[2])
-                                        end
-                                    end
-                                end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
-                            end
-                        else
-                            local callbackReference = callback
-                            if callbackReference and (imports.type(callbackReference) == "function") then
-                                callbackReference(result, arguments[2])
-                            end
-                        end
-                    end, arguments[1], arguments[2])
-                    return
-                end
             end
             for i, j in imports.pairs(arguments[1].items) do
                 imports.table.insert(itemsToBeAdded, "item_"..i)
             end
             arguments[1].items = itemsToBeAdded
-            for i, j in imports.ipairs(arguments[1].items) do
-                dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
-                    local callbackReference = callback
-                    if not isValid then
-                        imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
-                    end
-                    if arguments[2] then
+            if #itemsToBeDeleted > 0 then
+                dbify.mysql.column.delete(dbify.inventory.__connection__.table, itemsToBeDeleted, function(result, arguments)
+                    if result then
+                        for i, j in imports.ipairs(arguments[1].items) do
+                            dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                                local callbackReference = callback
+                                if not isValid then
+                                    imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                                end
+                                if arguments[2] then
+                                    if callbackReference and (imports.type(callbackReference) == "function") then
+                                        callbackReference(true, arguments[2])
+                                    end
+                                end
+                            end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
+                        end
+                    else
+                        local callbackReference = callback
                         if callbackReference and (imports.type(callbackReference) == "function") then
-                            callbackReference(true, arguments[2])
+                            callbackReference(result, arguments[2])
                         end
                     end
-                end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
+                end, arguments[1], arguments[2])
+            else
+                for i, j in imports.ipairs(arguments[1].items) do
+                    dbify.mysql.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                        local callbackReference = callback
+                        if not isValid then
+                            imports.dbExec(dbify.mysql.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                        end
+                        if arguments[2] then
+                            if callbackReference and (imports.type(callbackReference) == "function") then
+                                callbackReference(true, arguments[2])
+                            end
+                        end
+                    end, j, ((i >= #arguments[1].items) and arguments[2]) or false)
+                end
             end
         end, {{{
             items = items
