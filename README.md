@@ -28,6 +28,6 @@
 
 ## ━ Contents
 
-* [**Official Releases**](https://github.com/ov-sa/MTA-DBify-Library/releases)
+* [**Official Releases**](https://github.com/ov-sa/DBify-Library/releases)
 * [**Installation Guide**](https://github.com/ov-sa/DBify-Library/wiki)
 * [**Discord Community**](http://discord.gg/sVCnxPW)
