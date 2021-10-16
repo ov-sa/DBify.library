@@ -70,7 +70,26 @@ imports.addEventHandler("onResourceStart", resourceRoot, function(resourceSource
 
     local importedModules = {
         bundler = [[
-            dbify = {}
+            dbify = {
+                imports = {
+                    type = type,
+                    pairs = pairs,
+                    table = {
+                        clone = function(recievedTable, isRecursiveMode)
+                            if not recievedTable or dbify.imports.type(recievedTable) ~= "table" then return false end
+                            local clonedTable = {}
+                            for i, j in dbify.imports.pairs(recievedTable) do
+                                if dbify.imports.type(j) == "table" and isRecursiveMode then
+                                    clonedTable[i] = dbify.imports.table.clone(j, true)
+                                else
+                                    clonedTable[i] = j
+                                end
+                            end
+                            return clonedTable
+                        end
+                    }
+                }
+            }
         ]],
         modules = {
             mysql = imports.fetchFileData("files/modules/mysql.lua")..[[

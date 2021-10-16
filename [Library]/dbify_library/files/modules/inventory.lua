@@ -189,19 +189,11 @@ dbify["inventory"] = {
                             local prevItemData = result[(j[1])]
                             prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
                             prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
-                            if prevItemData then
-                                prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)] = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)]) or 0)*((arguments[1].processType == "push" and 1) or -1))
-                                arguments[1].items[i][2] = prevItemData
-                            else
-                                --TODO: CLONE FORMAT..
-                                arguments[1].items[i][2] = {
-                                    data = {},
-                                    property = {
-                                        [(dbify.inventory.__connection__.itemFormat.counter)] = j[2]
-                                    }
-                                }
+                            if not prevItemData then
+                                prevItemData = dbify.imports.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
                             end
-                            arguments[1].items[i][2] = imports.toJSON(j[2])
+                            prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)] = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)]) or 0)*((arguments[1].processType == "push" and 1) or -1))
+                            arguments[1].items[i][2] = imports.toJSON(prevItemData)
                         end
                         dbify.inventory.setData(arguments[1].inventoryID, arguments[1].items, function(result, arguments)
                             local callbackReference = callback
@@ -237,13 +229,7 @@ dbify["inventory"] = {
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
-                                    --TODO: CLONE FORMAT..
-                                    j = {
-                                        data = {},
-                                        property = {
-                                            [(dbify.inventory.__connection__.itemFormat.counter)] = 0
-                                        }
-                                    }
+                                    j = dbify.imports.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
                                 end
                                 for k, v in imports.ipairs(arguments[1].properties) do
                                     v[1] = imports.tostring(v[1])
@@ -303,13 +289,7 @@ dbify["inventory"] = {
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
-                                --TODO: CLONE FORMAT..
-                                    j = {
-                                        data = {},
-                                        property = {
-                                            [(dbify.inventory.__connection__.itemFormat.counter)] = 0
-                                        }
-                                    }
+                                    j = dbify.imports.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
                                 end
                                 for k, v in imports.ipairs(arguments[1].datas) do
                                     j.data[imports.tostring(v[1])] = v[2]
