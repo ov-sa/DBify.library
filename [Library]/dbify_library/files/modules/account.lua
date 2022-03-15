@@ -2,9 +2,9 @@
 --[[ Resource: DBify Library
      Files: modules: account.lua
      Server: -
-     Author: OvileAmriam
+     Author: vStudio
      Developer: Aviril
-     DOC: 09/10/2021 (OvileAmriam)
+     DOC: 09/10/2021
      Desc: Account Module ]]--
 ----------------------------------------------------------------
 
@@ -114,10 +114,8 @@ imports.addEventHandler("onResourceStart", resourceRoot, function()
 end)
 
 imports.addEventHandler("onPlayerLogin", root, function(_, playerAccount)
-
     if not dbify.mysql.__connection__.instance then return false end
     if dbify.account.__connection__.autoSync then
         dbify.account.create(imports.getAccountName(playerAccount))
     end
-
 end)

@@ -2,9 +2,9 @@
 --[[ Resource: DBify Library
      Files: modules: mysql.lua
      Server: -
-     Author: OvileAmriam
+     Author: vStudio
      Developer: Aviril
-     DOC: 09/10/2021 (OvileAmriam)
+     DOC: 09/10/2021
      Desc: Mysql Module ]]--
 ----------------------------------------------------------------
 
@@ -22,9 +22,7 @@ local imports = {
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
-    table = {
-        insert = table.insert
-    }
+    table = table
 }
 
 

@@ -2,9 +2,9 @@
 --[[ Resource: DBify Library
      Files: modules: inventory.lua
      Server: -
-     Author: OvileAmriam
+     Author: vStudio
      Developer: Aviril
-     DOC: 09/10/2021 (OvileAmriam)
+     DOC: 09/10/2021
      Desc: Inventory Module ]]--
 ----------------------------------------------------------------
 
@@ -25,15 +25,9 @@ local imports = {
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
-    table = {
-        insert = table.insert
-    },
-    string = {
-        gsub = string.gsub
-    },
-    math = {
-        max = math.max
-    }
+    table = table,
+    string = string,
+    math = math
 }
 
 
@@ -363,8 +357,6 @@ dbify["inventory"] = {
 ----------------------------------
 
 imports.addEventHandler("onResourceStart", resourceRoot, function()
-
     if not dbify.mysql.__connection__.instance then return false end
     imports.dbExec(dbify.mysql.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
-
 end)
