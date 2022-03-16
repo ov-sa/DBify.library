@@ -9,6 +9,7 @@
 **DBify** integrates & synchronizes default MTA Accounts & Serials w/ MySQL aiming towards gamemode perspective for efficient & reliable database management, thus giving you more time to focus on your gamemode rather than managing redundant database queries or reinventing the wheel. Moreover, DBify helps you to process your queries efficiently without freezing the server due to its Async nature. This library is a complete overhaul of **mysql_library**, **accounts_library** & **serials_library** developed by **[Tron](https://github.com/OvileAmriam)** with efficient & reliable methodology.
 
 #### [**vEngine ━ DBify-Library**](https://github.com/ov-studio/DBify-Library)
+#### [**Nanos World ━ DBify-Library**](https://github.com/ov-nanos/DBify-Library)
 
 ## ━ Features
 
