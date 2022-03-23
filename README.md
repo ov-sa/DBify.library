@@ -16,7 +16,7 @@
 💎**CONSIDER** [**SPONSORING**](https://ko-fi.com/ovileamriam) **US TO SUPPORT THE DEVELOPMENT.**
 
 * Completely Open-Source
-* Procedure Oriented Programming
+* Modular Programming
 * Completely Performance-Friendly
 * MySQL Based
 * Gamemode Perspective
