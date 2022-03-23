@@ -57,7 +57,7 @@ dbify["inventory"] = {
 
     ensureItems = function(items, callback, ...)
         if not dbify.mysql.__connection__.instance then return false end
-        if not items or (imports.type(items) ~= "table") or not callback or (imports.type(callback) ~= "function") then return false end
+        if not items or (imports.type(items) ~= "table") then return false end
         imports.dbQuery(function(queryHandler, arguments)
             local callbackReference = callback
             local result = imports.dbPoll(queryHandler, 0)
