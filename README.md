@@ -24,7 +24,7 @@
 * Supports Multiple-Queries
 * Supports Module-Extension
 * Supports Direct-Embedding (No exports required)
-* Built-In `Account`, `Serial`, `Character` & `Vehicle` modules
+* Built-In `Account`, `Serial`, `Character`, `Vehicle`, `Inventory` modules
 * Synchronizes default MTA accounts
 * Synchronizes default MTA serials
 * Necessary Integration APIs
