@@ -5,14 +5,14 @@
 local imports = {
     type = type,
     pairs = pairs,
+    unpack = unpack,
     tonumber = tonumber,
     tostring = tostring,
-    toJSON = toJSON,
-    fromJSON = fromJSON,
     addEventHandler = addEventHandler,
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
+    json = json,
     table = table,
     string = string,
     math = math,
@@ -39,13 +39,17 @@ dbify.inventory = {
         }
     },
 
-    fetchAll = function(keyColumns, callback, ...)
+    fetchAll = function(...)
         if not dbify.mysql.connection.instance then return false end
-        return dbify.mysql.table.fetchContents(dbify.inventory.connection.table, keyColumns, callback, ...)
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+        return dbify.mysql.table.fetchContents(dbify.inventory.connection.table, keyColumns, callback, imports.unpack(cArgs))
     end,
 
-    ensureItems = function(items, callback, ...)
+    ensureItems = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not items or (imports.type(items) ~= "table") then return false end
         imports.dbQuery(function(queryHandler, arguments)
             local callbackReference = callback
@@ -107,12 +111,14 @@ dbify.inventory = {
             end
         end, {{{
             items = items
-        }, {...}}}, dbify.mysql.connection.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, dbify.inventory.connection.table)
+        }, cArgs}}, dbify.mysql.connection.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, dbify.inventory.connection.table)
         return true
     end,
 
-    create = function(callback, ...)
+    create = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(1, ...)}
+        local callback = dbify.fetchArg(_, cArgs)
         if not callback or (imports.type(callback) ~= "function") then return false end
         imports.dbQuery(function(queryHandler, arguments)
             local callbackReference = callback
@@ -121,12 +127,14 @@ dbify.inventory = {
             if callbackReference and (imports.type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.keyColumn)
+        end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.keyColumn)
         return true
     end,
 
-    delete = function(inventoryID, callback, ...)
+    delete = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local inventoryID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
         return dbify.inventory.getData(inventoryID, {dbify.inventory.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
@@ -140,23 +148,27 @@ dbify.inventory = {
                     callbackReference(false, arguments)
                 end
             end
-        end, ...)
+        end, imports.unpack(cArgs))
     end,
 
-    setData = function(inventoryID, dataColumns, callback, ...)
+    setData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.inventory.connection.table, dataColumns, {
             {dbify.inventory.connection.keyColumn, inventoryID}
-        }, callback, ...)
+        }, callback, imports.unpack(cArgs))
     end,
 
-    getData = function(inventoryID, dataColumns, callback, ...)
+    getData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.inventory.connection.table, dataColumns, {
             {dbify.inventory.connection.keyColumn, inventoryID}
-        }, true, callback, ...)
+        }, true, callback, imports.unpack(cArgs))
     end,
 
     item = {
@@ -175,13 +187,13 @@ dbify.inventory = {
                             j[1] = "item_"..imports.tostring(j[1])
                             j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                             local prevItemData = result[(j[1])]
-                            prevItemData = (prevItemData and imports.fromJSON(prevItemData)) or false
+                            prevItemData = (prevItemData and imports.json.decode(prevItemData)) or false
                             prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
                             if not prevItemData then
                                 prevItemData = imports.table.clone(dbify.inventory.connection.itemFormat.content, true)
                             end
                             prevItemData.property[(dbify.inventory.connection.itemFormat.counter)] = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.property[(dbify.inventory.connection.itemFormat.counter)]) or 0)*((arguments[1].processType == "push" and 1) or -1))
-                            arguments[1].items[i][2] = imports.toJSON(prevItemData)
+                            arguments[1].items[i][2] = imports.json.encode(prevItemData)
                         end
                         dbify.inventory.setData(arguments[1].inventoryID, arguments[1].items, function(result, arguments)
                             local callbackReference = callback
@@ -215,7 +227,7 @@ dbify.inventory = {
                     if result then
                         local properties = {}
                         for i, j in imports.pairs(result) do
-                            j = (j and imports.fromJSON(j)) or false
+                            j = (j and imports.json.decode(j)) or false
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
@@ -229,7 +241,7 @@ dbify.inventory = {
                                     end
                                     j.property[(v[1])] = v[2]
                                 end
-                                imports.table.insert(properties, {i, imports.toJSON(j)})
+                                imports.table.insert(properties, {i, imports.json.encode(j)})
                             else
                                 local itemIndex = imports.string.gsub(i, "item_", "", 1)
                                 properties[itemIndex] = {}
@@ -279,7 +291,7 @@ dbify.inventory = {
                     if result then
                         local datas = {}
                         for i, j in imports.pairs(result) do
-                            j = (j and imports.fromJSON(j)) or false
+                            j = (j and imports.json.decode(j)) or false
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
@@ -289,7 +301,7 @@ dbify.inventory = {
                                     local v = arguments[1].datas[k]
                                     j.data[imports.tostring(v[1])] = v[2]
                                 end
-                                imports.table.insert(datas, {i, imports.toJSON(j)})
+                                imports.table.insert(datas, {i, imports.json.encode(j)})
                             else
                                 local itemIndex = imports.string.gsub(i, "item_", "", 1)
                                 datas[itemIndex] = {}
@@ -327,28 +339,40 @@ dbify.inventory = {
             end
         },
 
-        add = function(inventoryID, items, callback, ...)
-            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "push", callback, ...)
+        add = function(...)
+            local cArgs = {dbify.parseArgs(3, ...)}
+            local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "push", callback, imports.unpack(cArgs))
         end,
 
-        remove = function(inventoryID, items, callback, ...)
-            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "pop", callback, ...)
+        remove = function(...)
+            local cArgs = {dbify.parseArgs(3, ...)}
+            local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.pushnpop(inventoryID, items, "pop", callback, imports.unpack(cArgs))
         end,
 
-        setProperty = function(inventoryID, items, properties, callback, ...)        
-            return dbify.inventory.item.__utilities__.property_setnget(inventoryID, items, properties, "set", callback, ...)
+        setProperty = function(...)
+            local cArgs = {dbify.parseArgs(4, ...)}
+            local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.property_setnget(inventoryID, items, properties, "set", callback, imports.unpack(cArgs))
         end,
 
-        getProperty = function(inventoryID, items, properties, callback, ...)        
-            return dbify.inventory.item.__utilities__.property_setnget(inventoryID, items, properties, "get", callback, ...)
+        getProperty = function(...)
+            local cArgs = {dbify.parseArgs(4, ...)}
+            local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.property_setnget(inventoryID, items, properties, "get", callback, imports.unpack(cArgs))
         end,
 
-        setData = function(inventoryID, items, datas, callback, ...)        
-            return dbify.inventory.item.__utilities__.data_setnget(inventoryID, items, datas, "set", callback, ...)
+        setData = function(...)
+            local cArgs = {dbify.parseArgs(4, ...)}
+            local inventoryID, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.data_setnget(inventoryID, items, datas, "set", callback, imports.unpack(cArgs))
         end,
 
-        getData = function(inventoryID, items, datas, callback, ...)        
-            return dbify.inventory.item.__utilities__.data_setnget(inventoryID, items, datas, "get", callback, ...)
+        getData = function(...)
+            local cArgs = {dbify.parseArgs(4, ...)}
+            local inventoryID, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            return dbify.inventory.item.__utilities__.data_setnget(inventoryID, items, datas, "get", callback, imports.unpack(cArgs))
         end
     }
 }
