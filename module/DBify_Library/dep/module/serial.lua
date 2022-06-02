@@ -4,6 +4,7 @@
 
 local imports = {
     type = type,
+    unpack = unpack,
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerSerial = getPlayerSerial,
@@ -22,13 +23,17 @@ dbify.serial = {
         keyColumn = "serial"
     },
 
-    fetchAll = function(keyColumns, callback, ...)
+    fetchAll = function(...)
         if not dbify.mysql.connection.instance then return false end
-        return dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns, callback, ...)
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+        return dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns, callback, imports.unpack(cArgs))
     end,
 
-    create = function(serial, callback, ...)
+    create = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") then return false end
         return dbify.serial.getData(serial, {dbify.serial.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
@@ -42,11 +47,13 @@ dbify.serial = {
                     callbackReference(false, arguments)
                 end
             end
-        end, ...)
+        end, imports.unpack(cArgs))
     end,
 
-    delete = function(serial, callback, ...)
+    delete = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") then return false end
         return dbify.serial.getData(serial, {dbify.serial.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
@@ -60,23 +67,27 @@ dbify.serial = {
                     callbackReference(false, arguments)
                 end
             end
-        end, ...)
+        end, imports.unpack(cArgs))
     end,
 
-    setData = function(serial, dataColumns, callback, ...)
+    setData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.serial.connection.table, dataColumns, {
             {dbify.serial.connection.keyColumn, serial}
-        }, callback, ...)
+        }, callback, imports.unpack(cArgs))
     end,
 
-    getData = function(serial, dataColumns, callback, ...)
+    getData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.serial.connection.table, dataColumns, {
             {dbify.serial.connection.keyColumn, serial}
-        }, true, callback, ...)
+        }, true, callback, imports.unpack(cArgs))
     end
 }
 
