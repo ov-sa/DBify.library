@@ -21,6 +21,7 @@
 * MySQL Based
 * Gamemode Perspective
 * Async Data-Handling
+* Async/Await Support
 * Supports Multiple-Queries
 * Supports Module-Extension
 * Supports Direct-Embedding (No exports required)
