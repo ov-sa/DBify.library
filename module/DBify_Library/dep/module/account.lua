@@ -4,6 +4,7 @@
 
 local imports = {
     type = type,
+    unpack = unpack,
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerAccount = getPlayerAccount,
@@ -24,13 +25,17 @@ dbify.account = {
         keyColumn = "name"
     },
 
-    fetchAll = function(keyColumns, callback, ...)
+    fetchAll = function(...)
         if not dbify.mysql.connection.instance then return false end
-        return dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns, callback, ...)
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+        return dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns, callback, imports.unpack(cArgs))
     end,
 
-    create = function(accountName, callback, ...)
+    create = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not accountName or (imports.type(accountName) ~= "string") then return false end
         return dbify.account.getData(accountName, {dbify.account.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
@@ -44,11 +49,13 @@ dbify.account = {
                     callbackReference(false, arguments)
                 end
             end
-        end, ...)
+        end, imports.unpack(cArgs))
     end,
 
-    delete = function(accountName, callback, ...)
+    delete = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(2, ...)}
+        local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not accountName or (imports.type(accountName) ~= "string") then return false end
         return dbify.account.getData(accountName, {dbify.account.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
@@ -62,23 +69,27 @@ dbify.account = {
                     callbackReference(false, arguments)
                 end
             end
-        end, ...)
+        end, imports.unpack(cArgs))
     end,
 
-    setData = function(accountName, dataColumns, callback, ...)
+    setData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.set(dbify.account.connection.table, dataColumns, {
             {dbify.account.connection.keyColumn, accountName}
-        }, callback, ...)
+        }, callback, imports.unpack(cArgs))
     end,
 
-    getData = function(accountName, dataColumns, callback, ...)
+    getData = function(...)
         if not dbify.mysql.connection.instance then return false end
+        local cArgs = {dbify.parseArgs(3, ...)}
+        local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         return dbify.mysql.data.get(dbify.account.connection.table, dataColumns, {
             {dbify.account.connection.keyColumn, accountName}
-        }, true, callback, ...)
+        }, true, callback, imports.unpack(cArgs))
     end
 }
 
