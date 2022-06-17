@@ -2,7 +2,7 @@
 
 ![](https://raw.githubusercontent.com/ov-sa/DBify-Library/Documentation/assets/dbify_banner.png)
 
-##### ━ Maintainer(s): [Aviril](https://github.com/Aviril)
+**━ Maintainer(s):** [**Aviril**](https://github.com/Aviril), [**Mario**](https://github.com/OvileAmriam), [**Tron**](https://github.com/OvileAmriam), [**Anisa**](https://github.com/Anisa-Nur)
 
 **DBify Library** is a open-source MySQL based Async database management library made by **Aviril** for [Multi Theft Auto \(MTA\)](https://multitheftauto.com/).
 
