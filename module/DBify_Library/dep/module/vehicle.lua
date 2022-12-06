@@ -4,6 +4,7 @@
 
 local imports = {
     type = type,
+    tonumber = tonumber,
     addEventHandler = addEventHandler,
     dbQuery = dbQuery,
     dbPoll = dbPoll,
@@ -41,7 +42,7 @@ dbify.vehicle = {
         local promise = function()
             imports.dbQuery(function(queryHandler, cArgs)
                 local _, _, vehicleID = imports.dbPoll(queryHandler, 0)
-                local result = vehicleID or false
+                local result = imports.tonumber((vehicleID)) or false
                 execFunction(callback, result, cArgs)
             end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.connection.table, dbify.vehicle.connection.key)
             return true

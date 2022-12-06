@@ -268,7 +268,7 @@ dbify.inventory = {
         local promise = function()
             imports.dbQuery(function(queryHandler, cArgs)
                 local _, _, inventoryID = imports.dbPoll(queryHandler, 0)
-                local result = inventoryID or false
+                local result = imports.tonumber((inventoryID)) or false
                 execFunction(callback, result, cArgs)
             end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.key)
             return true
