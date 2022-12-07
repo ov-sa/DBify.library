@@ -25,7 +25,6 @@ local imports = {
 
 local cUtility = {
     requestPushPopItem = function(inventoryID, items, processType, callback, cloneTable, ...)
-        if not dbify.mysql.connection.instance then return false end
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
         if cloneTable then items = imports.table.clone(items, true) end
         return dbify.inventory.fetchAll({
@@ -60,7 +59,6 @@ local cUtility = {
     end,
 
     requestSetGetItemProperty = function(inventoryID, items, properties, processType, callback, cloneTable, ...)
-        if not dbify.mysql.connection.instance then return false end
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not properties or (imports.type(properties) ~= "table") or (#properties <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
         if cloneTable then items = imports.table.clone(items, true) end
         for i = 1, #items, 1 do
@@ -116,7 +114,6 @@ local cUtility = {
     end,
 
     requestSetGetItemData = function(inventoryID, items, datas, processType, callback, cloneTable, ...)
-        if not dbify.mysql.connection.instance then return false end
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not datas or (imports.type(datas) ~= "table") or (#datas <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
         if cloneTable then items = imports.table.clone(items, true) end
         for i = 1, #items, 1 do
@@ -189,7 +186,6 @@ dbify.inventory = {
     },
 
     fetchAll = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         local promise = function()
@@ -277,7 +273,6 @@ dbify.inventory = {
     end,
 
     delete = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local inventoryID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
@@ -295,7 +290,6 @@ dbify.inventory = {
     end,
 
     setData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
@@ -308,7 +302,6 @@ dbify.inventory = {
     end,
 
     getData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
