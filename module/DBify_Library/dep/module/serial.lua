@@ -24,7 +24,6 @@ dbify.serial = {
     },
 
     fetchAll = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         local promise = function()
@@ -34,7 +33,6 @@ dbify.serial = {
     end,
 
     create = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") then return false end
@@ -52,7 +50,6 @@ dbify.serial = {
     end,
 
     delete = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") then return false end
@@ -70,7 +67,6 @@ dbify.serial = {
     end,
 
     setData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
@@ -83,7 +79,6 @@ dbify.serial = {
     end,
 
     getData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
