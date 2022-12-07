@@ -26,7 +26,6 @@ dbify.account = {
     },
 
     fetchAll = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local promise = function()
             local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
@@ -36,7 +35,6 @@ dbify.account = {
     end,
 
     create = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local promise = function()
             local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
@@ -54,7 +52,6 @@ dbify.account = {
     end,
 
     delete = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local promise = function()
             local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
@@ -72,7 +69,6 @@ dbify.account = {
     end,
 
     setData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local promise = function()
             local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
@@ -85,7 +81,6 @@ dbify.account = {
     end,
 
     getData = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(3, ...)
         local promise = function()
             local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
