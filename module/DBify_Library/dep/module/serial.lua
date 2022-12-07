@@ -25,8 +25,8 @@ dbify.serial = {
 
     fetchAll = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         local promise = function()
+            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
         end
         return (isAsync and promise) or promise()
@@ -34,9 +34,9 @@ dbify.serial = {
 
     create = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not serial or (imports.type(serial) ~= "string") then return false end
         local promise = function()
+            local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not serial or (imports.type(serial) ~= "string") then return false end
             return dbify.serial.getData(serial, {dbify.serial.connection.key}, function(result, cArgs)
                 if not result then
                     result = imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.serial.connection.table, dbify.serial.connection.key, serial)
@@ -51,9 +51,9 @@ dbify.serial = {
 
     delete = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not serial or (imports.type(serial) ~= "string") then return false end
         local promise = function()
+            local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not serial or (imports.type(serial) ~= "string") then return false end
             return dbify.serial.getData(serial, {dbify.serial.connection.key}, function(result, cArgs)
                 if result then
                     result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.serial.connection.table, dbify.serial.connection.key, serial)
@@ -68,9 +68,9 @@ dbify.serial = {
 
     setData = function(...)
         local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         local promise = function()
+            local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
             return dbify.mysql.data.set(dbify.serial.connection.table, dataColumns, {
                 {dbify.serial.connection.key, serial}
             }, callback, imports.table.unpack(cArgs))
@@ -80,9 +80,9 @@ dbify.serial = {
 
     getData = function(...)
         local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         local promise = function()
+            local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
             return dbify.mysql.data.get(dbify.serial.connection.table, dataColumns, {
                 {dbify.serial.connection.key, serial}
             }, true, callback, imports.table.unpack(cArgs))
