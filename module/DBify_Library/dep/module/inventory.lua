@@ -187,19 +187,19 @@ dbify.inventory = {
 
     fetchAll = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
         local promise = function()
+            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return dbify.mysql.table.fetchContents(dbify.inventory.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
         end
         return (isAsync and promise) or promise()
     end,
 
     ensureItems = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not items or (imports.type(items) ~= "table") then return false end
         local promise = function()
+            if not dbify.mysql.connection.instance then return false end
+            local items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not items or (imports.type(items) ~= "table") then return false end
             imports.dbQuery(function(queryHandler, cArgs)
                 local result = imports.dbPoll(queryHandler, 0)
                 local itemsToBeAdded, itemsToBeDeleted = {}, {}
@@ -257,11 +257,11 @@ dbify.inventory = {
     end,
 
     create = function(...)
-        if not dbify.mysql.connection.instance then return false end
         local isAsync, cArgs = dbify.parseArgs(1, ...)
-        local callback = dbify.fetchArg(_, cArgs)
-        if not callback or (imports.type(callback) ~= "function") then return false end
         local promise = function()
+            if not dbify.mysql.connection.instance then return false end
+            local callback = dbify.fetchArg(_, cArgs)
+            if not callback or (imports.type(callback) ~= "function") then return false end
             imports.dbQuery(function(queryHandler, cArgs)
                 local _, _, inventoryID = imports.dbPoll(queryHandler, 0)
                 local result = imports.tonumber((inventoryID)) or false
@@ -274,9 +274,9 @@ dbify.inventory = {
 
     delete = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local inventoryID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
         local promise = function()
+            local inventoryID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
             return dbify.inventory.getData(inventoryID, {dbify.inventory.connection.key}, function(result, cArgs)
                 if result then
                     result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.inventory.connection.table, dbify.inventory.connection.key, inventoryID)
@@ -291,9 +291,9 @@ dbify.inventory = {
 
     setData = function(...)
         local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         local promise = function()
+            local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
             return dbify.mysql.data.set(dbify.inventory.connection.table, dataColumns, {
                 {dbify.inventory.connection.key, inventoryID}
             }, callback, imports.table.unpack(cArgs))
@@ -303,9 +303,9 @@ dbify.inventory = {
 
     getData = function(...)
         local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
         local promise = function()
+            local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
             return dbify.mysql.data.get(dbify.inventory.connection.table, dataColumns, {
                 {dbify.inventory.connection.key, inventoryID}
             }, true, callback, imports.table.unpack(cArgs))
@@ -316,8 +316,8 @@ dbify.inventory = {
     item = {
         add = function(...)
             local isAsync, cArgs = dbify.parseArgs(3, ...)
-            local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             local promise = function()
+                local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                 return cUtility.requestPushPopItem(inventoryID, items, "push", callback, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
@@ -325,8 +325,8 @@ dbify.inventory = {
 
         remove = function(...)
             local isAsync, cArgs = dbify.parseArgs(3, ...)
-            local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             local promise = function()
+                local inventoryID, items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                 return cUtility.requestPushPopItem(inventoryID, items, "pop", callback, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
@@ -334,8 +334,8 @@ dbify.inventory = {
 
         setProperty = function(...)
             local isAsync, cArgs = dbify.parseArgs(4, ...)
-            local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             local promise = function()
+                local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                 return cUtility.requestSetGetItemProperty(inventoryID, items, properties, "set", callback, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
@@ -343,8 +343,8 @@ dbify.inventory = {
 
         getProperty = function(...)
             local isAsync, cArgs = dbify.parseArgs(4, ...)
-            local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             local promise = function()
+                local inventoryID, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                 return cUtility.requestSetGetItemProperty(inventoryID, items, properties, "get", callback, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
@@ -352,8 +352,8 @@ dbify.inventory = {
 
         setData = function(...)
             local isAsync, cArgs = dbify.parseArgs(4, ...)
-            local inventoryID, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             local promise = function()
+                local inventoryID, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                 return cUtility.requestSetGetItemData(inventoryID, items, datas, "set", callback, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
