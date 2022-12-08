@@ -90,9 +90,8 @@ dbify.mysql = {
                             end
                             imports.dbQuery(function(queryHandler, cArgs)
                                 local result = imports.dbPoll(queryHandler, 0)
-                                if result and (#result > 0) then
-                                    execFunction(callback, result, cArgs)
-                                else execFunction(callback, false, cArgs) end
+                                result = (result and (#result > 0) and result) or false
+                                execFunction(callback, result, cArgs)
                             end, {cArgs[2]}, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
                         else
                             execFunction(callback, false, cArgs[2])
@@ -111,11 +110,10 @@ dbify.mysql = {
                         if isValid then
                             imports.dbQuery(function(queryHandler, cArgs)
                                 local result = imports.dbPoll(queryHandler, 0)
-                                if result and (#result > 0) then
-                                    execFunction(callback, result, cArgs)
-                                else execFunction(callback, false, cArgs) end
+                                result = (result and (#result > 0) and result) or false
+                                execFunction(callback, result, cArgs)
                             end, {cArgs}, dbify.mysql.connection.instance, "SELECT * FROM `??`", tableName)
-                        else execFunction(callback, false, cArgs) end
+                        else execFunction(callback, isValid, cArgs) end
                     end, imports.table.unpack(cArgs))
                 end
                 return (isAsync and promise) or promise()
@@ -137,7 +135,7 @@ dbify.mysql = {
                             result = ((result and (#result > 0)) and true) or false
                             execFunction(callback, result, cArgs)
                         end, {cArgs}, dbify.mysql.connection.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.settings.credentials.database, tableName, columnName)
-                    else execFunction(callback, false, cArgs) end
+                    else execFunction(callback, isValid, cArgs) end
                 end, imports.table.unpack(cArgs))
             end
             return (isAsync and promise) or promise()
@@ -163,9 +161,7 @@ dbify.mysql = {
                             result = ((result and (#result >= #cArgs[1])) and true) or false
                             execFunction(callback, result, cArgs[2])
                         end, {cArgs}, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                    else
-                        execFunction(callback, false, cArgs[2])
-                    end
+                    else execFunction(callback, isValid, cArgs[2]) end
                 end, columns, cArgs)
             end
             return (isAsync and promise) or promise()
@@ -291,11 +287,8 @@ dbify.mysql = {
                         end
                         imports.dbQuery(function(queryHandler, soloFetch, cArgs)
                             local result = imports.dbPoll(queryHandler, 0)
-                            if result and (#result > 0) then
-                                execFunction(callback, (soloFetch and result[1]) or result, cArgs)
-                                return true
-                            end
-                            execFunction(callback, false, cArgs)
+                            result = (result and (#result > 0) and result) or false
+                            execFunction(callback, (result and soloFetch and result[1]) or result, cArgs)
                         end, {cArgs[1].soloFetch, cArgs[2]}, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
                     else
                         execFunction(callback, false, cArgs[2])
