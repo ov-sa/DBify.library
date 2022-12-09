@@ -30,7 +30,8 @@ dbify.character = {
             local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return dbify.mysql.table.fetchContents(dbify.character.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     create = function(...)
@@ -46,7 +47,8 @@ dbify.character = {
             end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
             return true
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     delete = function(...)
@@ -63,7 +65,8 @@ dbify.character = {
                 end
             end, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     setData = function(...)
@@ -75,7 +78,8 @@ dbify.character = {
                 {dbify.character.connection.key, characterID}
             }, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     getData = function(...)
@@ -87,7 +91,8 @@ dbify.character = {
                 {dbify.character.connection.key, characterID}
             }, true, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end
 }
 

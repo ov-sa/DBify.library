@@ -29,7 +29,8 @@ dbify.serial = {
             local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     create = function(...)
@@ -46,7 +47,8 @@ dbify.serial = {
                 end
             end, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     delete = function(...)
@@ -63,7 +65,8 @@ dbify.serial = {
                 end
             end, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     setData = function(...)
@@ -75,7 +78,8 @@ dbify.serial = {
                 {dbify.serial.connection.key, serial}
             }, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     getData = function(...)
@@ -87,7 +91,8 @@ dbify.serial = {
                 {dbify.serial.connection.key, serial}
             }, true, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end
 }
 

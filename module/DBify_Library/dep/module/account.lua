@@ -31,7 +31,8 @@ dbify.account = {
             local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     create = function(...)
@@ -48,7 +49,8 @@ dbify.account = {
                 end
             end, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     delete = function(...)
@@ -65,7 +67,8 @@ dbify.account = {
                 end
             end, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     setData = function(...)
@@ -77,7 +80,8 @@ dbify.account = {
                 {dbify.account.connection.key, accountName}
             }, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end,
 
     getData = function(...)
@@ -89,7 +93,8 @@ dbify.account = {
                 {dbify.account.connection.key, accountName}
             }, true, callback, imports.table.unpack(cArgs))
         end
-        return (isAsync and promise) or promise()
+        if isAsync then promise(); return isAsync
+        else return promise() end
     end
 }
 
