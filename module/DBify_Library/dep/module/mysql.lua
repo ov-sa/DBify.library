@@ -22,8 +22,9 @@ dbify.parseArgs = function(cbIndex, ...)
     if cThread and imports.assetify.thread:isInstance(cThread) then
         if not cbIndex then return false end
         imports.table.remove(rawArgs, 1)
-        imports.table.insert(rawArgs, cbIndex, function(...) return cThread:resolve(...) end)
-        return true, rawArgs
+        local cPromise = imports.assetify.thread:createPromise()
+        imports.table.insert(rawArgs, cbIndex, cPromise.resolve)
+        return cPromise, rawArgs
     end
     return false, rawArgs
 end
@@ -61,7 +62,8 @@ dbify.mysql = {
                 end, {cArgs}, dbify.mysql.connection.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
                 return true
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end,
 
         fetchContents = function(...)
@@ -101,7 +103,8 @@ dbify.mysql = {
                         keyColumns = keyColumns
                     }, cArgs)
                 end
-                return (isAsync and promise) or promise()
+                if isAsync then promise(); return isAsync
+                else return promise() end
             else
                 local promise = function()
                     if not dbify.mysql.connection.instance then return false end
@@ -116,7 +119,8 @@ dbify.mysql = {
                         else execFunction(callback, isValid, cArgs) end
                     end, imports.table.unpack(cArgs))
                 end
-                return (isAsync and promise) or promise()
+                if isAsync then promise(); return isAsync
+                else return promise() end
             end
         end
     },
@@ -138,7 +142,8 @@ dbify.mysql = {
                     else execFunction(callback, isValid, cArgs) end
                 end, imports.table.unpack(cArgs))
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end,
 
         areValid = function(...)
@@ -164,7 +169,8 @@ dbify.mysql = {
                     else execFunction(callback, isValid, cArgs[2]) end
                 end, columns, cArgs)
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end,
 
         delete = function(...)
@@ -188,7 +194,8 @@ dbify.mysql = {
                     end
                 end, columns, cArgs)
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end
     },
 
@@ -246,7 +253,8 @@ dbify.mysql = {
                     keyColumns = keyColumns
                 }, cArgs)
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end,
 
         get = function(...)
@@ -300,7 +308,8 @@ dbify.mysql = {
                     soloFetch = soloFetch
                 }, cArgs)
             end
-            return (isAsync and promise) or promise()
+            if isAsync then promise(); return isAsync
+            else return promise() end
         end
     }
 }
