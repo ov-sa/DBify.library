@@ -222,8 +222,7 @@ dbify.mysql = {
                                     queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
                                 end
                             end
-                            local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                            resolve(result, cArgs)
+                            resolve(imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
                         end)
                     )
                 end,
@@ -275,8 +274,7 @@ dbify.mysql = {
                                     imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
                                 end
                             end
-                            local result = imports.dbExec(dbify.mysql.connection.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments))
-                            resolve(result, cArgs)
+                            resolve(imports.dbExec(dbify.mysql.connection.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs)
                         end)
                     )
                 end,

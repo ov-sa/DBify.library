@@ -26,75 +26,100 @@ dbify.account = {
     },
 
     fetchAll = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            return dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.account.fetchAll(table: keyColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local keyColumns = dbify.util.fetchArg(_, cArgs)
+                        resolve(dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     create = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not accountName or (imports.type(accountName) ~= "string") then return false end
-            return dbify.account.getData(accountName, {dbify.account.connection.key}, function(result, cArgs)
-                if not result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.connection.table, dbify.account.connection.key, accountName)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.account.create(string: accountName)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local accountName = dbify.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
+                        if isExisting then return resolve(false, cArgs) end
+                        resolve(imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     delete = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local accountName, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not accountName or (imports.type(accountName) ~= "string") then return false end
-            return dbify.account.getData(accountName, {dbify.account.connection.key}, function(result, cArgs)
-                if result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.connection.table, dbify.account.connection.key, accountName)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.account.delete(string: accountName)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local accountName = dbify.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
+                        if not isExisting then return resolve(false, cArgs) end
+                        resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     setData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.set(dbify.account.connection.table, dataColumns, {
-                {dbify.account.connection.key, accountName}
-            }, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.account.setData(string: accountName, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
+                        if not isExisting then return resolve(false, cArgs) end
+                        resolve(dbify.mysql.data.set(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     getData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local accountName, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.get(dbify.account.connection.table, dataColumns, {
-                {dbify.account.connection.key, accountName}
-            }, true, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.account.getData(string: accountName, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
+                        if not isExisting then return resolve(false, cArgs) end
+                        resolve(dbify.mysql.data.get(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }, true), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end
 }
 
@@ -115,7 +140,6 @@ imports.assetify.scheduler.execOnModuleLoad(function()
             end
         end
         imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-            if not dbify.mysql.connection.instance then return false end
             dbify.account.create(imports.getAccountName(currAccount))
         end)
     end
