@@ -104,7 +104,7 @@ dbify.mysql = {
                             if not tableName or (imports.type(tableName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT * FROM `??`", {tableName}
-                            if not keyColumns then
+                            if keyColumns then
                                 local __keyColumns, redundantColumns = {}, {}
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
