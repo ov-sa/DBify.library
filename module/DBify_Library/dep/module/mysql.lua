@@ -107,14 +107,15 @@ dbify.mysql = {
                                         imports.table.insert(validateColumns, j[1])
                                     end
                                 end
+                                keyColumns = __keyColumns
                                 local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
                                 if not areValid then return resolve(areValid, cArgs) end
                                 queryString = queryString.." WHERE"
-                                for i = 1, #__keyColumns, 1 do
-                                    local j = __keyColumns[i]
+                                for i = 1, #keyColumns, 1 do
+                                    local j = keyColumns[i]
                                     imports.table.insert(queryArguments, j[1])
                                     imports.table.insert(queryArguments, imports.tostring(j[2]))
-                                    queryString = queryString.." `??`=?"..(((i < #__keyColumns) and " AND") or "")
+                                    queryString = queryString.." `??`=?"..(((i < #keyColumns) and " AND") or "")
                                 end
                             end
                             imports.dbQuery(function(queryHandler)
@@ -230,60 +231,78 @@ dbify.mysql = {
 
     data = {
         set = function(...)
-            local cPromise, cArgs = dbify.util.parseArgs(4, ...)
-            local promise = function()
-                if not dbify.mysql.connection.instance then return false end
-                local tableName, dataColumns, keyColumns, callback = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
-                local __validateKeys, validateKeys = {}, {}
-                for i = 1, #keyColumns, 1 do
-                    local j = keyColumns[i]
-                    if not __validateKeys[(j[1])] then
-                        imports.table.insert(validateKeys, j[1])
-                    end
-                end
-                return dbify.mysql.column.areValid(tableName, validateKeys, function(areValid, cArgs)
-                    if areValid then
-                        local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, cArgs = {}}
-                        for i = 1, #cArgs[1].keyColumns, 1 do
-                            local j = cArgs[1].keyColumns[i]
-                            j[1] = imports.tostring(j[1])
-                            imports.table.insert(queryArguments.cArgs, j[1])
-                            imports.table.insert(queryArguments.cArgs, imports.tostring(j[2]))
-                            queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #cArgs[1].keyColumns) and " AND") or "")
-                        end
-                        queryArguments.subLength = #queryArguments.cArgs
-                        imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, cArgs[1].tableName)
-                        for i = 1, #cArgs[1].dataColumns, 1 do
-                            local j = cArgs[1].dataColumns[i]
-                            j[1] = imports.tostring(j[1])
-                            imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, j[1])
-                            imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, imports.tostring(j[2]))
-                            queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #cArgs[1].dataColumns) and ",") or "")
-                            dbify.mysql.column.isValid(cArgs[1].tableName, j[1], function(isValid, cArgs)
-                                if not isValid then
-                                    imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", cArgs[1], cArgs[2])
+            local cPromise, cArgs = dbify.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.data.set(string: tableName, table: dataColumns, table: keyColumns)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.util.isConnected(reject) then return end
+                            local tableName, dataColumns, keyColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                            if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
+                            local __keyColumns, validateColumns = {}, {}
+                            for i = 1, #keyColumns, 1 do
+                                local j = keyColumns[i]
+                                j[1] = imports.tostring(j[1])
+                                if not validateColumns[(j[1])] then
+                                    validateColumns[(j[1])] = true
+                                    imports.table.insert(__keyColumns, j)
+                                    imports.table.insert(validateColumns, j[1])
                                 end
-                                if cArgs[3] then
-                                    local result = imports.dbExec(dbify.mysql.connection.instance, cArgs[3].queryString, imports.table.unpack(cArgs[3].queryArguments))
-                                    execFunction(callback, result, cArgs[4])
+                            end
+                            keyColumns = __keyColumns
+                            local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
+                            if not areValid then
+                                --TODO: UPDATE
+                            else
+                                --TODO: SET
+                            end
+
+                            return dbify.mysql.column.areValid(tableName, validateKeys, function(areValid, cArgs)
+                                if areValid then
+                                    local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, cArgs = {}}
+                                    for i = 1, #cArgs[1].keyColumns, 1 do
+                                        local j = cArgs[1].keyColumns[i]
+                                        j[1] = imports.tostring(j[1])
+                                        imports.table.insert(queryArguments.cArgs, j[1])
+                                        imports.table.insert(queryArguments.cArgs, imports.tostring(j[2]))
+                                        queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #cArgs[1].keyColumns) and " AND") or "")
+                                    end
+                                    queryArguments.subLength = #queryArguments.cArgs
+                                    imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, cArgs[1].tableName)
+                                    for i = 1, #cArgs[1].dataColumns, 1 do
+                                        local j = cArgs[1].dataColumns[i]
+                                        j[1] = imports.tostring(j[1])
+                                        imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, j[1])
+                                        imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, imports.tostring(j[2]))
+                                        queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #cArgs[1].dataColumns) and ",") or "")
+                                        dbify.mysql.column.isValid(cArgs[1].tableName, j[1], function(isValid, cArgs)
+                                            if not isValid then
+                                                imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", cArgs[1], cArgs[2])
+                                            end
+                                            if cArgs[3] then
+                                                local result = imports.dbExec(dbify.mysql.connection.instance, cArgs[3].queryString, imports.table.unpack(cArgs[3].queryArguments))
+                                                execFunction(callback, result, cArgs[4])
+                                            end
+                                        end, cArgs[1].tableName, j[1], ((i >= #cArgs[1].dataColumns) and {
+                                            queryString = queryStrings[1]..queryStrings[2],
+                                            queryArguments = queryArguments.cArgs
+                                        }) or false, ((i >= #cArgs[1].dataColumns) and cArgs[2]) or false)
+                                    end
+                                else
+                                    execFunction(callback, false, cArgs[2])
                                 end
-                            end, cArgs[1].tableName, j[1], ((i >= #cArgs[1].dataColumns) and {
-                                queryString = queryStrings[1]..queryStrings[2],
-                                queryArguments = queryArguments.cArgs
-                            }) or false, ((i >= #cArgs[1].dataColumns) and cArgs[2]) or false)
-                        end
-                    else
-                        execFunction(callback, false, cArgs[2])
-                    end
-                end, {
-                    tableName = tableName,
-                    dataColumns = dataColumns,
-                    keyColumns = keyColumns
-                }, cArgs)
-            end
-            if cPromise then promise(); return cPromise
-            else return promise() end
+                            end, {
+                                tableName = tableName,
+                                dataColumns = dataColumns,
+                                keyColumns = keyColumns
+                            }, cArgs)
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
         end,
 
         get = function(...)
