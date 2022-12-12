@@ -181,7 +181,7 @@ dbify.mysql = {
                                 end
                             end
                             queryString = queryString..")"
-                            local areValid = dbify.mysql.column.delete("accounts", validateColumns)
+                            local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
                             if not areValid then return resolve(areValid, cArgs) end
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
