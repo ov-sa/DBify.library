@@ -170,16 +170,19 @@ dbify.mysql = {
                             local isValid = dbify.mysql.table.isValid(tableName)
                             if not isValid then return resolve(isValid, cArgs) end
                             local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
-                            local redundantColumns = {}
+                            local validateColumns, redundantColumns = {}, {}
                             for i = 1, #columns, 1 do
                                 local j = imports.tostring(columns[i])
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
+                                    imports.table.insert(validateColumns, j)
                                     imports.table.insert(queryArguments, j)
                                     queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #columns) and " OR") or "")
                                 end
                             end
                             queryString = queryString..")"
+                            local areValid = dbify.mysql.column.delete("accounts", validateColumns)
+                            if not areValid then return resolve(areValid, cArgs) end
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = ((result and (#result >= #columns)) and true) or false
