@@ -24,75 +24,100 @@ dbify.serial = {
     },
 
     fetchAll = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            return dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.serial.fetchAll(table: keyColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local keyColumns = dbify.util.fetchArg(_, cArgs)
+                        resolve(dbify.mysql.table.fetchContents(dbify.serial.connection.table, keyColumns), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     create = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not serial or (imports.type(serial) ~= "string") then return false end
-            return dbify.serial.getData(serial, {dbify.serial.connection.key}, function(result, cArgs)
-                if not result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.serial.connection.table, dbify.serial.connection.key, serial)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.serial.create(string: serial)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local serial = dbify.util.fetchArg(_, cArgs)
+                        if not serial or (imports.type(serial) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.serial.getData(serial, {dbify.serial.connection.key})
+                        if isExisting then return resolve(not isExisting, cArgs) end
+                        resolve(imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.serial.connection.table, dbify.serial.connection.key, serial), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     delete = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local serial, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not serial or (imports.type(serial) ~= "string") then return false end
-            return dbify.serial.getData(serial, {dbify.serial.connection.key}, function(result, cArgs)
-                if result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.serial.connection.table, dbify.serial.connection.key, serial)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.serial.delete(string: serial)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local serial = dbify.util.fetchArg(_, cArgs)
+                        if not serial or (imports.type(serial) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.serial.getData(serial, {dbify.serial.connection.key})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.serial.connection.table, dbify.serial.connection.key, serial), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     setData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.set(dbify.serial.connection.table, dataColumns, {
-                {dbify.serial.connection.key, serial}
-            }, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.serial.setData(string: serial, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local serial, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.serial.getData(serial, {dbify.serial.connection.key})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(dbify.mysql.data.set(dbify.serial.connection.table, dataColumns, { {dbify.serial.connection.key, serial} }), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     getData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local serial, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.get(dbify.serial.connection.table, dataColumns, {
-                {dbify.serial.connection.key, serial}
-            }, true, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.serial.getData(string: serial, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local serial, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.serial.getData(serial, {dbify.serial.connection.key})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(dbify.mysql.data.get(dbify.serial.connection.table, dataColumns, { {dbify.serial.connection.key, serial} }, true), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end
 }
 
@@ -102,7 +127,6 @@ dbify.serial = {
 -----------------------
 
 imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.connection.instance then return false end
     imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.serial.connection.table, dbify.serial.connection.key)
     if dbify.settings.syncSerial then
         local playerList = imports.getElementsByType("player")
@@ -111,7 +135,6 @@ imports.assetify.scheduler.execOnModuleLoad(function()
             dbify.serial.create(playerSerial)
         end
         imports.addEventHandler("onPlayerJoin", root, function()
-            if not dbify.mysql.connection.instance then return false end
             dbify.serial.create(imports.getPlayerSerial(source))
         end)
     end
