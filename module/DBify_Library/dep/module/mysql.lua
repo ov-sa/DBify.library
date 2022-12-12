@@ -101,8 +101,8 @@ dbify.mysql = {
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
                                     j[1] = imports.tostring(j[1])
-                                    if not redundantColumns[(j[1])] then
-                                        redundantColumns[(j[1])] = true
+                                    if not validateColumns[(j[1])] then
+                                        validateColumns[(j[1])] = true
                                         imports.table.insert(__keyColumns, j)
                                         imports.table.insert(validateColumns, j[1])
                                     end
