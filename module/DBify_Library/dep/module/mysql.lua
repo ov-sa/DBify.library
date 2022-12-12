@@ -97,19 +97,16 @@ dbify.mysql = {
                                 local isValid = dbify.mysql.table.isValid(tableName)
                                 if not isValid then return resolve(isValid, cArgs) end
                             else
-                                local __keyColumns, validateColumns = {}, {}
+                                local __keyColumns, redundantColumns = {}, {}
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
                                     j[1] = imports.tostring(j[1])
-                                    if not validateColumns[(j[1])] then
-                                        validateColumns[(j[1])] = true
+                                    if not redundantColumns[(j[1])] then
+                                        redundantColumns[(j[1])] = true
                                         imports.table.insert(__keyColumns, j)
-                                        imports.table.insert(validateColumns, j[1])
                                     end
                                 end
                                 keyColumns = __keyColumns
-                                local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
-                                if not areValid then return resolve(areValid, cArgs) end
                                 queryString = queryString.." WHERE"
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
@@ -171,7 +168,7 @@ dbify.mysql = {
                             local isValid = dbify.mysql.table.isValid(tableName)
                             if not isValid then return resolve(isValid, cArgs) end
                             local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
-                            local redundantColumns = {}, {}
+                            local redundantColumns = {}
                             for i = 1, #columns, 1 do
                                 local j = imports.tostring(columns[i])
                                 if not redundantColumns[j] then
@@ -207,18 +204,15 @@ dbify.mysql = {
                             local isValid = dbify.mysql.table.isValid(tableName)
                             if not isValid then return resolve(isValid, cArgs) end
                             local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
-                            local validateColumns, redundantColumns = {}, {}
+                            local redundantColumns = {}
                             for i = 1, #columns, 1 do
                                 local j = imports.tostring(columns[i])
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
-                                    imports.table.insert(validateColumns, j)
                                     imports.table.insert(queryArguments, j)
                                     queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
                                 end
                             end
-                            local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
-                            if not areValid then return resolve(areValid, cArgs) end
                             local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
                             resolve(result, cArgs)
                         end)
@@ -241,20 +235,17 @@ dbify.mysql = {
                             if not dbify.util.isConnected(reject) then return end
                             local tableName, dataColumns, keyColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
-                            local __keyColumns, validateColumns = {}, {}
+                            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
+                            local __keyColumns, redundantColumns = {}, {}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
                                 j[1] = imports.tostring(j[1])
-                                if not validateColumns[(j[1])] then
-                                    validateColumns[(j[1])] = true
+                                if not redundantColumns[(j[1])] then
+                                    redundantColumns[(j[1])] = true
                                     imports.table.insert(__keyColumns, j)
-                                    imports.table.insert(validateColumns, j[1])
                                 end
                             end
                             keyColumns = __keyColumns
-                            local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
-                            if not areValid then return resolve(areValid, cArgs) end
-                            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
                                 imports.table.insert(queryArguments, j[1])
@@ -283,58 +274,60 @@ dbify.mysql = {
         end,
 
         get = function(...)
-            local cPromise, cArgs = dbify.util.parseArgs(5, ...)
-            local promise = function()
-                if not dbify.mysql.connection.instance then return false end
-                local tableName, dataColumns, keyColumns, soloFetch, callback = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) or not callback or (imports.type(callback) ~= "function") then return false end
-                soloFetch = (soloFetch and true) or false
-                local _validateColumns, validateColumns = {}, {}
-                for i = 1, #dataColumns, 1 do
-                    local j = dataColumns[i]
-                    _validateColumns[j] = true
-                    imports.table.insert(validateColumns, j)
-                end
-                for i = 1, #keyColumns, 1 do
-                    local j = keyColumns[i]
-                    if not _validateColumns[(j[1])] then
-                        _validateColumns[(j[1])] = true
-                        imports.table.insert(validateColumns, j[1])
-                    end
-                end
-                return dbify.mysql.column.areValid(tableName, validateColumns, function(areValid, cArgs)
-                    if areValid then
-                        local queryString, queryArguments = "SELECT", {}
-                        for i = 1, #dataColumns, 1 do
-                            local j = dataColumns[i]
-                            imports.table.insert(queryArguments, imports.tostring(j))
-                            queryString = queryString.." `??`"..(((i < #dataColumns) and ",") or "")
-                        end
-                        imports.table.insert(queryArguments, tableName)
-                        queryString = queryString.." FROM `??` WHERE"
-                        for i = 1, #keyColumns, 1 do
-                            local j = keyColumns[i]
-                            imports.table.insert(queryArguments, imports.tostring(j[1]))
-                            imports.table.insert(queryArguments, imports.tostring(j[2]))
-                            queryString = queryString.." `??`=?"..(((i < #keyColumns) and " AND") or "")
-                        end
-                        imports.dbQuery(function(queryHandler, soloFetch, cArgs)
-                            local result = imports.dbPoll(queryHandler, 0)
-                            result = (result and (#result > 0) and result) or false
-                            execFunction(callback, (result and soloFetch and result[1]) or result, cArgs)
-                        end, {soloFetch, cArgs}, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                    else
-                        execFunction(callback, false, cArgs)
-                    end
-                end, {
-                    tableName = tableName,
-                    dataColumns = dataColumns,
-                    keyColumns = keyColumns,
-                    soloFetch = soloFetch
-                }, cArgs)
-            end
-            if cPromise then promise(); return cPromise
-            else return promise() end
+            local cPromise, cArgs = dbify.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.data.get(string: tableName, table: dataColumns, table: keyColumns)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.util.isConnected(reject) then return end
+                            local tableName, dataColumns, keyColumns, soloFetch = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                            if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
+                            soloFetch = (soloFetch and true) or false
+                            local __keyColumns, __dataColumns, redundantColumns = {}, {}, {}
+                            for i = 1, #keyColumns, 1 do
+                                local j = keyColumns[i]
+                                j[1] = imports.tostring(j[1])
+                                if not redundantColumns[(j[1])] then
+                                    redundantColumns[(j[1])] = true
+                                    imports.table.insert(__keyColumns, j)
+                                end
+                            end
+                            keyColumns, redundantColumns = __keyColumns, {}
+                            for i = 1, #dataColumns, 1 do
+                                local j = dataColumns[i]
+                                dataColumns[i] = imports.tostring(j)
+                                if not redundantColumns[j] then
+                                    redundantColumns[j] = true
+                                    imports.table.insert(__dataColumns, j)
+                                end
+                            end
+                            dataColumns = __dataColumns
+                            local queryString, queryArguments = "SELECT", {}
+                            for i = 1, #dataColumns, 1 do
+                                local j = dataColumns[i]
+                                imports.table.insert(queryArguments, j)
+                                queryString = queryString.." `??`"..(((i < #dataColumns) and ",") or "")
+                            end
+                            imports.table.insert(queryArguments, tableName)
+                            queryString = queryString.." FROM `??` WHERE"
+                            for i = 1, #keyColumns, 1 do
+                                local j = keyColumns[i]
+                                imports.table.insert(queryArguments, imports.tostring(j[1]))
+                                imports.table.insert(queryArguments, imports.tostring(j[2]))
+                                queryString = queryString.." `??`=?"..(((i < #keyColumns) and " AND") or "")
+                            end
+                            imports.dbQuery(function(queryHandler)
+                                local result = imports.dbPoll(queryHandler, 0)
+                                result = (result and (#result > 0) and result) or false
+                                resolve((result and soloFetch and result[1]) or result, cArgs)
+                            end, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
         end
     }
 }
