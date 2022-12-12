@@ -107,7 +107,7 @@ dbify.mysql = {
                                         imports.table.insert(validateColumns, j[1])
                                     end
                                 end
-                                local areValid = dbify.mysql.column.areValid(tableName, validateKeys)
+                                local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
                                 if not areValid then return resolve(areValid, cArgs) end
                                 queryString = queryString.." WHERE"
                                 for i = 1, #__keyColumns, 1 do
@@ -118,7 +118,6 @@ dbify.mysql = {
                                 end
                             end
                             imports.dbQuery(function(queryHandler)
-                                print('REECIEVED')
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = (result and (#result > 0) and result) or false
                                 resolve(result, cArgs)
