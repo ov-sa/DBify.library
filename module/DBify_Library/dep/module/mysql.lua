@@ -23,7 +23,8 @@ local imports = {
 ---------------
 
 local dbifyErrors = {
-    ["table_non-existent"] = "Table: '%s' non-existent"
+    ["table_non-existent"] = "Table: '%s' non-existent",
+    ["columns_non-existent"] = "Table: '%s' doesn't contains specified column(s) to process the query"
 }
 
 dbify.util = {
@@ -105,17 +106,19 @@ dbify.mysql = {
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT * FROM `??`", {tableName}
                             if keyColumns then
-                                local __keyColumns, redundantColumns = {}, {}
+                                queryString = queryString.." WHERE"
+                                local __keyColumns, validateColumns, redundantColumns = {}, {}, {}
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
                                     j[1] = imports.tostring(j[1])
                                     if not redundantColumns[(j[1])] then
                                         redundantColumns[(j[1])] = true
                                         imports.table.insert(__keyColumns, j)
+                                        imports.table.insert(validateColumns, j[1])
                                     end
                                 end
                                 keyColumns = __keyColumns
-                                queryString = queryString.." WHERE"
+                                if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["columns_non-existent"], tableName)) end
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
                                     imports.table.insert(queryArguments, j[1])
@@ -208,17 +211,15 @@ dbify.mysql = {
                             local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
+                            if not dbify.mysql.column.areValid(tableName, columns) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["columns_non-existent"], tableName)) end
                             local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                             local redundantColumns = {}
                             for i = 1, #columns, 1 do
                                 local j = imports.tostring(columns[i])
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
-                                    local isValid = dbify.mysql.column.isValid(tableName, j)
-                                    if isValid then
-                                        imports.table.insert(queryArguments, j)
-                                        queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
-                                    end
+                                    imports.table.insert(queryArguments, j)
+                                    queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
                                 end
                             end
                             local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
