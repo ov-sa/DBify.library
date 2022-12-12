@@ -193,28 +193,35 @@ dbify.mysql = {
         end,
 
         delete = function(...)
-            local cPromise, cArgs = dbify.util.parseArgs(3, ...)
-            local promise = function()
-                if not dbify.mysql.connection.instance then return false end
-                local tableName, columns, callback = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return false end
-                return dbify.mysql.table.isValid(tableName, function(isValid, cArgs)
-                    if isValid then
-                        local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
-                        for i = 1, #cArgs[1], 1 do
-                            local j = cArgs[1][i]
-                            imports.table.insert(queryArguments, imports.tostring(j))
-                            queryString = queryString.." DROP COLUMN `??`"..(((i < #cArgs[1]) and ", ") or "")
-                        end
-                        local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                        execFunction(callback, result, cArgs[2])
-                    else
-                        execFunction(callback, false, cArgs[2])
-                    end
-                end, columns, cArgs)
-            end
-            if cPromise then promise(); return cPromise
-            else return promise() end
+            local cPromise, cArgs = dbify.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.column.delete(string: tableName, table: columns)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.util.isConnected(reject) then return end
+                            local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                            if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                            local isValid = dbify.mysql.table.isValid(tableName)
+                            if not isValid then return resolve(isValid, cArgs) end
+                            local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
+                            local redundantColumns = {}
+                            for i = 1, #columns, 1 do
+                                local j = imports.tostring(columns[i])
+                                if not redundantColumns[j] then
+                                    redundantColumns[j] = true
+                                    imports.table.insert(queryArguments, j)
+                                    queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
+                                end
+                            end
+                            local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                            resolve(result, cArgs)
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
         end
     },
 
