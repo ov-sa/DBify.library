@@ -209,8 +209,11 @@ dbify.mysql = {
                                 local j = imports.tostring(columns[i])
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
-                                    imports.table.insert(queryArguments, j)
-                                    queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
+                                    local isValid = dbify.mysql.column.isValid(tableName, j)
+                                    if isValid then
+                                        imports.table.insert(queryArguments, j)
+                                        queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
+                                    end
                                 end
                             end
                             local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
