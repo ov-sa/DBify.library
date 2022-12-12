@@ -218,7 +218,6 @@ dbify.mysql = {
                             end
                             local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
                             if not areValid then return resolve(areValid, cArgs) end
-                            print("AAAA: "..tostring(areValid))
                             local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
                             resolve(result, cArgs)
                         end)
