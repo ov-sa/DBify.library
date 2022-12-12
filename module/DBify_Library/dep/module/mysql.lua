@@ -253,7 +253,7 @@ dbify.mysql = {
                             end
                             keyColumns = __keyColumns
                             local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
-                            if not isValid then return resolve(isValid, cArgs) end
+                            if not areValid then return resolve(areValid, cArgs) end
                             local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
@@ -265,19 +265,16 @@ dbify.mysql = {
                             for i = 1, #dataColumns, 1 do
                                 local j = dataColumns[i]
                                 j[1] = imports.tostring(j[1])
-                                imports.table.insert(queryArguments, #queryArguments - queryLength, j[1])
-                                imports.table.insert(queryArguments, #queryArguments - queryLength, imports.tostring(j[2]))
+                                imports.table.insert(queryArguments, #queryArguments - queryLength + 1, j[1])
+                                imports.table.insert(queryArguments, #queryArguments - queryLength + 1, imports.tostring(j[2]))
                                 queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #dataColumns) and ",") or "")
                                 local isValid = dbify.mysql.column.isValid(tableName, j[1])
                                 if not isValid then
                                     imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
                                 end
-                                if i >= #dataColumns then
-                                    queryString = queryStrings[1]..queryStrings[2]
-                                    local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                                    resolve(result, cArgs)
-                                end
                             end
+                            local result = imports.dbExec(dbify.mysql.connection.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments))
+                            resolve(result, cArgs)
                         end)
                     )
                 end,
