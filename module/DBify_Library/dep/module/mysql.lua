@@ -254,38 +254,30 @@ dbify.mysql = {
                             keyColumns = __keyColumns
                             local areValid = dbify.mysql.column.areValid(tableName, validateColumns)
                             if not isValid then return resolve(isValid, cArgs) end
-
-                            --TODO: UPDATE
-                            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, cArgs = {}}
+                            local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
-                                j[1] = imports.tostring(j[1])
-                                imports.table.insert(queryArguments.cArgs, j[1])
-                                imports.table.insert(queryArguments.cArgs, imports.tostring(j[2]))
+                                imports.table.insert(queryArguments, j[1])
+                                imports.table.insert(queryArguments, imports.tostring(j[2]))
                                 queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #keyColumns) and " AND") or "")
                             end
-                            queryArguments.subLength = #queryArguments.cArgs
-                            imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, tableName)
+                            local queryLength = #queryArguments - 1
                             for i = 1, #dataColumns, 1 do
                                 local j = dataColumns[i]
                                 j[1] = imports.tostring(j[1])
-                                imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, j[1])
-                                imports.table.insert(queryArguments.cArgs, (#queryArguments.cArgs - queryArguments.subLength) + 1, imports.tostring(j[2]))
+                                imports.table.insert(queryArguments, #queryArguments - queryLength, j[1])
+                                imports.table.insert(queryArguments, #queryArguments - queryLength, imports.tostring(j[2]))
                                 queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #dataColumns) and ",") or "")
-                                dbify.mysql.column.isValid(tableName, j[1], function(isValid, cArgs)
-                                    if not isValid then
-                                        imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", cArgs[1], cArgs)
-                                    end
-                                    if cArgs[3] then
-                                        local result = imports.dbExec(dbify.mysql.connection.instance, cArgs[3].queryString, imports.table.unpack(cArgs[3].queryArguments))
-                                        execFunction(callback, result, cArgs[4])
-                                    end
-                                end, tableName, j[1], ((i >= #dataColumns) and {
-                                    queryString = queryStrings[1]..queryStrings[2],
-                                    queryArguments = queryArguments.cArgs
-                                }) or false, ((i >= #dataColumns) and cArgs) or false)
+                                local isValid = dbify.mysql.column.isValid(tableName, j[1])
+                                if not isValid then
+                                    imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
+                                end
+                                if i >= #dataColumns then
+                                    queryString = queryStrings[1]..queryStrings[2]
+                                    local result = imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                                    resolve(result, cArgs)
+                                end
                             end
-                            --TODO: SET
                         end)
                     )
                 end,
