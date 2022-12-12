@@ -53,7 +53,7 @@ dbify.account = {
                         local accountName = dbify.util.fetchArg(_, cArgs)
                         if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
-                        if isExisting then return resolve(false, cArgs) end
+                        if isExisting then return resolve(not isExisting, cArgs) end
                         resolve(imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
                     end)
                 )
@@ -73,7 +73,7 @@ dbify.account = {
                         local accountName = dbify.util.fetchArg(_, cArgs)
                         if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
-                        if not isExisting then return resolve(false, cArgs) end
+                        if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
                     end)
                 )
@@ -93,7 +93,7 @@ dbify.account = {
                         local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
-                        if not isExisting then return resolve(false, cArgs) end
+                        if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(dbify.mysql.data.set(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }), cArgs)                        
                     end)
                 )
@@ -113,7 +113,7 @@ dbify.account = {
                         local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                         if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
-                        if not isExisting then return resolve(false, cArgs) end
+                        if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(dbify.mysql.data.get(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }, true), cArgs)                        
                     end)
                 )
