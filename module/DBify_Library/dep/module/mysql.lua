@@ -24,7 +24,7 @@ local imports = {
 
 local dbifyErrors = {
     ["table_non-existent"] = "Table: '%s' non-existent",
-    ["columns_non-existent"] = "Table: '%s' doesn't contains specified column(s) to process the query"
+    ["columns_non-existent"] = "Table: '%s' doesn't contain enough specified column(s) to process the query"
 }
 
 dbify.util = {
@@ -245,16 +245,18 @@ dbify.mysql = {
                             local tableName, dataColumns, keyColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
                             local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
-                            local __keyColumns, redundantColumns = {}, {}
+                            local __keyColumns, validateColumns, redundantColumns = {}, {}, {}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
                                 j[1] = imports.tostring(j[1])
                                 if not redundantColumns[(j[1])] then
                                     redundantColumns[(j[1])] = true
                                     imports.table.insert(__keyColumns, j)
+                                    imports.table.insert(validateColumns, j[1])
                                 end
                             end
                             keyColumns = __keyColumns
+                            if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["columns_non-existent"], tableName)) end
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
                                 imports.table.insert(queryArguments, j[1])
@@ -296,13 +298,14 @@ dbify.mysql = {
                             soloFetch = (soloFetch and true) or false
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT", {}
-                            local __keyColumns, __dataColumns, redundantColumns = {}, {}, {}
+                            local __keyColumns, __dataColumns, validateColumns, redundantColumns = {}, {}, {}, {}
                             for i = 1, #keyColumns, 1 do
                                 local j = keyColumns[i]
                                 j[1] = imports.tostring(j[1])
                                 if not redundantColumns[(j[1])] then
                                     redundantColumns[(j[1])] = true
                                     imports.table.insert(__keyColumns, j)
+                                    imports.table.insert(validateColumns, j[1])
                                 end
                             end
                             keyColumns, redundantColumns = __keyColumns, {}
@@ -312,9 +315,11 @@ dbify.mysql = {
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
                                     imports.table.insert(__dataColumns, j)
+                                    imports.table.insert(validateColumns, j)
                                 end
                             end
                             dataColumns = __dataColumns
+                            if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["columns_non-existent"], tableName)) end
                             for i = 1, #dataColumns, 1 do
                                 local j = dataColumns[i]
                                 imports.table.insert(queryArguments, j)
