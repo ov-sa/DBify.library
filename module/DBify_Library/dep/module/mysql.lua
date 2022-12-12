@@ -23,7 +23,7 @@ local imports = {
 ---------------
 
 local dbifyErrors = {
-    ["table_non-existent"] = "Table '%s' non-existent"
+    ["table_non-existent"] = "Table: '%s' non-existent"
 }
 
 dbify.util = {
