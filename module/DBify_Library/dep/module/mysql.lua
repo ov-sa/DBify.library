@@ -17,6 +17,15 @@ local imports = {
     assetify = assetify
 }
 
+
+---------------
+--[[ Utils ]]--
+---------------
+
+local dbifyErrors = {
+    ["table_non-existent"] = "Table '%s' non-existent"
+}
+
 dbify.util = {
     isConnected = function(reject)
         if not dbify.mysql.connection.instance then
@@ -45,10 +54,6 @@ dbify.util = {
         if not errorMsg or (imports.type(errorMsg) ~= "string") then return false end
         return execFunction(reject, "DBify: Error ━│  "..errorMsg)
     end
-}
-
-local dbErrors = {
-    tableNonExistent = "Table <%s> non-existent"
 }
 
 
@@ -97,7 +102,7 @@ dbify.mysql = {
                             local tableName, keyColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             keyColumns = ((keyColumns and (imports.type(keyColumns) == "table") and (#keyColumns > 0)) and keyColumns) or false
                             if not tableName or (imports.type(tableName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
-                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbErrors.tableNonExistent, tableName)) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT * FROM `??`", {tableName}
                             if not keyColumns then
                                 local __keyColumns, redundantColumns = {}, {}
@@ -143,7 +148,7 @@ dbify.mysql = {
                             if not dbify.util.isConnected(reject) then return end
                             local tableName, columnName = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not columnName or (imports.type(columnName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
-                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbErrors.tableNonExistent, tableName)) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = ((result and (#result > 0)) and true) or false
@@ -167,7 +172,7 @@ dbify.mysql = {
                             if not dbify.util.isConnected(reject) then return end
                             local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
-                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbErrors.tableNonExistent, tableName)) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
                             local redundantColumns = {}
                             for i = 1, #columns, 1 do
@@ -202,7 +207,7 @@ dbify.mysql = {
                             if not dbify.util.isConnected(reject) then return end
                             local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
-                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbErrors.tableNonExistent, tableName)) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                             local redundantColumns = {}
                             for i = 1, #columns, 1 do
@@ -288,7 +293,7 @@ dbify.mysql = {
                             local tableName, dataColumns, keyColumns, soloFetch = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
                             soloFetch = (soloFetch and true) or false
-                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbErrors.tableNonExistent, tableName)) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT", {}
                             local __keyColumns, __dataColumns, redundantColumns = {}, {}, {}
                             for i = 1, #keyColumns, 1 do
