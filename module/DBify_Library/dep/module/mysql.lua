@@ -2,7 +2,7 @@
 --[[ Imports ]]--
 -----------------
 
-loadstring(exports.assetify_library:import("threader"))()
+loadstring(exports.assetify:import("threader"))()
 local imports = {
     type = type,
     tostring = tostring,
@@ -154,30 +154,39 @@ dbify.mysql = {
         end,
 
         areValid = function(...)
-            local cPromise, cArgs = dbify.util.parseArgs(3, ...)
-            local promise = function()
-                if not dbify.mysql.connection.instance then return false end
-                local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return false end
-                return dbify.mysql.table.isValid(tableName, function(isValid, cArgs)
-                    if isValid then
-                        local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
-                        for i = 1, #cArgs[1], 1 do
-                            local j = cArgs[1][i]
-                            imports.table.insert(queryArguments, imports.tostring(j))
-                            queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #cArgs[1]) and " OR") or "")
-                        end
-                        queryString = queryString..")"
-                        imports.dbQuery(function(queryHandler, cArgs)
-                            local result = imports.dbPoll(queryHandler, 0)
-                            result = ((result and (#result >= #cArgs[1])) and true) or false
-                            execFunction(callback, result, cArgs[2])
-                        end, {cArgs}, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
-                    else execFunction(callback, isValid, cArgs[2]) end
-                end, columns, cArgs)
-            end
-            if cPromise then promise(); return cPromise
-            else return promise() end
+            local cPromise, cArgs = dbify.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.column.areValid(string: tableName, table: columns)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.util.isConnected(reject) then return end
+                            local tableName, columns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                            if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                            local isValid = dbify.mysql.table.isValid(tableName)
+                            if not isValid then return resolve(isValid, cArgs) end
+                            local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
+                            local redundantColumns = {}
+                            for i = 1, #columns, 1 do
+                                local j = imports.tostring(columns[i])
+                                if not redundantColumns[j] then
+                                    redundantColumns[j] = true
+                                    imports.table.insert(queryArguments, j)
+                                    queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #columns) and " OR") or "")
+                                end
+                            end
+                            queryString = queryString..")"
+                            imports.dbQuery(function(queryHandler)
+                                local result = imports.dbPoll(queryHandler, 0)
+                                result = ((result and (#result >= #columns)) and true) or false
+                                resolve(result, cArgs)
+                            end, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
         end,
 
         delete = function(...)
