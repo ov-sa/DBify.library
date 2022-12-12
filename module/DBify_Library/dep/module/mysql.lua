@@ -97,24 +97,28 @@ dbify.mysql = {
                                 local isValid = dbify.mysql.table.isValid(tableName)
                                 if not isValid then return resolve(isValid, cArgs) end
                             else
-                                local validateKeys, __validateKeys = {}, {}
+                                local __keyColumns, validateColumns = {}, {}
                                 for i = 1, #keyColumns, 1 do
                                     local j = keyColumns[i]
-                                    if not __validateKeys[(j[1])] then
-                                        imports.table.insert(validateKeys, j[1])
+                                    j[1] = imports.tostring(j[1])
+                                    if not redundantColumns[(j[1])] then
+                                        redundantColumns[(j[1])] = true
+                                        imports.table.insert(__keyColumns, j)
+                                        imports.table.insert(validateColumns, j[1])
                                     end
                                 end
                                 local areValid = dbify.mysql.column.areValid(tableName, validateKeys)
                                 if not areValid then return resolve(areValid, cArgs) end
                                 queryString = queryString.." WHERE"
-                                for i = 1, #keyColumns, 1 do
-                                    local j = keyColumns[i]
-                                    imports.table.insert(queryArguments, imports.tostring(j[1]))
+                                for i = 1, #__keyColumns, 1 do
+                                    local j = __keyColumns[i]
+                                    imports.table.insert(queryArguments, j[1])
                                     imports.table.insert(queryArguments, imports.tostring(j[2]))
-                                    queryString = queryString.." `??`=?"..(((i < #keyColumns) and " AND") or "")
+                                    queryString = queryString.." `??`=?"..(((i < #__keyColumns) and " AND") or "")
                                 end
                             end
                             imports.dbQuery(function(queryHandler)
+                                print('REECIEVED')
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = (result and (#result > 0) and result) or false
                                 resolve(result, cArgs)
