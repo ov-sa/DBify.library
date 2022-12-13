@@ -56,7 +56,7 @@ dbify.vehicle = {
                             local _, _, vehicleID = imports.dbPoll(queryHandler, 0)
                             local result = imports.tonumber((vehicleID)) or false
                             resolve(result, cArgs)
-                        end, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.connection.table, dbify.vehicle.connection.key)
+                        end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.connection.table, dbify.vehicle.connection.key)
                     end)
                 )
             end,
@@ -75,7 +75,7 @@ dbify.vehicle = {
                         if not vehicleID or (imports.type(vehicleID) ~= "number") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.vehicle.getData(vehicleID, {dbify.vehicle.connection.key})
                         if not isExisting then return resolve(isExisting, cArgs) end
-                        resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.vehicle.connection.table, dbify.vehicle.connection.key, vehicleID), cArgs)
+                        resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.vehicle.connection.table, dbify.vehicle.connection.key, vehicleID), cArgs)
                     end)
                 )
             end,

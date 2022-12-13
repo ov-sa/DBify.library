@@ -19,7 +19,7 @@ local imports = {
 
 dbify.mysql.util = {
     isConnected = function(reject)
-        if not dbify.mysql.connection.instance then
+        if not dbify.mysql.instance then
             dbify.mysql.util.throwError(reject, "Connection Dead")
             return false
         end

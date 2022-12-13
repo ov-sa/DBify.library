@@ -80,7 +80,7 @@ local template = [[
                             if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                             local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
                             if isExisting then return resolve(not isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
                         end)
                     )
                 end,
@@ -100,7 +100,7 @@ local template = [[
                             if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                             local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
                         end)
                     )
                 end,
@@ -192,7 +192,7 @@ dbify.createModule = function(config)
         imports.table.insert(queryArguments, j[1])
     end
     queryString = queryString..")"
-    if not imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)) then return false end
+    if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()
     return config
 end

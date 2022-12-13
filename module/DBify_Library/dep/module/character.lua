@@ -41,7 +41,7 @@ dbify.character = {
                             local _, _, characterID = imports.dbPoll(queryHandler, 0)
                             local result = imports.tonumber((characterID)) or false
                             resolve(result, cArgs)
-                        end, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
+                        end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
                     end)
                 )
             end,

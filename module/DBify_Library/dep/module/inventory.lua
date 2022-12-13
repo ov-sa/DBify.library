@@ -206,7 +206,7 @@ dbify.inventory = {
     ensureItems = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local promise = function()
-            if not dbify.mysql.connection.instance then return false end
+            if not dbify.mysql.instance then return false end
             local items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             if not items or (imports.type(items) ~= "table") then return false end
             imports.dbQuery(function(queryHandler, cArgs)
@@ -233,7 +233,7 @@ dbify.inventory = {
                                 local j = cArgs[1].items[i]
                                 dbify.mysql.column.isValid(dbify.inventory.connection.table, j, function(isValid, cArgs)
                                     if not isValid then
-                                        imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, cArgs[1])
+                                        imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, cArgs[1])
                                     end
                                     if cArgs[2] then
                                         execFunction(callback, true, cArgs[2])
@@ -249,7 +249,7 @@ dbify.inventory = {
                         local j = cArgs[1].items[i]
                         dbify.mysql.column.isValid(dbify.inventory.connection.table, j, function(isValid, cArgs)
                             if not isValid then
-                                imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, cArgs[1])
+                                imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, cArgs[1])
                             end
                             if cArgs[2] then
                                 execFunction(callback, true, cArgs[2])
@@ -259,7 +259,7 @@ dbify.inventory = {
                 end
             end, {{{
                 items = items
-            }, cArgs}}, dbify.mysql.connection.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, dbify.inventory.connection.table)
+            }, cArgs}}, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, dbify.inventory.connection.table)
             return true
         end
         if isAsync then promise(); return isAsync
@@ -269,14 +269,14 @@ dbify.inventory = {
     create = function(...)
         local isAsync, cArgs = dbify.parseArgs(1, ...)
         local promise = function()
-            if not dbify.mysql.connection.instance then return false end
+            if not dbify.mysql.instance then return false end
             local callback = dbify.fetchArg(_, cArgs)
             if not callback or (imports.type(callback) ~= "function") then return false end
             imports.dbQuery(function(queryHandler, cArgs)
                 local _, _, inventoryID = imports.dbPoll(queryHandler, 0)
                 local result = imports.tonumber((inventoryID)) or false
                 execFunction(callback, result, cArgs)
-            end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.key)
+            end, {cArgs}, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.key)
             return true
         end
         if isAsync then promise(); return isAsync
@@ -290,7 +290,7 @@ dbify.inventory = {
             if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
             return dbify.inventory.getData(inventoryID, {dbify.inventory.connection.key}, function(result, cArgs)
                 if result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.inventory.connection.table, dbify.inventory.connection.key, inventoryID)
+                    result = imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.inventory.connection.table, dbify.inventory.connection.key, inventoryID)
                     execFunction(callback, result, cArgs)
                 else
                     execFunction(callback, false, cArgs)
@@ -396,6 +396,6 @@ dbify.inventory = {
 -----------------------
 
 imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.connection.instance then return false end
-    imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.connection.table, dbify.inventory.connection.key)
+    if not dbify.mysql.instance then return false end
+    imports.dbExec(dbify.mysql.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.connection.table, dbify.inventory.connection.key)
 end)

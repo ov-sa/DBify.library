@@ -20,9 +20,7 @@ local imports = {
 --------------------
 
 dbify.mysql = {
-    connection = {
-        instance = imports.dbConnect("mysql", "dbname="..(dbify.settings.credentials.database)..";host="..(dbify.settings.credentials.host)..";port="..(dbify.settings.credentials.port)..";charset=utf8;", dbify.settings.credentials.username, dbify.settings.credentials.password, dbify.settings.credentials.options) or false
-    },
+    instance = imports.dbConnect("mysql", "dbname="..(dbify.settings.credentials.database)..";host="..(dbify.settings.credentials.host)..";port="..(dbify.settings.credentials.port)..";charset=utf8;", dbify.settings.credentials.username, dbify.settings.credentials.password, dbify.settings.credentials.options) or false,
 
     table = {
         isValid = function(...)
@@ -40,7 +38,7 @@ dbify.mysql = {
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = ((result and (#result > 0)) and true) or false
                                 resolve(result, cArgs)
-                            end, dbify.mysql.connection.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
+                            end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
                         end)
                     )
                 end,
@@ -87,7 +85,7 @@ dbify.mysql = {
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = result or false
                                 resolve(result, cArgs)
-                            end, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                            end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                         end)
                     )
                 end,
@@ -113,7 +111,7 @@ dbify.mysql = {
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = ((result and (#result > 0)) and true) or false
                                 resolve(result, cArgs)
-                            end, dbify.mysql.connection.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.settings.credentials.database, tableName, columnName)
+                            end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.settings.credentials.database, tableName, columnName)
                         end)
                     )
                 end,
@@ -154,7 +152,7 @@ dbify.mysql = {
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = ((result and (#result >= #columns)) and true) or false
                                 resolve(result, cArgs)
-                            end, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                            end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                         end)
                     )
                 end,
@@ -192,7 +190,7 @@ dbify.mysql = {
                                 imports.table.insert(queryArguments, j)
                                 queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
                             end
-                            resolve(imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
                         end)
                     )
                 end,
@@ -241,10 +239,10 @@ dbify.mysql = {
                                 queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #dataColumns) and ",") or "")
                                 local isValid = dbify.mysql.column.isValid(tableName, j[1])
                                 if not isValid then
-                                    imports.dbExec(dbify.mysql.connection.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
+                                    imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
                                 end
                             end
-                            resolve(imports.dbExec(dbify.mysql.connection.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs)
                         end)
                     )
                 end,
@@ -305,7 +303,7 @@ dbify.mysql = {
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = result or false
                                 resolve((result and soloFetch and result[1]) or false, cArgs)
-                            end, dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments))
+                            end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                         end)
                     )
                 end,
