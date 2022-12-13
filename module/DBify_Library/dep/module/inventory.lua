@@ -170,6 +170,14 @@ local cUtility = {
 --[[ Module: Inventory ]]--
 ---------------------------
 
+local moduleInfo = dbify.createModule({
+    moduleName = "inventory",
+    tableName = "dbify_inventories",
+    structure = {
+        {"id", "BIGINT AUTO_INCREMENT PRIMARY KEY"}
+    }
+})
+
 dbify.inventory = {
     connection = {
         table = "dbify_inventories",

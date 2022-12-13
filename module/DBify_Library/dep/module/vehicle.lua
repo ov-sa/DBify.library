@@ -18,12 +18,15 @@ local imports = {
 --[[ Module: Vehicle ]]--
 -------------------------
 
-dbify.vehicle = {
-    connection = {
-        table = "dbify_vehicles",
-        key = "id"
-    },
+local moduleInfo = dbify.createModule({
+    moduleName = "vehicle",
+    tableName = "dbify_vehicles",
+    structure = {
+        {"id", "BIGINT AUTO_INCREMENT PRIMARY KEY"}
+    }
+})
 
+dbify.vehicle = {
     fetchAll = function(...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
