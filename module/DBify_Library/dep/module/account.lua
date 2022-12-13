@@ -8,7 +8,6 @@ local imports = {
     getPlayerAccount = getPlayerAccount,
     isGuestAccount = isGuestAccount,
     getAccountName = getAccountName,
-    dbExec = dbExec,
     assetify = assetify
 }
 

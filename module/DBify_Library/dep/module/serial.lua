@@ -6,7 +6,6 @@ local imports = {
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerSerial = getPlayerSerial,
-    dbExec = dbExec,
     assetify = assetify
 }
 
