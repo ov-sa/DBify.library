@@ -8,9 +8,9 @@ assetDeps:
     script:
         server:
             -: "connection.lua"
-            -: "orm/template.lua"
-            -: "orm/util.lua"
             -: "orm/mysql.lua"
+            -: "orm/util.lua"
+            -: "orm/template.lua"
             -: "module/account.lua"
             -: "module/serial.lua"
             -: "module/character.lua"

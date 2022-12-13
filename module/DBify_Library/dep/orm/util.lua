@@ -17,10 +17,10 @@ local imports = {
 --[[ Utils ]]--
 ---------------
 
-dbify.util = {
+dbify.mysql.util = {
     isConnected = function(reject)
         if not dbify.mysql.connection.instance then
-            dbify.util.throwError(reject, "Connection Dead")
+            dbify.mysql.util.throwError(reject, "Connection Dead")
             return false
         end
         return true
@@ -52,7 +52,7 @@ dbify.util = {
 --[[ Errors ]]--
 ----------------
 
-dbify.error = {
+dbify.mysql.error = {
     ["table_non-existent"] = "Table: '%s' non-existent",
     ["columns_non-existent"] = "Table: '%s' doesn't contain enough specified column(s) to process the query"
 }

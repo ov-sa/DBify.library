@@ -26,14 +26,14 @@ dbify.account = {
     },
 
     fetchAll = function(...)
-        local cPromise, cArgs = dbify.util.parseArgs(...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local syntaxMsg = "dbify.account.fetchAll(table: keyColumns)"
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local keyColumns = dbify.util.fetchArg(_, cArgs)
+                        local keyColumns = dbify.mysql.util.fetchArg(_, cArgs)
                         resolve(dbify.mysql.table.fetchContents(dbify.account.connection.table, keyColumns), cArgs)
                     end)
                 )
@@ -43,15 +43,15 @@ dbify.account = {
     end,
 
     create = function(...)
-        local cPromise, cArgs = dbify.util.parseArgs(...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local syntaxMsg = "dbify.account.create(string: accountName)"
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local accountName = dbify.util.fetchArg(_, cArgs)
-                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local accountName = dbify.mysql.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
                         if isExisting then return resolve(not isExisting, cArgs) end
                         resolve(imports.dbExec(dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
@@ -63,15 +63,15 @@ dbify.account = {
     end,
 
     delete = function(...)
-        local cPromise, cArgs = dbify.util.parseArgs(...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local syntaxMsg = "dbify.account.delete(string: accountName)"
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local accountName = dbify.util.fetchArg(_, cArgs)
-                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local accountName = dbify.mysql.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
                         if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.connection.table, dbify.account.connection.key, accountName), cArgs)
@@ -83,15 +83,15 @@ dbify.account = {
     end,
 
     setData = function(...)
-        local cPromise, cArgs = dbify.util.parseArgs(...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local syntaxMsg = "dbify.account.setData(string: accountName, table: dataColumns)"
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local accountName, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         local isExisting = dbify.account.getData(accountName, {dbify.account.connection.key})
                         if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(dbify.mysql.data.set(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }), cArgs)                        
@@ -103,15 +103,15 @@ dbify.account = {
     end,
 
     getData = function(...)
-        local cPromise, cArgs = dbify.util.parseArgs(...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local syntaxMsg = "dbify.account.getData(string: accountName, table: dataColumns)"
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local accountName, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local accountName, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                        if not accountName or (imports.type(accountName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         resolve(dbify.mysql.data.get(dbify.account.connection.table, dataColumns, { {dbify.account.connection.key, accountName} }, true), cArgs)                        
                     end)
                 )
