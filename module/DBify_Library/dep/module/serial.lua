@@ -11,9 +11,9 @@ local imports = {
 }
 
 
-----------------
---[[ Module ]]--
-----------------
+------------------------
+--[[ Module: Serial ]]--
+------------------------
 
 local moduleInfo = dbify.createModule({
     moduleName = "serial",

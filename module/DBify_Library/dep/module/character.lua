@@ -18,12 +18,23 @@ local imports = {
 --[[ Module: Character ]]--
 ---------------------------
 
+local moduleInfo = dbify.createModule({
+    moduleName = "character",
+    tableName = "dbify_characters",
+    structure = {
+        {"id", "BIGINT AUTO_INCREMENT PRIMARY KEY"}
+    }
+})
+
+iprint(moduleInfo)
+
 dbify.character = {
     connection = {
         table = "dbify_characters",
         key = "id"
     },
 
+    --[[
     fetchAll = function(...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
@@ -40,6 +51,7 @@ dbify.character = {
             catch = cPromise.reject
         })
     end,
+    ]]--
 
     create = function(...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
@@ -61,6 +73,7 @@ dbify.character = {
         })
     end,
 
+    --[[
     delete = function(...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
@@ -117,14 +130,5 @@ dbify.character = {
             catch = cPromise.reject
         })
     end
+    ]]--
 }
-
-
------------------------
---[[ Module Booter ]]--
------------------------
-
-imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.connection.instance then return false end
-    imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.character.connection.table, dbify.character.connection.key)
-end)
