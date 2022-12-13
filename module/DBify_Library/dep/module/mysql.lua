@@ -101,8 +101,8 @@ dbify.mysql = {
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             if not dbify.util.isConnected(reject) then return end
                             local tableName, keyColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
-                            keyColumns = ((keyColumns and (imports.type(keyColumns) == "table") and (#keyColumns > 0)) and keyColumns) or false
-                            if not tableName or (imports.type(tableName) ~= "string") then return dbify.util.throwError(reject, syntaxMsg) end
+                            if not tableName or (imports.type(tableName) ~= "string") or (keyColumns and (imports.type(keyColumns) ~= "table")) then return dbify.util.throwError(reject, syntaxMsg) end
+                            keyColumns = (keyColumns and (#keyColumns > 0) and keyColumns) or false
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT * FROM `??`", {tableName}
                             if keyColumns then
