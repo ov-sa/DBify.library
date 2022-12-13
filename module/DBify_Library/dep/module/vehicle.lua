@@ -121,13 +121,3 @@ dbify.vehicle = {
         })
     end
 }
-
-
------------------------
---[[ Module Booter ]]--
------------------------
-
-imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.connection.instance then return false end
-    imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.vehicle.connection.table, dbify.vehicle.connection.key)
-end)
