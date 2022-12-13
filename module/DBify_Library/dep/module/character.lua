@@ -26,8 +26,6 @@ local moduleInfo = dbify.createModule({
     }
 })
 
-iprint(moduleInfo)
-
 dbify.character = {
     create = function(...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
