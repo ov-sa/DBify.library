@@ -25,30 +25,40 @@ dbify.character = {
     },
 
     fetchAll = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            return dbify.mysql.table.fetchContents(dbify.character.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.character.fetchAll(table: keyColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local keyColumns = dbify.util.fetchArg(_, cArgs)
+                        resolve(dbify.mysql.table.fetchContents(dbify.character.connection.table, keyColumns), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     create = function(...)
-        local isAsync, cArgs = dbify.parseArgs(1, ...)
-        local promise = function()
-            if not dbify.mysql.connection.instance then return false end
-            local callback = dbify.fetchArg(_, cArgs)
-            if not callback or (imports.type(callback) ~= "function") then return false end
-            imports.dbQuery(function(queryHandler, cArgs)
-                local _, _, characterID = imports.dbPoll(queryHandler, 0)
-                local result = imports.tonumber((characterID)) or false
-                execFunction(callback, result, cArgs)
-            end, {cArgs}, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
-            return true
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.character.create()"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        imports.dbQuery(function(queryHandler, cArgs)
+                            local _, _, characterID = imports.dbPoll(queryHandler, 0)
+                            local result = imports.tonumber((characterID)) or false
+                            resolve(result, cArgs)
+                        end, dbify.mysql.connection.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     delete = function(...)
