@@ -31,18 +31,16 @@ dbify.createModule({
 -----------------------
 
 imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.connection.instance then return false end
     imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.module.account.connection.table, dbify.module.account.connection.key)
-    if dbify.settings.syncAccount then
-        local playerList = imports.getElementsByType("player")
-        for i = 1, #playerList, 1 do
-            local playerAccount = imports.getPlayerAccount(playerList[i])
-            if playerAccount and not imports.isGuestAccount(playerAccount) then
-                dbify.module.account.create(imports.getAccountName(playerAccount))
-            end
+    if not dbify.settings.syncNativeAccounts then return false end
+    local playerList = imports.getElementsByType("player")
+    for i = 1, #playerList, 1 do
+        local playerAccount = imports.getPlayerAccount(playerList[i])
+        if playerAccount and not imports.isGuestAccount(playerAccount) then
+            dbify.module.account.create(imports.getAccountName(playerAccount))
         end
-        imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-            dbify.module.account.create(imports.getAccountName(currAccount))
-        end)
     end
+    imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
+        dbify.module.account.create(imports.getAccountName(currAccount))
+    end)
 end)
