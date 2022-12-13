@@ -18,7 +18,7 @@ local imports = {
 ----------------
 
 local moduleInfo = dbify.createModule({
-    moduleName = "serial",
+    moduleName = "account",
     tableName = "dbify_accounts",
     structure = {
         {"name", "VARCHAR(100) PRIMARY KEY"}
