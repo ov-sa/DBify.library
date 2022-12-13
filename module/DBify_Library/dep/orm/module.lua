@@ -48,11 +48,6 @@ local template = [[
     }
 
     return {
-        connection = {
-            table = "<tableName>",
-            key = "<keyName>"
-        },
-
         fetchAll = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
@@ -62,7 +57,7 @@ local template = [[
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local keyColumns = dbify.mysql.util.fetchArg(_, cArgs)
-                            resolve(dbify.mysql.table.fetchContents(dbify.module["<moduleName>"].connection.table, keyColumns), cArgs)
+                            resolve(dbify.mysql.table.fetchContents(dbify.module["<moduleName>"].___template.tableName, keyColumns), cArgs)
                         end)
                     )
                 end,
@@ -78,7 +73,7 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local queryArguments = {dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key}
+                            local queryArguments = {dbify.module["<moduleName>"].___template.tableName, dbify.module["<moduleName>"].___template.keyName}
                             if dbify.module["<moduleName>"].__template.structure.isAutoIncrement then
                                 imports.dbQuery(function(queryHandler, cArgs)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
@@ -89,7 +84,7 @@ local template = [[
                                 --TODO: AUTO DETECT THIS SOMEHOW..
                                 local identifer = dbify.mysql.util.fetchArg(_, cArgs)
                                 if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                                local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
+                                local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.keyName})
                                 if isExisting then return resolve(not isExisting, cArgs) end
                                 resolve(imports.dbExec(dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(?)", imports.table.unpack(queryArguments), identifer), cArgs) 
                             end
@@ -110,9 +105,9 @@ local template = [[
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer = dbify.mysql.util.fetchArg(_, cArgs)
                             if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
+                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.keyName})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].___template.tableName, dbify.module["<moduleName>"].___template.keyName, identifer), cArgs)
                         end)
                     )
                 end,
@@ -130,9 +125,9 @@ local template = [[
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                             if not identifer or (imports.type(identifer) ~= "<keyType>") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
+                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.keyName})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].connection.table, dataColumns, { {dbify.module["<moduleName>"].connection.key, identifer} }), cArgs)                        
+                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].___template.tableName, dataColumns, { {dbify.module["<moduleName>"].___template.keyName, identifer} }), cArgs)                        
                         end)
                     )
                 end,
@@ -150,7 +145,7 @@ local template = [[
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                             if not identifer or (imports.type(identifer) ~= "<keyType>") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].connection.table, dataColumns, { {dbify.module["<moduleName>"].connection.key, identifer} }, true), cArgs)                        
+                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].___template.tableName, dataColumns, { {dbify.module["<moduleName>"].___template.keyName, identifer} }, true), cArgs)                        
                         end)
                     )
                 end,
@@ -206,6 +201,6 @@ dbify.createModule = function(config)
     queryString = queryString..")"
     if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()
-    dbify.module[(config.moduleName)]._template = config
+    dbify.module[(config.moduleName)].___template = config
     return config
 end
