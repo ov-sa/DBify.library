@@ -62,21 +62,22 @@ dbify.character = {
     end,
 
     delete = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local characterID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not characterID or (imports.type(characterID) ~= "number") then return false end
-            return dbify.character.getData(characterID, {dbify.character.connection.key}, function(result, cArgs)
-                if result then
-                    result = imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.character.connection.table, dbify.character.connection.key, characterID)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.character.delete(int: characterID)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        if not characterID or (imports.type(characterID) ~= "number") then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.character.getData(characterID, {dbify.character.connection.key})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(imports.dbExec(dbify.mysql.connection.instance, "DELETE FROM `??` WHERE `??`=?", dbify.character.connection.table, dbify.character.connection.key, characterID), cArgs)
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     setData = function(...)
