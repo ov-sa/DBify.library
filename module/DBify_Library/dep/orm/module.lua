@@ -7,6 +7,8 @@ local imports = {
     pairs = pairs,
     tostring = tostring,
     loadstring = loadstring,
+    dbQuery = dbQuery,
+    dbPoll = dbPoll,
     dbExec = dbExec,
     table = table,
     string = string
@@ -76,11 +78,21 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local identifer = dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
-                            if isExisting then return resolve(not isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key, identifer), cArgs)
+                            local queryArguments = {dbify.module["<moduleName>"].connection.table, dbify.module["<moduleName>"].connection.key}
+                            if dbify.module["<moduleName>"].__template.structure.isAutoIncrement then
+                                imports.dbQuery(function(queryHandler, cArgs)
+                                    local _, _, identifierID = imports.dbPoll(queryHandler, 0)
+                                    local result = imports.tonumber((identifierID)) or false
+                                    resolve(result, cArgs)
+                                end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", imports.table.unpack(queryArguments))
+                            else
+                                --TODO: AUTO DETECT THIS SOMEHOW..
+                                local identifer = dbify.mysql.util.fetchArg(_, cArgs)
+                                if not identifer or (imports.type(identifer) ~= "<keyType>") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                                local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].connection.key})
+                                if isExisting then return resolve(not isExisting, cArgs) end
+                                resolve(imports.dbExec(dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(?)", imports.table.unpack(queryArguments), identifer), cArgs) 
+                            end
                         end)
                     )
                 end,
@@ -194,5 +206,6 @@ dbify.createModule = function(config)
     queryString = queryString..")"
     if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()
+    dbify.module[(config.moduleName)]._template = config
     return config
 end
