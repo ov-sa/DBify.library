@@ -5,6 +5,8 @@
 local imports = {
     type = type,
     loadstring = loadstring,
+    dbExec = dbExec,
+    table = table,
     string = string
 }
 
@@ -131,12 +133,20 @@ dbify.createModule = function(config)
     config.tableName = (config.tableName and (imports.type(config.tableName) == "string") and config.tableName) or false
     config.keyName = (config.keyName and (imports.type(config.keyName) == "string") and config.keyName) or false
     config.keyType = (config.keyType and (imports.type(config.keyType) == "string") and config.keyType) or false
-    if not config.moduleName or not config.tableName or not config.keyName or not config.keyType then return false end
+    config.structure = (config.structure and (imports.type(config.structure) == "table") and (#config.structure > 0) and config.structure) or false
+    if not config.moduleName or not config.tableName or not config.keyName or not config.keyType or not config.structure then return false end
     local cTemplate = template
+    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.keyName}
     cTemplate = imports.string.gsub(cTemplate, "<moduleName>", config.moduleName)
     cTemplate = imports.string.gsub(cTemplate, "<tableName>", config.tableName)
     cTemplate = imports.string.gsub(cTemplate, "<keyName>", config.keyName)
     cTemplate = imports.string.gsub(cTemplate, "<keyType>", config.keyType)
+    for i = 1, #config.structure, 1 do
+        local j = config.structure[i]
+    end
+    queryString.."`??` VARCHAR(100) PRIMARY KEY" .. or " "
+    queryString = queryString..")"
+    if not imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()
-    return true
+    return config
 end

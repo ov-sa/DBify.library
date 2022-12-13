@@ -17,13 +17,15 @@ local imports = {
 --[[ Module ]]--
 ----------------
 
-local moduleInfo = {
+local moduleInfo = dbify.createModule({
     moduleName = "account",
     tableName = "dbify_accounts",
     keyName = "name",
-    keyType = "string"
-}
-dbify.createModule(moduleInfo)
+    keyType = "string",
+    structure = {
+        {name = "name", type = "VARCHAR(100) PRIMARY KEY"}
+    }
+})
 
 imports.assetify.scheduler.execOnModuleLoad(function()
     imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.module[(moduleInfo.moduleName)].connection.table, dbify.module[(moduleInfo.moduleName)].connection.key)
