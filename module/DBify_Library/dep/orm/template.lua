@@ -4,6 +4,8 @@
 
 local imports = {
     type = type,
+    pairs = pairs,
+    tostring = tostring,
     loadstring = loadstring,
     dbExec = dbExec,
     table = table,
@@ -14,6 +16,26 @@ local imports = {
 -----------------------
 --[[ ORM: Template ]]--
 -----------------------
+
+local templateKeys = {
+    ["TINYINT"] = "number",
+    ["SMALLINT"] = "number",
+    ["MEDIUMINT"] = "number",
+    ["INT"] = "number",
+    ["BIGINT"] = "number",
+    ["VARCHAR"] = "string",
+    ["CHAR"] = "string",
+    ["BINARY"] = "string",
+    ["VARBINARY"] = "string",
+    ["TINYBLOB"] = "string",
+    ["TINYTEXT"] = "string",
+    ["BLOB"] = "string",
+    ["TEXT"] = "string",
+    ["MEDIUMBLOB"] = "string",
+    ["MEDIUMTEXT"] = "string",
+    ["LONGBLOB"] = "string",
+    ["LONGTEXT"] = "string"
+}
 
 local template = [[
     local imports = {
@@ -131,20 +153,43 @@ dbify.createModule = function(config)
     if not config or (imports.type(config) ~= "table") then return false end
     config.moduleName = (config.moduleName and (imports.type(config.moduleName) == "string") and config.moduleName) or false
     config.tableName = (config.tableName and (imports.type(config.tableName) == "string") and config.tableName) or false
-    config.keyName = (config.keyName and (imports.type(config.keyName) == "string") and config.keyName) or false
-    config.keyType = (config.keyType and (imports.type(config.keyType) == "string") and config.keyType) or false
     config.structure = (config.structure and (imports.type(config.structure) == "table") and (#config.structure > 0) and config.structure) or false
-    if not config.moduleName or not config.tableName or not config.keyName or not config.keyType or not config.structure then return false end
-    local cTemplate = template
-    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.keyName}
-    cTemplate = imports.string.gsub(cTemplate, "<moduleName>", config.moduleName)
-    cTemplate = imports.string.gsub(cTemplate, "<tableName>", config.tableName)
-    cTemplate = imports.string.gsub(cTemplate, "<keyName>", config.keyName)
-    cTemplate = imports.string.gsub(cTemplate, "<keyType>", config.keyType)
+    if not config.moduleName or not config.tableName or not config.structure then return false end
+    local structure, redundantColumns = {}, {}
     for i = 1, #config.structure, 1 do
         local j = config.structure[i]
+        j[1] = imports.tostring(j[1])
+        if not redundantColumns[(j[1])] then
+            redundantColumns[(j[1])] = true
+            j[2] = imports.string.upper(imports.tostring(j[2]))
+            local matchedIndex = (imports.string.find(j[2], ",") or (#j[2] + 1)) - 1
+            j[2] = imports.string.sub(j[2], 0, matchedIndex)
+            if imports.string.find(j[2], "PRIMARY KEY") then
+                if structure.keyName then return false end
+                for k, v in imports.pairs(templateKeys) do
+                    if imports.string.find(j[2], k) then
+                        structure.keyName, structure.keyType = j[1], v
+                        break
+                    end
+                end
+                if not structure.keyName then return false end
+            end
+            imports.table.insert(structure, j)
+        end
     end
-    queryString.."`??` VARCHAR(100) PRIMARY KEY" .. or " "
+    config.structure = structure
+    if not config.structure.keyName or not config.structure.keyType or (#config.structure <= 0) then return false end
+    local cTemplate = template
+    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.structure.keyName}
+    cTemplate = imports.string.gsub(cTemplate, "<moduleName>", config.moduleName)
+    cTemplate = imports.string.gsub(cTemplate, "<tableName>", config.tableName)
+    cTemplate = imports.string.gsub(cTemplate, "<keyName>", config.structure.keyName)
+    cTemplate = imports.string.gsub(cTemplate, "<keyType>", config.structure.keyType)
+    for i = 1, #config.structure, 1 do
+        local j = config.structure[i]
+        queryString = queryString.."`??` "..j[2]..(((i < #config.structure) and ", ") or "")
+        imports.table.insert(queryArguments, j[1])
+    end
     queryString = queryString..")"
     if not imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()

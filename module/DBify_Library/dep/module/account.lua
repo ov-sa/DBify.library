@@ -18,17 +18,14 @@ local imports = {
 ----------------
 
 local moduleInfo = dbify.createModule({
-    moduleName = "account",
+    moduleName = "serial",
     tableName = "dbify_accounts",
-    keyName = "name",
-    keyType = "string",
     structure = {
-        {name = "name", type = "VARCHAR(100) PRIMARY KEY"}
+        {"name", "VARCHAR(100) PRIMARY KEY"}
     }
 })
 
 imports.assetify.scheduler.execOnModuleLoad(function()
-    imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.module[(moduleInfo.moduleName)].connection.table, dbify.module[(moduleInfo.moduleName)].connection.key)
     if not dbify.settings.syncNativeAccounts then return false end
     local serverPlayers = imports.getElementsByType("player")
     for i = 1, #serverPlayers, 1 do
