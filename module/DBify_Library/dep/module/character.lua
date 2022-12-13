@@ -81,29 +81,41 @@ dbify.character = {
     end,
 
     setData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local characterID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.set(dbify.character.connection.table, dataColumns, {
-                {dbify.character.connection.key, characterID}
-            }, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.character.setData(int: characterID, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local characterID, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.character.getData(characterID, {dbify.character.connection.key})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(dbify.mysql.data.set(dbify.character.connection.table, dataColumns, { {dbify.character.connection.key, characterID} }), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end,
 
     getData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local characterID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.get(dbify.character.connection.table, dataColumns, {
-                {dbify.character.connection.key, characterID}
-            }, true, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+        local cPromise, cArgs = dbify.util.parseArgs(...)
+        if not cPromise then return false end
+        local syntaxMsg = "dbify.character.getData(int: characterID, table: dataColumns)"
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        local characterID, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
+                        if not characterID or (imports.type(characterID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
+                        resolve(dbify.mysql.data.get(dbify.character.connection.table, dataColumns, { {dbify.character.connection.key, characterID} }, true), cArgs)                        
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
     end
 }
 
