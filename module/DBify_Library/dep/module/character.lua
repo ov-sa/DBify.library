@@ -25,25 +25,3 @@ local moduleInfo = dbify.createModule({
         {"id", "BIGINT AUTO_INCREMENT PRIMARY KEY"}
     }
 })
-
-dbify.character = {
-    create = function(...)
-        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-        if not cPromise then return false end
-        local syntaxMsg = "dbify.character.create()"
-        return try({
-            exec = function(self)
-                return self:await(
-                    imports.assetify.thread:createPromise(function(resolve, reject)
-                        imports.dbQuery(function(queryHandler, cArgs)
-                            local _, _, characterID = imports.dbPoll(queryHandler, 0)
-                            local result = imports.tonumber((characterID)) or false
-                            resolve(result, cArgs)
-                        end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.connection.table, dbify.character.connection.key)
-                    end)
-                )
-            end,
-            catch = cPromise.reject
-        })
-    end
-}

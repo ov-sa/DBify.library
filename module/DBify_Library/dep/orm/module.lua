@@ -7,8 +7,6 @@ local imports = {
     pairs = pairs,
     tostring = tostring,
     loadstring = loadstring,
-    dbQuery = dbQuery,
-    dbPoll = dbPoll,
     dbExec = dbExec,
     table = table,
     string = string
@@ -42,6 +40,9 @@ local templateKeys = {
 local template = [[
     local imports = {
         type = type,
+        tonumber = tonumber,
+        dbQuery = dbQuery,
+        dbPoll = dbPoll,
         dbExec = dbExec,
         table = table,
         assetify = assetify
@@ -74,10 +75,10 @@ local template = [[
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local queryArguments = {dbify.module["<moduleName>"].___template.tableName, dbify.module["<moduleName>"].___template.structure.keyName}
-                            if dbify.module["<moduleName>"].__template.structure.isAutoIncrement then
+                            if dbify.module["<moduleName>"].___template.structure.isAutoIncrement then
                                 imports.dbQuery(function(queryHandler, cArgs)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
-                                    local result = imports.tonumber((identifierID)) or false
+                                    local result = imports.tonumber(identifierID) or false
                                     resolve(result, cArgs)
                                 end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", imports.table.unpack(queryArguments))
                             else
