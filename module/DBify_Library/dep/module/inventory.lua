@@ -193,16 +193,6 @@ dbify.inventory = {
         }
     },
 
-    fetchAll = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local keyColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            return dbify.mysql.table.fetchContents(dbify.inventory.connection.table, keyColumns, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
-    end,
-
     ensureItems = function(...)
         local isAsync, cArgs = dbify.parseArgs(2, ...)
         local promise = function()
@@ -261,67 +251,6 @@ dbify.inventory = {
                 items = items
             }, cArgs}}, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, dbify.inventory.connection.table)
             return true
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
-    end,
-
-    create = function(...)
-        local isAsync, cArgs = dbify.parseArgs(1, ...)
-        local promise = function()
-            if not dbify.mysql.instance then return false end
-            local callback = dbify.fetchArg(_, cArgs)
-            if not callback or (imports.type(callback) ~= "function") then return false end
-            imports.dbQuery(function(queryHandler, cArgs)
-                local _, _, inventoryID = imports.dbPoll(queryHandler, 0)
-                local result = imports.tonumber((inventoryID)) or false
-                execFunction(callback, result, cArgs)
-            end, {cArgs}, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.key)
-            return true
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
-    end,
-
-    delete = function(...)
-        local isAsync, cArgs = dbify.parseArgs(2, ...)
-        local promise = function()
-            local inventoryID, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not inventoryID or (imports.type(inventoryID) ~= "number") then return false end
-            return dbify.inventory.getData(inventoryID, {dbify.inventory.connection.key}, function(result, cArgs)
-                if result then
-                    result = imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.inventory.connection.table, dbify.inventory.connection.key, inventoryID)
-                    execFunction(callback, result, cArgs)
-                else
-                    execFunction(callback, false, cArgs)
-                end
-            end, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
-    end,
-
-    setData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.set(dbify.inventory.connection.table, dataColumns, {
-                {dbify.inventory.connection.key, inventoryID}
-            }, callback, imports.table.unpack(cArgs))
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
-    end,
-
-    getData = function(...)
-        local isAsync, cArgs = dbify.parseArgs(3, ...)
-        local promise = function()
-            local inventoryID, dataColumns, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not inventoryID or (imports.type(inventoryID) ~= "number") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-            return dbify.mysql.data.get(dbify.inventory.connection.table, dataColumns, {
-                {dbify.inventory.connection.key, inventoryID}
-            }, true, callback, imports.table.unpack(cArgs))
         end
         if isAsync then promise(); return isAsync
         else return promise() end

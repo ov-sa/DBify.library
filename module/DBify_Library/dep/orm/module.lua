@@ -75,6 +75,8 @@ local template = [[
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local queryArguments = {dbify.module["<moduleName>"].___template.tableName, dbify.module["<moduleName>"].___template.structure.keyName}
+                            
+                            --TODO: DYNAMICALLY GENERATE VALUES AND QUERY : NULL, ??
                             if dbify.module["<moduleName>"].___template.structure.isAutoIncrement then
                                 imports.dbQuery(function(queryHandler, cArgs)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
@@ -82,7 +84,6 @@ local template = [[
                                     resolve(result, cArgs)
                                 end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", imports.table.unpack(queryArguments))
                             else
-                                --TODO: AUTO DETECT THIS SOMEHOW..
                                 local identifer = dbify.mysql.util.fetchArg(_, cArgs)
                                 if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].___template.structure.keyType) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                                 local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.structure.keyName})
