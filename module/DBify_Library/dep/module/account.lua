@@ -9,26 +9,21 @@ local imports = {
     isGuestAccount = isGuestAccount,
     getAccountName = getAccountName,
     dbExec = dbExec,
-    table = table,
     assetify = assetify
 }
 
 
--------------------------
---[[ Module: Account ]]--
--------------------------
+----------------
+--[[ Module ]]--
+----------------
 
-dbify.createModule({
+local moduleInfo = {
     moduleName = "account",
     tableName = "dbify_accounts",
     keyName = "name",
     keyType = "string"
-})
-
-
------------------------
---[[ Module Booter ]]--
------------------------
+}
+dbify.createModule(moduleInfo)
 
 imports.assetify.scheduler.execOnModuleLoad(function()
     imports.dbExec(dbify.mysql.connection.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.module.account.connection.table, dbify.module.account.connection.key)
