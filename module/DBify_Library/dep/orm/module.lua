@@ -68,7 +68,7 @@ local template = [[
         create = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].create(<keyType>: <keyName>)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].create("..dbify.module["<moduleName>"].___template.structure.keyType..": "..dbify.module["<moduleName>"].___template.structure.keyName..")"
             return try({
                 exec = function(self)
                     return self:await(
@@ -98,7 +98,7 @@ local template = [[
         delete = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].delete(<keyType>: <keyName>)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].delete("..dbify.module["<moduleName>"].___template.structure.keyType..": "..dbify.module["<moduleName>"].___template.structure.keyName..")"
             return try({
                 exec = function(self)
                     return self:await(
@@ -118,7 +118,7 @@ local template = [[
         setData = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].setData(<keyType>: <keyName>, table: dataColumns)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].setData("..dbify.module["<moduleName>"].___template.structure.keyType..": "..dbify.module["<moduleName>"].___template.structure.keyName..", table: dataColumns)"
             return try({
                 exec = function(self)
                     return self:await(
@@ -138,7 +138,7 @@ local template = [[
         getData = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].getData(<keyType>: <keyName>, table: dataColumns)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].getData("..dbify.module["<moduleName>"].___template.structure.keyType..": "..dbify.module["<moduleName>"].___template.structure.keyName..", table: dataColumns)"
             return try({
                 exec = function(self)
                     return self:await(
@@ -187,12 +187,7 @@ dbify.createModule = function(config)
     end
     config.structure = structure
     if not config.structure.keyName or not config.structure.keyType or (#config.structure <= 0) then return false end
-    local cTemplate = template
     local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.structure.keyName}
-    cTemplate = imports.string.gsub(cTemplate, "<moduleName>", config.moduleName)
-    cTemplate = imports.string.gsub(cTemplate, "<tableName>", config.tableName)
-    cTemplate = imports.string.gsub(cTemplate, "<keyName>", config.structure.keyName)
-    cTemplate = imports.string.gsub(cTemplate, "<keyType>", config.structure.keyType)
     for i = 1, #config.structure, 1 do
         local j = config.structure[i]
         queryString = queryString.."`??` "..j[2]..(((i < #config.structure) and ", ") or "")
@@ -200,7 +195,7 @@ dbify.createModule = function(config)
     end
     queryString = queryString..")"
     if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
-    dbify.module[(config.moduleName)] = imports.loadstring(cTemplate)()
+    dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
     dbify.module[(config.moduleName)].___template = config
     return config
 end
