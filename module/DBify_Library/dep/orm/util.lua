@@ -13,9 +13,9 @@ local imports = {
 }
 
 
----------------
---[[ Utils ]]--
----------------
+-------------------
+--[[ ORM: Util ]]--
+-------------------
 
 dbify.mysql.util = {
     isConnected = function(reject)
@@ -48,9 +48,9 @@ dbify.mysql.util = {
 }
 
 
-----------------
---[[ Errors ]]--
-----------------
+--------------------
+--[[ ORM: Error ]]--
+--------------------
 
 dbify.mysql.error = {
     ["table_non-existent"] = "Table: '%s' non-existent",
