@@ -164,12 +164,12 @@ dbify.createModule = function(config)
             j[2] = imports.string.upper(imports.tostring(j[2]))
             local matchedIndex = (imports.string.find(j[2], ",") or (#j[2] + 1)) - 1
             j[2] = imports.string.sub(j[2], 0, matchedIndex)
-            if imports.string.find(j[2], "PRIMARY KEY") or imports.string.find(j[2], "PRIMARY_KEY") then
+            if imports.string.find(j[2], "PRIMARY KEY") then
                 if structure.keyName then return false end
                 for k, v in imports.pairs(templateKeys) do
                     if imports.string.find(j[2], k) then
                         structure.keyName, structure.keyType = j[1], v
-                        structure.isAutoIncrement = ((imports.string.find(j[2], "AUTO INCREMENT") or imports.string.find(j[2], "AUTO_INCREMENT")) and true) or false
+                        structure.isAutoIncrement = (imports.string.find(j[2], "AUTO_INCREMENT") and true) or false
                         break
                     end
                 end
