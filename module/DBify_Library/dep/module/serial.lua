@@ -110,8 +110,6 @@ dbify.serial = {
                     imports.assetify.thread:createPromise(function(resolve, reject)
                         local serial, dataColumns = dbify.util.fetchArg(_, cArgs), dbify.util.fetchArg(_, cArgs)
                         if not serial or (imports.type(serial) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
-                        local isExisting = dbify.serial.getData(serial, {dbify.serial.connection.key})
-                        if not isExisting then return resolve(isExisting, cArgs) end
                         resolve(dbify.mysql.data.get(dbify.serial.connection.table, dataColumns, { {dbify.serial.connection.key, serial} }, true), cArgs)                        
                     end)
                 )

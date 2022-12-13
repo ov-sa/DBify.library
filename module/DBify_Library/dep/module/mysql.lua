@@ -177,14 +177,20 @@ dbify.mysql = {
                             if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (#columns <= 0) then return dbify.util.throwError(reject, syntaxMsg) end
                             if not dbify.mysql.table.isValid(tableName) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
-                            local redundantColumns = {}
+                            local __columns, redundantColumns = {}, {}
                             for i = 1, #columns, 1 do
-                                local j = imports.tostring(columns[i])
+                                columns[i] = imports.tostring(columns[i])
+                                local j = columns[i]
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
-                                    imports.table.insert(queryArguments, j)
-                                    queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #columns) and " OR") or "")
+                                    imports.table.insert(__columns, j)
                                 end
+                            end
+                            columns = __columns
+                            for i = 1, #columns, 1 do
+                                local j = columns[i]
+                                imports.table.insert(queryArguments, j)
+                                queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #columns) and " OR") or "")
                             end
                             queryString = queryString..")"
                             imports.dbQuery(function(queryHandler)
@@ -214,13 +220,20 @@ dbify.mysql = {
                             if not dbify.mysql.column.areValid(tableName, columns) then return dbify.util.throwError(reject, imports.string.format(dbifyErrors["columns_non-existent"], tableName)) end
                             local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                             local redundantColumns = {}
+                            local __columns, redundantColumns = {}, {}
                             for i = 1, #columns, 1 do
-                                local j = imports.tostring(columns[i])
+                                columns[i] = imports.tostring(columns[i])
+                                local j = columns[i]
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
-                                    imports.table.insert(queryArguments, j)
-                                    queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
+                                    imports.table.insert(__columns, j)
                                 end
+                            end
+                            columns = __columns
+                            for i = 1, #columns, 1 do
+                                local j = columns[i]
+                                imports.table.insert(queryArguments, j)
+                                queryString = queryString.." DROP COLUMN `??`"..(((i < #columns) and ", ") or "")
                             end
                             resolve(imports.dbExec(dbify.mysql.connection.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
                         end)
@@ -308,8 +321,8 @@ dbify.mysql = {
                             end
                             keyColumns, redundantColumns = __keyColumns, {}
                             for i = 1, #dataColumns, 1 do
+                                dataColumns[i] = imports.tostring(dataColumns[i])
                                 local j = dataColumns[i]
-                                dataColumns[i] = imports.tostring(j)
                                 if not redundantColumns[j] then
                                     redundantColumns[j] = true
                                     imports.table.insert(__dataColumns, j)
