@@ -69,7 +69,6 @@ local template = [[
         create = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].create("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..")"
             return try({
                 exec = function(self)
                     return self:await(
@@ -83,19 +82,22 @@ local template = [[
                                 local isToBeIndexed = not isPrimaryKey or not j.__TMP.isAutoIncrement
                                 if isToBeIndexed then
                                     local queryArg = dbify.mysql.util.fetchArg(_, cArgs)
-                                    local isLastIndex = ((i < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (i ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
-                                    queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isLastIndex and ", ") or ""), queryStrings[2].."?"..((isLastIndex and ", ") or "")
+                                    local isNonLastIndex = ((i < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (i ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
+                                    queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isNonLastIndex and ", ") or ""), queryStrings[2].."?"..((isNonLastIndex and ", ") or "")
                                     imports.table.insert(queryArguments, j[1])
                                     imports.table.insert(querySubArguments, queryArg)
                                     if j.__TMP.hasDefaultValue or (j.__TMP.isNotNull and (not queryArg or (imports.type(queryArg) ~= j.__TMP.type))) then
-                                        --TODO:... REPLACE AND CHECK FOR ALL ARGS
-                                        --for k, v in imports.pairs(templateKeys) do
-                                          --  if imports.string.find(j[2], k) then
-                                            --    structure.keyName, structure.keyType = j[1], v
-                                              --  structure.isKeyAutoIncrement = (imports.string.find(j[2], "AUTO_INCREMENT") and true) or false
-                                                --break
-                                            --end
-                                        --end
+                                        local isPrimaryKeyMatched = false
+                                        local syntaxMsg = "dbify.module[\"<moduleName>\"].create("
+                                        for k = 1, #dbify.module["<moduleName>"].__TMP.structure, 1 do
+                                            local v = dbify.module["<moduleName>"].__TMP.structure[k]
+                                            local isPrimaryKey = k == dbify.module["<moduleName>"].__TMP.structure.key
+                                            isPrimaryKeyMatched = isPrimaryKey or isPrimaryKeyMatched
+                                            syntaxMsg = syntaxMsg..(v.__TMP.type)..": "..v[1]
+                                            local isNonLastIndex = ((k < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (k ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
+                                            syntaxMsg = syntaxMsg..(isNonLastIndex and ", ") or ""
+                                        end
+                                        syntaxMsg = syntaxMsg..")"
                                         return dbify.mysql.util.throwError(reject, syntaxMsg)
                                     end
                                     if isPrimaryKey and not j.__TMP.isAutoIncrement then
