@@ -78,17 +78,18 @@ local template = [[
                             local queryStrings, queryArguments, querySubArguments = {"INSERT INTO `??` (", " VALUES("}, {dbify.module["<moduleName>"].__TMP.tableName}, {}
                             for i = 1, #dbify.module["<moduleName>"].__TMP.structure, 1 do
                                 local j = dbify.module["<moduleName>"].__TMP.structure[i]
-                                isPrimaryKeyMatched = isPrimaryKeyMatched or (j[1] == dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1])
-                                local isToBeIndexed = (j[1] ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]) or not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement
+                                isPrimaryKeyMatched = (i == dbify.module["<moduleName>"].__TMP.structure.key) or isPrimaryKeyMatched
+                                local isToBeIndexed = (i ~= dbify.module["<moduleName>"].__TMP.structure.key) or not j.__TMP.isAutoIncrement
                                 if isToBeIndexed then
+                                    local queryArg = dbify.mysql.util.fetchArg(_, cArgs)
                                     local isLastIndex = ((i < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (i ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
                                     queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isLastIndex and ", ") or ""), queryStrings[2].."?"..((isLastIndex and ", ") or "")
                                     imports.table.insert(queryArguments, j[1])
-                                    imports.table.insert(querySubArguments, dbify.mysql.util.fetchArg(_, cArgs))
-                                    if not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement then
-                                        local identifier = querySubArguments[(#querySubArguments)]
-                                        if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) then
-
+                                    imports.table.insert(querySubArguments, queryArg)
+                                    if j.__TMP.isNotNull and (not queryArg or (imports.type(queryArg) ~= j.__TMP.type)) then
+                                        return dbify.mysql.util.throwError(reject, syntaxMsg)
+                                    end
+                                    if not j.__TMP.isAutoIncrement then
                                             --TODO:... REPLACE AND CHECK FOR ALL ARGS
                                             --for k, v in imports.pairs(templateKeys) do
                                               --  if imports.string.find(j[2], k) then
@@ -97,9 +98,6 @@ local template = [[
                                                     --break
                                                 --end
                                             --end
-
-                                            return dbify.mysql.util.throwError(reject, syntaxMsg)
-                                        end
                                         local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                                         if isExisting then return resolve(not isExisting, cArgs) end
                                     end
@@ -215,6 +213,7 @@ dbify.createModule = function(config)
             j.__TMP.isAutoIncrement = j.__TMP.isAutoIncrement or false
             if imports.string.find(j[2], "PRIMARY KEY") then
                 if structure.key then return false end
+                j.__TMP.isNotNull = true
                 structure.key = #structure
             end
             imports.table.insert(structure, j)
