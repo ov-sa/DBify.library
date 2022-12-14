@@ -95,7 +95,7 @@ local template = [[
                                             isPrimaryKeyMatched = isPrimaryKey or isPrimaryKeyMatched
                                             syntaxMsg = syntaxMsg..(v.__TMP.type)..": "..v[1]
                                             local isNonLastIndex = ((k < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (k ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
-                                            syntaxMsg = syntaxMsg..(isNonLastIndex and ", ") or ""
+                                            syntaxMsg = syntaxMsg..((isNonLastIndex and ", ") or "")
                                         end
                                         syntaxMsg = syntaxMsg..")"
                                         return dbify.mysql.util.throwError(reject, syntaxMsg)
