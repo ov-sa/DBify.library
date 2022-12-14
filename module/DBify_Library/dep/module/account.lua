@@ -24,16 +24,17 @@ local moduleInfo = dbify.createModule({
     }
 })
 
-imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.settings.syncNativeAccounts then return false end
-    local serverPlayers = imports.getElementsByType("player")
-    for i = 1, #serverPlayers, 1 do
-        local playerAccount = imports.getPlayerAccount(serverPlayers[i])
-        if playerAccount and not imports.isGuestAccount(playerAccount) then
-            dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(playerAccount))
+if dbify.settings.syncNativeAccounts then
+    imports.assetify.scheduler.execOnModuleLoad(function()
+        local serverPlayers = imports.getElementsByType("player")
+        for i = 1, #serverPlayers, 1 do
+            local playerAccount = imports.getPlayerAccount(serverPlayers[i])
+            if playerAccount and not imports.isGuestAccount(playerAccount) then
+                dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(playerAccount))
+            end
         end
-    end
-    imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-        dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(currAccount))
+        imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
+            dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(currAccount))
+        end)
     end)
-end)
+end

@@ -22,14 +22,15 @@ local moduleInfo = dbify.createModule({
     }
 })
 
-imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.settings.syncNativeSerials then return false end
-    local serverPlayers = imports.getElementsByType("player")
-    for i = 1, #serverPlayers, 1 do
-        local playerSerial = imports.getPlayerSerial(serverPlayers[i])
-        dbify.module[(moduleInfo.moduleName)].create(playerSerial)
-    end
-    imports.addEventHandler("onPlayerJoin", root, function()
-        dbify.module[(moduleInfo.moduleName)].create(imports.getPlayerSerial(source))
+if dbify.settings.syncNativeSerials then
+    imports.assetify.scheduler.execOnModuleLoad(function()
+        local serverPlayers = imports.getElementsByType("player")
+        for i = 1, #serverPlayers, 1 do
+            local playerSerial = imports.getPlayerSerial(serverPlayers[i])
+            dbify.module[(moduleInfo.moduleName)].create(playerSerial)
+        end
+        imports.addEventHandler("onPlayerJoin", root, function()
+            dbify.module[(moduleInfo.moduleName)].create(imports.getPlayerSerial(source))
+        end)
     end)
-end)
+end

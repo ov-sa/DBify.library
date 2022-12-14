@@ -24,9 +24,9 @@ local imports = {
 -----------------
 
 local cUtility = {
-    requestPushPopItem = function(inventoryID, items, processType, callback, cloneTable, ...)
+    requestPushPopItem = function(inventoryID, items, processType, callback, ...)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
-        if cloneTable then items = imports.table.clone(items, true) end
+        items = imports.table.clone(items, true)
         return dbify.inventory.fetchAll({
             {dbify.inventory.connection.key, inventoryID},
         }, function(result, cArgs)
@@ -58,9 +58,9 @@ local cUtility = {
         }, imports.table.pack(...))
     end,
 
-    requestSetGetItemProperty = function(inventoryID, items, properties, processType, callback, cloneTable, ...)
+    requestSetGetItemProperty = function(inventoryID, items, properties, processType, callback, ...)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not properties or (imports.type(properties) ~= "table") or (#properties <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
-        if cloneTable then items = imports.table.clone(items, true) end
+        items = imports.table.clone(items, true)
         for i = 1, #items, 1 do
             local j = items[i]
             items[i] = "item_"..imports.tostring(j)
@@ -113,9 +113,9 @@ local cUtility = {
         }, imports.table.pack(...))
     end,
 
-    requestSetGetItemData = function(inventoryID, items, datas, processType, callback, cloneTable, ...)
+    requestSetGetItemData = function(inventoryID, items, datas, processType, callback, ...)
         if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not datas or (imports.type(datas) ~= "table") or (#datas <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
-        if cloneTable then items = imports.table.clone(items, true) end
+        items = imports.table.clone(items, true)
         for i = 1, #items, 1 do
             local j = items[i]
             items[i] = "item_"..imports.tostring(j)
@@ -318,13 +318,3 @@ dbify.inventory = {
         end
     }
 }
-
-
------------------------
---[[ Module Booter ]]--
------------------------
-
-imports.assetify.scheduler.execOnModuleLoad(function()
-    if not dbify.mysql.instance then return false end
-    imports.dbExec(dbify.mysql.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.connection.table, dbify.inventory.connection.key)
-end)
