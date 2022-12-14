@@ -74,21 +74,43 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local queryArguments = {dbify.module["<moduleName>"].___template.tableName, dbify.module["<moduleName>"].___template.structure.keyName}
-                            
-                            --TODO: DYNAMICALLY GENERATE VALUES AND QUERY : NULL, ??
+                            local isPrimaryKeyFound = false
+                            local queryStrings, queryArguments, querySubArguments = {"INSERT INTO `??` (", " VALUES("}, {dbify.module["<moduleName>"].___template.tableName}, {}
+                            print("YAA")
+                            for i = 1, #dbify.module["<moduleName>"].___template.structure, 1 do
+                                local j = dbify.module["<moduleName>"].___template.structure[i]
+                                isPrimaryKeyFound = isPrimaryKeyFound or (j[1] == dbify.module["<moduleName>"].___template.structure.keyName)
+                                print(tostring(isPrimaryKeyFound))
+                                local isToBeIndexed = (j[1] ~= dbify.module["<moduleName>"].___template.structure.keyName) or not dbify.module["<moduleName>"].___template.structure.isAutoIncrement
+                                if isToBeIndexed then
+                                    local isLastIndex = ((i < #dbify.module["<moduleName>"].___template.structure) and (isPrimaryKeyFound or (i ~= (#dbify.module["<moduleName>"].___template.structure - 1))) and true) or false
+                                    queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isLastIndex and ",") or ""), queryStrings[2].."?"..((isLastIndex and ",") or "")
+                                    imports.table.insert(queryArguments, j[1])
+                                    imports.table.insert(querySubArguments, dbify.mysql.util.fetchArg(_, cArgs))
+                                    if not dbify.module["<moduleName>"].___template.structure.isAutoIncrement then
+                                        local identifier = querySubArguments[(#querySubArguments)]
+                                        if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].___template.structure.keyType) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                                        local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.structure.keyName})
+                                        if isExisting then return resolve(not isExisting, cArgs) end
+                                    end
+                                end
+                            end
+                            for i = 1, #querySubArguments, 1 do
+                                local j = querySubArguments[i]
+                                imports.table.insert(queryArguments, j)
+                            end
+                            queryStrings[1], queryStrings[2] = queryStrings[1]..")", queryStrings[2]..(((#queryArguments <= 1) and "NULL") or "")..")"
+                            print("QUERY: "..queryStrings[1]..queryStrings[2])
+
+                            if true then return false end
                             if dbify.module["<moduleName>"].___template.structure.isAutoIncrement then
                                 imports.dbQuery(function(queryHandler, cArgs)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
                                     local result = imports.tonumber(identifierID) or false
                                     resolve(result, cArgs)
-                                end, dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", imports.table.unpack(queryArguments))
+                                end, dbify.mysql.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments))
                             else
-                                local identifer = dbify.mysql.util.fetchArg(_, cArgs)
-                                if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].___template.structure.keyType) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                                local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].___template.structure.keyName})
-                                if isExisting then return resolve(not isExisting, cArgs) end
-                                resolve(imports.dbExec(dbify.mysql.instance, "INSERT INTO `??` (`??`) VALUES(?)", imports.table.unpack(queryArguments), identifer), cArgs) 
+                                resolve(imports.dbExec(dbify.mysql.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs) 
                             end
                         end)
                     )
@@ -196,7 +218,8 @@ dbify.createModule = function(config)
         imports.table.insert(queryArguments, j[1])
     end
     queryString = queryString..")"
-    if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
+    --if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
+    assetify.file:write("aa.lua", imports.string.gsub(template, "<moduleName>", config.moduleName))
     dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
     dbify.module[(config.moduleName)].___template = config
     return config
