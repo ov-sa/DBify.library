@@ -69,7 +69,7 @@ local template = [[
         create = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].create("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]..")"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].create("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..")"
             return try({
                 exec = function(self)
                     return self:await(
@@ -78,16 +78,16 @@ local template = [[
                             local queryStrings, queryArguments, querySubArguments = {"INSERT INTO `??` (", " VALUES("}, {dbify.module["<moduleName>"].__TMP.tableName}, {}
                             for i = 1, #dbify.module["<moduleName>"].__TMP.structure, 1 do
                                 local j = dbify.module["<moduleName>"].__TMP.structure[i]
-                                isPrimaryKeyMatched = isPrimaryKeyMatched or (j[1] == dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1])
-                                local isToBeIndexed = (j[1] ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]) or not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.isAutoIncrement
+                                isPrimaryKeyMatched = isPrimaryKeyMatched or (j[1] == dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1])
+                                local isToBeIndexed = (j[1] ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]) or not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement
                                 if isToBeIndexed then
                                     local isLastIndex = ((i < #dbify.module["<moduleName>"].__TMP.structure) and (isPrimaryKeyMatched or (i ~= (#dbify.module["<moduleName>"].__TMP.structure - 1))) and true) or false
                                     queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isLastIndex and ", ") or ""), queryStrings[2].."?"..((isLastIndex and ", ") or "")
                                     imports.table.insert(queryArguments, j[1])
                                     imports.table.insert(querySubArguments, dbify.mysql.util.fetchArg(_, cArgs))
-                                    if not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.isAutoIncrement then
+                                    if not dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement then
                                         local identifier = querySubArguments[(#querySubArguments)]
-                                        if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type) then
+                                        if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) then
 
                                             --TODO:... REPLACE AND CHECK FOR ALL ARGS
                                             --for k, v in imports.pairs(templateKeys) do
@@ -100,7 +100,7 @@ local template = [[
 
                                             return dbify.mysql.util.throwError(reject, syntaxMsg)
                                         end
-                                        local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]})
+                                        local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                                         if isExisting then return resolve(not isExisting, cArgs) end
                                     end
                                 end
@@ -110,7 +110,7 @@ local template = [[
                                 imports.table.insert(queryArguments, j)
                             end
                             queryStrings[1], queryStrings[2] = queryStrings[1]..")", queryStrings[2]..(((#queryArguments <= 1) and "NULL") or "")..")"
-                            if dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.isAutoIncrement then
+                            if dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement then
                                 imports.dbQuery(function(queryHandler, cArgs)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
                                     local result = imports.tonumber(identifierID) or false
@@ -129,16 +129,16 @@ local template = [[
         delete = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].delete("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]..")"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].delete("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..")"
             return try({
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer = dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]})
+                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].__TMP.tableName, dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1], identifer), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].__TMP.tableName, dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer), cArgs)
                         end)
                     )
                 end,
@@ -149,16 +149,16 @@ local template = [[
         setData = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].setData("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]..", table: dataColumns)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].setData("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..", table: dataColumns)"
             return try({
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]})
+                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1], identifer} }), cArgs)                        
+                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer} }), cArgs)                        
                         end)
                     )
                 end,
@@ -169,14 +169,14 @@ local template = [[
         getData = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].getData("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1]..", table: dataColumns)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].getData("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..", table: dataColumns)"
             return try({
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.keyIndex)][1], identifer} }, true), cArgs)                        
+                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (#dataColumns <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer} }, true), cArgs)                        
                         end)
                     )
                 end,
@@ -217,14 +217,14 @@ dbify.createModule = function(config)
             if imports.string.find(j[2], "PRIMARY KEY") then
                 if isPrimaryKeyMatched then return false end
                 isPrimaryKeyMatched = true
-                structure.keyIndex = #structure
+                structure.key = #structure
             end
             imports.table.insert(structure, j)
         end
     end
     config.structure = structure
-    if not config.structure.keyIndex or (#config.structure <= 0) then return false end
-    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.structure[(config.structure.keyIndex)][1]}
+    if not config.structure.key or (#config.structure <= 0) then return false end
+    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.structure[(config.structure.key)][1]}
     for i = 1, #config.structure, 1 do
         local j = config.structure[i]
         queryString = queryString.."`??` "..j[2]..(((i < #config.structure) and ", ") or "")
