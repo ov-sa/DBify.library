@@ -215,12 +215,12 @@ dbify.createModule = function(config)
             end
             j.__TMP.type = j.__TMP.type or "string"
             j.__TMP.isAutoIncrement = j.__TMP.isAutoIncrement or false
+            imports.table.insert(structure, j)
             if imports.string.find(j[2], "PRIMARY KEY") then
                 if structure.key then return false end
                 j.__TMP.isNotNull = true
                 structure.key = #structure
             end
-            imports.table.insert(structure, j)
         end
     end
     config.structure = structure
