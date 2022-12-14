@@ -193,7 +193,6 @@ dbify.createModule = function(config)
     config.tableName = (config.tableName and (imports.type(config.tableName) == "string") and config.tableName) or false
     config.structure = (config.structure and (imports.type(config.structure) == "table") and (#config.structure > 0) and config.structure) or false
     if not config.moduleName or not config.tableName or not config.structure then return false end
-    local isPrimaryKeyMatched = false
     local structure, redundantColumns = {}, {}
     for i = 1, #config.structure, 1 do
         local j = config.structure[i]
@@ -215,8 +214,7 @@ dbify.createModule = function(config)
             j.__TMP.type = j.__TMP.type or "string"
             j.__TMP.isAutoIncrement = j.__TMP.isAutoIncrement or false
             if imports.string.find(j[2], "PRIMARY KEY") then
-                if isPrimaryKeyMatched then return false end
-                isPrimaryKeyMatched = true
+                if structure.key then return false end
                 structure.key = #structure
             end
             imports.table.insert(structure, j)
