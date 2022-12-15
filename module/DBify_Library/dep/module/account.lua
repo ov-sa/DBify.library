@@ -27,7 +27,7 @@ local moduleInfo = dbify.createModule({
 if dbify.settings.syncNativeAccounts then
     imports.assetify.scheduler.execOnModuleLoad(function()
         local serverPlayers = imports.getElementsByType("player")
-        for i = 1, #serverPlayers, 1 do
+        for i = 1, imports.table.length(serverPlayers), 1 do
             local playerAccount = imports.getPlayerAccount(serverPlayers[i])
             if playerAccount and not imports.isGuestAccount(playerAccount) then
                 dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(playerAccount))
