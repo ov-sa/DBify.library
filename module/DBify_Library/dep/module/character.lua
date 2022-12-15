@@ -2,7 +2,7 @@
 --[[ Module: Character ]]--
 ---------------------------
 
-local moduleInfo = dbify.createModule({
+local cModule = dbify.createModule({
     moduleName = "character",
     tableName = "dbify_characters",
     structure = {

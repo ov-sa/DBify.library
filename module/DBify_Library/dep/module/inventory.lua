@@ -170,7 +170,7 @@ local cUtility = {
 --[[ Module: Inventory ]]--
 ---------------------------
 
-local moduleInfo = dbify.createModule({
+local cModule = dbify.createModule({
     moduleName = "inventory",
     tableName = "dbify_inventories",
     structure = {

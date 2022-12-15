@@ -231,5 +231,5 @@ dbify.createModule = function(config)
     if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
     dbify.module[(config.moduleName)].__TMP = config
-    return config
+    return dbify.module[(config.moduleName)]
 end

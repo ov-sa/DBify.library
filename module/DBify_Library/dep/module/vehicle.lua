@@ -2,7 +2,7 @@
 --[[ Module: Vehicle ]]--
 -------------------------
 
-local moduleInfo = dbify.createModule({
+local cModule = dbify.createModule({
     moduleName = "vehicle",
     tableName = "dbify_vehicles",
     structure = {

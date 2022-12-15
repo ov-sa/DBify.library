@@ -17,7 +17,7 @@ local imports = {
 --[[ Module: Account ]]--
 -------------------------
 
-local moduleInfo = dbify.createModule({
+local cModule = dbify.createModule({
     moduleName = "account",
     tableName = "dbify_accounts",
     structure = {
@@ -31,11 +31,11 @@ if dbify.settings.syncNativeAccounts then
         for i = 1, imports.table.length(serverPlayers), 1 do
             local playerAccount = imports.getPlayerAccount(serverPlayers[i])
             if playerAccount and not imports.isGuestAccount(playerAccount) then
-                dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(playerAccount))
+                cModule.create(imports.getAccountName(playerAccount))
             end
         end
         imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-            dbify.module[(moduleInfo.moduleName)].create(imports.getAccountName(currAccount))
+            cModule.create(imports.getAccountName(currAccount))
         end)
     end)
 end
