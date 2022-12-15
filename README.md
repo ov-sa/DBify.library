@@ -25,8 +25,8 @@
 * Supports Module-Extension
 * Supports Direct-Embedding (No exports required)
 * Built-In `Account`, `Serial`, `Character`, `Vehicle`, `Inventory` modules
-* Synchronizes default MTA accounts
-* Synchronizes default MTA serials
+* Synchronizes native MTA accounts
+* Synchronizes native MTA serials
 * Necessary Integration APIs
 
 ## ━ Contents
