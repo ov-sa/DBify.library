@@ -25,14 +25,14 @@ local imports = {
 
 local cUtility = {
     requestPushPopItem = function(inventoryID, items, processType, callback, ...)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
+        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
         items = imports.table.clone(items, true)
         return dbify.inventory.fetchAll({
             {dbify.inventory.connection.key, inventoryID},
         }, function(result, cArgs)
             if result then
                 result = result[1]
-                for i = 1, #cArgs[1].items do
+                for i = 1, imports.table.length(cArgs[1].items) do
                     local j = cArgs[1].items[i]
                     j[1] = "item_"..imports.tostring(j[1])
                     j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
@@ -59,9 +59,9 @@ local cUtility = {
     end,
 
     requestSetGetItemProperty = function(inventoryID, items, properties, processType, callback, ...)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not properties or (imports.type(properties) ~= "table") or (#properties <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
+        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not properties or (imports.type(properties) ~= "table") or (imports.table.length(properties) <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
         items = imports.table.clone(items, true)
-        for i = 1, #items, 1 do
+        for i = 1, imports.table.length(items), 1 do
             local j = items[i]
             items[i] = "item_"..imports.tostring(j)
         end
@@ -75,7 +75,7 @@ local cUtility = {
                         if not j then
                             j = imports.table.clone(dbify.inventory.connection.item.content, true)
                         end
-                        for k = 1, #cArgs[1].properties, 1 do
+                        for k = 1, imports.table.length(cArgs[1].properties), 1 do
                             local v = cArgs[1].properties[k]
                             v[1] = imports.tostring(v[1])
                             if v[1] == dbify.inventory.connection.item.counter then
@@ -88,7 +88,7 @@ local cUtility = {
                         local itemIndex = imports.string.gsub(i, "item_", "", 1)
                         properties[itemIndex] = {}
                         if j then
-                            for k = 1, #cArgs[1].properties, 1 do
+                            for k = 1, imports.table.length(cArgs[1].properties), 1 do
                                 local v = cArgs[1].properties[k]
                                 v = imports.tostring(v)
                                 properties[itemIndex][v] = j.property[v]
@@ -114,9 +114,9 @@ local cUtility = {
     end,
 
     requestSetGetItemData = function(inventoryID, items, datas, processType, callback, ...)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (#items <= 0) or not datas or (imports.type(datas) ~= "table") or (#datas <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
+        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not datas or (imports.type(datas) ~= "table") or (imports.table.length(datas) <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
         items = imports.table.clone(items, true)
-        for i = 1, #items, 1 do
+        for i = 1, imports.table.length(items), 1 do
             local j = items[i]
             items[i] = "item_"..imports.tostring(j)
         end
@@ -130,7 +130,7 @@ local cUtility = {
                         if not j then
                             j = imports.table.clone(dbify.inventory.connection.item.content, true)
                         end
-                        for k = 1, #cArgs[1].datas, 1 do
+                        for k = 1, imports.table.length(cArgs[1].datas), 1 do
                             local v = cArgs[1].datas[k]
                             j.data[imports.tostring(v[1])] = v[2]
                         end
@@ -139,7 +139,7 @@ local cUtility = {
                         local itemIndex = imports.string.gsub(i, "item_", "", 1)
                         datas[itemIndex] = {}
                         if j then
-                            for k = 1, #cArgs[1].datas, 1 do
+                            for k = 1, imports.table.length(cArgs[1].datas), 1 do
                                 local v = cArgs[1].datas[k]
                                 v = imports.tostring(v)
                                 datas[itemIndex][v] = j.data[v]
@@ -202,8 +202,8 @@ dbify.inventory = {
             imports.dbQuery(function(queryHandler, cArgs)
                 local result = imports.dbPoll(queryHandler, 0)
                 local itemsToBeAdded, itemsToBeDeleted = {}, {}
-                if result and (#result > 0) then
-                    for i = 1, #result, 1 do
+                if result and (imports.table.length(result) > 0) then
+                    for i = 1, imports.table.length(result), 1 do
                         local j = result[i]
                         local columnName = j["column_name"] or j[(string.upper("column_name"))]
                         local itemIndex = imports.string.gsub(columnName, "item_", "", 1)
@@ -216,10 +216,10 @@ dbify.inventory = {
                     imports.table.insert(itemsToBeAdded, "item_"..i)
                 end
                 cArgs[1].items = itemsToBeAdded
-                if #itemsToBeDeleted > 0 then
+                if imports.table.length(itemsToBeDeleted) > 0 then
                     dbify.mysql.column.delete(dbify.inventory.connection.table, itemsToBeDeleted, function(result, cArgs)
                         if result then
-                            for i = 1, #cArgs[1].items, 1 do
+                            for i = 1, imports.table.length(cArgs[1].items), 1 do
                                 local j = cArgs[1].items[i]
                                 dbify.mysql.column.isValid(dbify.inventory.connection.table, j, function(isValid, cArgs)
                                     if not isValid then
@@ -228,14 +228,14 @@ dbify.inventory = {
                                     if cArgs[2] then
                                         execFunction(callback, true, cArgs[2])
                                     end
-                                end, j, ((i >= #cArgs[1].items) and cArgs[2]) or false)
+                                end, j, ((i >= imports.table.length(cArgs[1].items)) and cArgs[2]) or false)
                             end
                         else
                             execFunction(callback, result, cArgs[2])
                         end
                     end, cArgs[1], cArgs[2])
                 else
-                    for i = 1, #cArgs[1].items, 1 do
+                    for i = 1, imports.table.length(cArgs[1].items), 1 do
                         local j = cArgs[1].items[i]
                         dbify.mysql.column.isValid(dbify.inventory.connection.table, j, function(isValid, cArgs)
                             if not isValid then
@@ -244,7 +244,7 @@ dbify.inventory = {
                             if cArgs[2] then
                                 execFunction(callback, true, cArgs[2])
                             end
-                        end, j, ((i >= #cArgs[1].items) and cArgs[2]) or false)
+                        end, j, ((i >= imports.table.length(cArgs[1].items)) and cArgs[2]) or false)
                     end
                 end
             end, {{{
