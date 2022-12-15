@@ -101,7 +101,7 @@ local template = [[
                                     end
                                 end
                             end
-                            for i = 1, querySubArguments.__T.length, 1 do
+                            for i = 1, imports.table.length(querySubArguments), 1 do
                                 local j = querySubArguments[i]
                                 imports.table.insert(queryArguments, j)
                             end
