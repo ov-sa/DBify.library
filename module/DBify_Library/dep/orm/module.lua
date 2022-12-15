@@ -203,6 +203,7 @@ dbify.createModule = function(config)
                 if imports.string.find(j[2], k) then
                     j.__TMP.type = v
                     j.__TMP.isAutoIncrement = (imports.string.find(j[2], "AUTO_INCREMENT") and true) or false
+                    if j.__TMP.isAutoIncrement and (j.__TMP.type ~= "number") then return false end
                     j.__TMP.isNotNull = (imports.string.find(j[2], "NOT NULL") and true) or false
                     j.__TMP.hasDefaultValue = ((j.__TMP.isAutoIncrement or imports.string.find(j[2], "DEFAULT")) and true) or false
                     break
