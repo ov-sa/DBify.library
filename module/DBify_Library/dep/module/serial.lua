@@ -6,6 +6,7 @@ local imports = {
     getElementsByType = getElementsByType,
     addEventHandler = addEventHandler,
     getPlayerSerial = getPlayerSerial,
+    table = table,
     assetify = assetify
 }
 
@@ -25,7 +26,7 @@ local moduleInfo = dbify.createModule({
 if dbify.settings.syncNativeSerials then
     imports.assetify.scheduler.execOnModuleLoad(function()
         local serverPlayers = imports.getElementsByType("player")
-        for i = 1, #serverPlayers, 1 do
+        for i = 1, imports.table.length(serverPlayers), 1 do
             local playerSerial = imports.getPlayerSerial(serverPlayers[i])
             dbify.module[(moduleInfo.moduleName)].create(playerSerial)
         end
