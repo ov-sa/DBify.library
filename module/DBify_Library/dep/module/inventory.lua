@@ -50,18 +50,26 @@ cItem = {
                         local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} }, true)
                         if not result then return resolve(result, cArgs) end
                         items = imports.table.clone(items, true)
-                        for i = 1, imports.table.length(items) do
+                        local itemDatas = {}
+                        for i = 1, imports.table.length(items), 1 do
                             local j = items[i]
-                            j[1] = "item_"..imports.tostring(j[1])
+                            j[1] = "item_"..imports.tostring(j)
                             j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
-                            local itemData = result[(j[1])]
-                            itemData = (itemData and imports.table.decode(itemData)) or false
-                            itemData = (itemData and itemData.data and (imports.type(itemData.data) == "table") and itemData.item and (imports.type(itemData.item) == "table") and itemData) or false
-                            itemData = itemData or imports.table.clone(cItem.__TMP, true)
-                            itemData.property.amount = (imports.math.max(0, imports.tonumber(itemData.property.amount) or 0)*((action == "push" and 1) or -1)) + j[2]
-                            items[i][2] = imports.table.encode(itemData)
+                            imports.table.insert(itemDatas, j[1])
                         end
-                        resolve(cModule.setData(identifer, items), cArgs)
+                        itemDatas = cModule.getData(identifier, itemList)
+                        if not itemDatas then return resolve(itemDatas, cArgs) end
+                        local __itemDatas = {}
+                        for i = 1, imports.table.length(itemDatas) do
+                            local j = result[i]
+                            j = (j and imports.table.decode(j)) or false
+                            j = (j and j.data and (imports.type(j.data) == "table") and j.item and (imports.type(j.item) == "table") and j) or false
+                            j = j or imports.table.clone(cItem.__TMP, true)
+                            j.property.amount = (imports.math.max(0, imports.tonumber(j.property.amount) or 0)*((action == "push" and 1) or -1)) + j[2]
+                            result[i] = imports.table.encode(j)
+                            imports.table.insert(__itemDatas, {i, j})
+                        end
+                        resolve(cModule.setData(identifer, __itemDatas), cArgs)
                     end)
                 )
             end,
@@ -69,11 +77,9 @@ cItem = {
         })
     end,
 
-    modifyItemProperty = function(identifier, items, properties, action, ...)
     modifyItemProperty = function(syntaxMsg, action, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
-
         return try({
             exec = function(self)
                 return self:await(
