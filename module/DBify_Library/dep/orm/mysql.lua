@@ -49,15 +49,16 @@ dbify.mysql = {
         fetchContents = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.mysql.table.fetchContents(string: tableName, table: keyColumns)"
+            local syntaxMsg = "dbify.mysql.table.fetchContents(string: tableName, table: keyColumns, bool: soloFetch)"
             return try({
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
                             if not dbify.mysql.util.isConnected(reject) then return end
-                            local tableName, keyColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                            local tableName, keyColumns, soloFetch = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                             if not tableName or (imports.type(tableName) ~= "string") or (keyColumns and (imports.type(keyColumns) ~= "table")) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                             keyColumns = (keyColumns and (imports.table.length(keyColumns) > 0) and keyColumns) or false
+                            soloFetch = (soloFetch and true) or false
                             if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["table_non-existent"], tableName)) end
                             local queryString, queryArguments = "SELECT * FROM `??`", {tableName}
                             if keyColumns then
@@ -84,7 +85,7 @@ dbify.mysql = {
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = result or false
-                                resolve(result, cArgs)
+                                resolve((result and soloFetch and result[1]) or false, cArgs)
                             end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                         end)
                     )
@@ -253,7 +254,7 @@ dbify.mysql = {
         get = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.mysql.data.get(string: tableName, table: dataColumns, table: keyColumns)"
+            local syntaxMsg = "dbify.mysql.data.get(string: tableName, table: dataColumns, table: keyColumns, bool: soloFetch)"
             return try({
                 exec = function(self)
                     return self:await(
