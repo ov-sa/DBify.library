@@ -259,29 +259,21 @@ cItem = {
         end,
 
         setProperty = function(...)
-            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-            if not cPromise then return false end
             local identifier, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemProperty(identifier, items, properties, "set", callback, imports.table.unpack(cArgs))
         end,
 
         getProperty = function(...)
-            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-            if not cPromise then return false end
             local identifier, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemProperty(identifier, items, properties, "get", callback, imports.table.unpack(cArgs))
         end,
 
         setData = function(...)
-            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-            if not cPromise then return false end
             local identifier, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemData(identifier, items, datas, "set", callback, imports.table.unpack(cArgs))
         end,
 
         getData = function(...)
-            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-            if not cPromise then return false end
             local identifier, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemData(identifier, items, datas, "get", callback, imports.table.unpack(cArgs))
         end
