@@ -259,22 +259,22 @@ cItem = {
         end,
 
         setProperty = function(...)
-            local identifier, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            local identifier, items, properties = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemProperty(identifier, items, properties, "set", callback, imports.table.unpack(cArgs))
         end,
 
         getProperty = function(...)
-            local identifier, items, properties, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            local identifier, items, properties = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemProperty(identifier, items, properties, "get", callback, imports.table.unpack(cArgs))
         end,
 
         setData = function(...)
-            local identifier, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            local identifier, items, datas = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemData(identifier, items, datas, "set", callback, imports.table.unpack(cArgs))
         end,
 
         getData = function(...)
-            local identifier, items, datas, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+            local identifier, items, datas = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
             return cItem.modifyItemData(identifier, items, datas, "get", callback, imports.table.unpack(cArgs))
         end
     }
