@@ -55,7 +55,7 @@ cItem = {
                             j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                             imports.table.insert(itemDatas, j[1])
                         end
-                        itemDatas = cModule.getData(identifier, itemList)
+                        itemDatas = cModule.getData(identifier, itemDatas)
                         if not itemDatas then return resolve(itemDatas, cArgs) end
                         for i = 1, imports.table.length(items) do
                             local j = items[i]
@@ -87,7 +87,7 @@ cItem = {
                         for i = 1, imports.table.length(items), 1 do
                             items[i] = "item_"..imports.tostring(items[i])
                         end
-                        local itemDatas = cModule.getData(identifier, itemList)
+                        local itemDatas = cModule.getData(identifier, items)
                         if not itemDatas then return resolve(itemDatas, cArgs) end
 
                         for i = 1, imports.table.length(items) do
