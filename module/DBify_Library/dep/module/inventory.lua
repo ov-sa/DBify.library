@@ -38,7 +38,7 @@ cItem = {
         data = {}
     }
     
-    modifyItemCount = function(action, syntaxMsg, ...)
+    modifyItemCount = function(syntaxMsg, action, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
@@ -250,12 +250,12 @@ cItem = {
     cModule.item = {
         add = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-            return cItem.modifyItemCount("push", syntaxMsg, ...)
+            return cItem.modifyItemCount(syntaxMsg, "push", ...)
         end
 
         remove = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-            return cItem.modifyItemCount("pop", syntaxMsg, ...)
+            return cItem.modifyItemCount(syntaxMsg, "pop", ...)
         end,
 
         setProperty = function(...)
