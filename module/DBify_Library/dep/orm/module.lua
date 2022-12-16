@@ -52,13 +52,13 @@ local template = [[
         fetchAll = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
-            local syntaxMsg = "dbify.module[\"<moduleName>\"].fetchAll(table: keyColumns)"
+            local syntaxMsg = "dbify.module[\"<moduleName>\"].fetchAll(table: keyColumns, bool: isSoloFetch)"
             return try({
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local keyColumns = dbify.mysql.util.fetchArg(_, cArgs)
-                            resolve(dbify.mysql.table.fetchContents(dbify.module["<moduleName>"].__TMP.tableName, keyColumns), cArgs)
+                            local keyColumns, isSoloFetch = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                            resolve(dbify.mysql.table.fetchContents(dbify.module["<moduleName>"].__TMP.tableName, keyColumns, isSoloFetch), cArgs)
                         end)
                     )
                 end,
