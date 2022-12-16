@@ -47,8 +47,6 @@ cItem = {
                     imports.assetify.thread:createPromise(function(resolve, reject)
                         local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                         if not identifer or (imports.type(identifer) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                        local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} }, true)
-                        if not result then return resolve(result, cArgs) end
                         items = imports.table.clone(items, true)
                         local itemDatas = {}
                         for i = 1, imports.table.length(items), 1 do
@@ -79,57 +77,17 @@ cItem = {
     modifyItemProperty = function(syntaxMsg, action, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
-
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-                        if not identifer or (imports.type(identifer) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                        local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} }, true)
-                        if not result then return resolve(result, cArgs) end
-                        items = imports.table.clone(items, true)
-                        local itemDatas = {}
-                        for i = 1, imports.table.length(items), 1 do
-                            local j = items[i]
-                            j[1] = "item_"..imports.tostring(j)
-                            j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
-                            imports.table.insert(itemDatas, j[1])
-                        end
-                        itemDatas = cModule.getData(identifier, itemList)
-                        if not itemDatas then return resolve(itemDatas, cArgs) end
-                        local __itemDatas = {}
-                        for i = 1, imports.table.length(itemDatas) do
-                            local j = result[i]
-                            j = (j and imports.table.decode(j)) or false
-                            j = (j and j.data and (imports.type(j.data) == "table") and j.item and (imports.type(j.item) == "table") and j) or false
-                            j = j or imports.table.clone(cItem.__TMP, true)
-                            j.property.amount = (imports.math.max(0, imports.tonumber(j.property.amount) or 0)*((action == "push" and 1) or -1)) + j[2]
-                            result[i] = imports.table.encode(j)
-                            imports.table.insert(__itemDatas, {i, j})
-                        end
-                        resolve(cModule.setData(identifer, __itemDatas), cArgs)
-                    end)
-                )
-
-        
-        return try({
-            exec = function(self)
-                return self:await(
-                    imports.assetify.thread:createPromise(function(resolve, reject)
-                        --local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} }, true)
-                        --if not result then return resolve(result, cArgs) end
-                        --items = imports.table.clone(items, true)
-
                         local identifier, items, properties = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
                         if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not properties or (imports.type(properties) ~= "table") or (imports.table.length(properties) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         items = imports.table.clone(items, true)
-                        local itemDatas = {}
                         for i = 1, imports.table.length(items), 1 do
-                            items[i] = "item_"..imports.tostring(j)
-                            imports.table.insert(itemDatas, items[i])
+                            items[i] = "item_"..imports.tostring(items[i])
                         end
-                        itemDatas = cModule.getData(identifier, itemList)
+                        local itemDatas = cModule.getData(identifier, itemList)
                         if not itemDatas then return resolve(itemDatas, cArgs) end
 
                         for i = 1, imports.table.length(items) do
@@ -146,57 +104,42 @@ cItem = {
                         resolve(cModule.setData(identifer, items), cArgs)
 
 
-                    
-                        for i = 1, imports.table.length(items), 1 do
-                            local j = items[i]
-                            items[i] = "item_"..imports.tostring(j)
-                        end
-                        return cModule.getData(identifier, items, function(result, cArgs)
-                            if result then
-                                local properties = {}
-                                for i, j in imports.pairs(result) do
-                                    j = (j and imports.table.decode(j)) or false
-                                    j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
-                                    if cArgs[1].action == "set" then
-                                        if not j then
-                                            j = imports.table.clone(cItem.__TMP, true)
-                                        end
-                                        for k = 1, imports.table.length(cArgs[1].properties), 1 do
-                                            local v = cArgs[1].properties[k]
-                                            v[1] = imports.tostring(v[1])
-                                            if v[1] == "amount" then
-                                                v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])])
-                                            end
-                                            j.property[(v[1])] = v[2]
-                                        end
-                                        imports.table.insert(properties, {i, imports.table.encode(j)})
-                                    else
-                                        local itemIndex = imports.string.gsub(i, "item_", "", 1)
-                                        properties[itemIndex] = {}
-                                        if j then
-                                            for k = 1, imports.table.length(cArgs[1].properties), 1 do
-                                                local v = cArgs[1].properties[k]
-                                                v = imports.tostring(v)
-                                                properties[itemIndex][v] = j.property[v]
-                                            end
-                                        end
+                        local __properties = {}
+                        for i, j in imports.pairs(result) do
+                            j = (j and imports.table.decode(j)) or false
+                            j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
+                            if cArgs[1].action == "set" then
+                                if not j then
+                                    j = imports.table.clone(cItem.__TMP, true)
+                                end
+                                for k = 1, imports.table.length(cArgs[1].properties), 1 do
+                                    local v = cArgs[1].properties[k]
+                                    v[1] = imports.tostring(v[1])
+                                    if v[1] == "amount" then
+                                        v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])])
+                                    end
+                                    j.property[(v[1])] = v[2]
+                                end
+                                imports.table.insert(__properties, {i, imports.table.encode(j)})
+                            else
+                                local itemIndex = imports.string.gsub(i, "item_", "", 1)
+                                __properties[itemIndex] = {}
+                                if j then
+                                    for k = 1, imports.table.length(cArgs[1].properties), 1 do
+                                        local v = cArgs[1].properties[k]
+                                        v = imports.tostring(v)
+                                        __properties[itemIndex][v] = j.property[v]
                                     end
                                 end
-                                if cArgs[1].action == "set" then
-                                    cModule.setData(cArgs[1].identifier, properties, function(result, cArgs)
-                                        execFunction(callback, result, cArgs)
-                                    end, cArgs[2])
-                                else
-                                    execFunction(callback, properties, cArgs[2])
-                                end
-                            else
-                                execFunction(callback, false, cArgs[2])
                             end
-                        end, {
-                            identifier = identifier,
-                            properties = properties,
-                            action = action
-                        }, imports.table.pack(...))
+                        end
+                        if cArgs[1].action == "set" then
+                            cModule.setData(cArgs[1].identifier, __properties, function(result, cArgs)
+                                execFunction(callback, result, cArgs)
+                            end, cArgs[2])
+                        else
+                            execFunction(callback, __properties, cArgs[2])
+                        end
                     end)
                 )
             end,
