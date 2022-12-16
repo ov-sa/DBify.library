@@ -37,38 +37,52 @@ local cModule = dbify.createModule({
 -----------------
 
 local cUtility = {
-    requestPushPopItem = function(inventoryID, items, processType, callback, ...)
-        if not inventoryID or (imports.type(inventoryID) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
-        items = imports.table.clone(items, true)
-        return cModule.fetchAll({
-            {cModule.__TMP.structure[(cModule.__TMP.key)][1], inventoryID},
-        }, function(result, cArgs)
-            if result then
-                result = result[1]
-                for i = 1, imports.table.length(cArgs[1].items) do
-                    local j = cArgs[1].items[i]
-                    j[1] = "item_"..imports.tostring(j[1])
-                    j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
-                    local prevItemData = result[(j[1])]
-                    prevItemData = (prevItemData and imports.table.decode(prevItemData)) or false
-                    prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
-                    if not prevItemData then
-                        prevItemData = imports.table.clone(cModule.connection.item.content, true)
-                    end
-                    prevItemData.property[(cModule.connection.item.counter)] = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.property[(cModule.connection.item.counter)]) or 0)*((cArgs[1].processType == "push" and 1) or -1))
-                    cArgs[1].items[i][2] = imports.table.encode(prevItemData)
-                end
-                cModule.setData(cArgs[1].inventoryID, cArgs[1].items, function(result, cArgs)
-                    execFunction(callback, result, cArgs)
-                end, cArgs[2])
-            else
-                execFunction(callback, false, cArgs[2])
-            end
-        end, {
-            inventoryID = inventoryID,
-            items = items,
-            processType = processType
-        }, imports.table.pack(...))
+    requestPushPopItem = function(identifer, items, processType, callback, ...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+        if not cPromise then return false end
+
+        local syntaxMsg = "dbify.module[\"<moduleName>\"].setData("..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type..": "..dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]..", table: dataColumns)"
+        
+        return try({
+            exec = function(self)
+                return self:await(
+                    imports.assetify.thread:createPromise(function(resolve, reject)
+                        --if not identifer or (imports.type(identifer) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not processType or (imports.type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
+                        --items = imports.table.clone(items, true)
+
+                        local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                        if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                        local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
+                        if not isExisting then return resolve(isExisting, cArgs) end
+                        resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer} }), cArgs)                        
+                    
+                        local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} })
+                        result = result[1]
+                        if not result then
+                        for i = 1, imports.table.length(items) do
+                            local j = items[i]
+                            j[1] = "item_"..imports.tostring(j[1])
+                            j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
+                            local prevItemData = result[(j[1])]
+                            prevItemData = (prevItemData and imports.table.decode(prevItemData)) or false
+                            prevItemData = (prevItemData and prevItemData.data and (imports.type(prevItemData.data) == "table") and prevItemData.item and (imports.type(prevItemData.item) == "table") and prevItemData) or false
+                            if not prevItemData then
+                                prevItemData = imports.table.clone(cModule.connection.item.content, true)
+                            end
+                            prevItemData.property[(cModule.connection.item.counter)] = j[2] + (imports.math.max(0, imports.tonumber(prevItemData.property[(cModule.connection.item.counter)]) or 0)*((processType == "push" and 1) or -1))
+                            items[i][2] = imports.table.encode(prevItemData)
+                        end
+                        cModule.setData(identifer, items, function(result, cArgs)
+                            execFunction(callback, result, cArgs)
+                        end, cArgs)
+
+                    end)
+                )
+            end,
+            catch = cPromise.reject
+        })
+
+    
     end,
 
     requestSetGetItemProperty = function(inventoryID, items, properties, processType, callback, ...)
