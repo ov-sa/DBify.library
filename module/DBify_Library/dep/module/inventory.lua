@@ -42,11 +42,11 @@ cItem = {
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-        if not identifer or (imports.type(identifer) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(cPromise.reject, syntaxMsg) end
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
+                        if not identifer or (imports.type(identifer) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         local result = cModule.fetchAll({ {cModule.__TMP.structure[(cModule.__TMP.key)][1], identifer} }, true)
                         if not result then return resolve(result, cArgs) end
                         items = imports.table.clone(items, true)
@@ -69,7 +69,11 @@ cItem = {
         })
     end,
 
-    modifyItemProperty = function(identifier, items, properties, action, callback, ...)
+    modifyItemProperty = function(identifier, items, properties, action, ...)
+    modifyItemProperty = function(syntaxMsg, action, ...)
+        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+        if not cPromise then return false end
+
         if not identifier or (imports.type(identifier) ~= "number") or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not properties or (imports.type(properties) ~= "table") or (imports.table.length(properties) <= 0) or not action or (imports.type(action) ~= "string") or ((action ~= "set") and (action ~= "get")) then return false end
         items = imports.table.clone(items, true)
         for i = 1, imports.table.length(items), 1 do
