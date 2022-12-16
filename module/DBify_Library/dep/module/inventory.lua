@@ -89,42 +89,31 @@ cItem = {
                         end
                         local itemDatas = cModule.getData(identifier, items)
                         if not itemDatas then return resolve(itemDatas, cArgs) end
-                        local __properties = {}
+                        local itemProperties = {}
                         for i, j in imports.pairs(itemDatas) do
                             j = (j and imports.table.decode(j)) or false
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
-                            if cArgs[1].action == "set" then
-                                if not j then
-                                    j = imports.table.clone(cItem.__TMP, true)
-                                end
-                                for k = 1, imports.table.length(cArgs[1].properties), 1 do
-                                    local v = cArgs[1].properties[k]
+                            j = j or imports.table.clone(cItem.__TMP, true)
+                            if action == "set" then
+                                for k = 1, imports.table.length(properties), 1 do
+                                    local v = properties[k]
                                     v[1] = imports.tostring(v[1])
-                                    if v[1] == "amount" then
-                                        v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])])
-                                    end
+                                    if v[1] == "amount" then v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])]) end
                                     j.property[(v[1])] = v[2]
                                 end
-                                imports.table.insert(__properties, {i, imports.table.encode(j)})
+                                imports.table.insert(itemProperties, {i, imports.table.encode(j)})
                             else
-                                local itemIndex = imports.string.gsub(i, "item_", "", 1)
-                                __properties[itemIndex] = {}
-                                if j then
-                                    for k = 1, imports.table.length(cArgs[1].properties), 1 do
-                                        local v = cArgs[1].properties[k]
-                                        v = imports.tostring(v)
-                                        __properties[itemIndex][v] = j.property[v]
-                                    end
+                                i = imports.string.gsub(i, "item_", "", 1)
+                                itemProperties[i] = {}
+                                for k = 1, imports.table.length(properties), 1 do
+                                    properties[k] = imports.tostring(properties[k])
+                                    local v = properties[k]
+                                    itemProperties[i][v] = j.property[v]
                                 end
                             end
                         end
-                        if cArgs[1].action == "set" then
-                            cModule.setData(cArgs[1].identifier, __properties, function(result, cArgs)
-                                execFunction(callback, result, cArgs)
-                            end, cArgs[2])
-                        else
-                            execFunction(callback, __properties, cArgs[2])
-                        end
+                        if action == "set" then resolve(cModule.setData(identifier, itemProperties), cArgs)
+                        else resolve(itemProperties, cArgs) end
                     end)
                 )
             end,
@@ -145,7 +134,7 @@ cItem = {
                 for i, j in imports.pairs(result) do
                     j = (j and imports.table.decode(j)) or false
                     j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
-                    if cArgs[1].action == "set" then
+                    if action == "set" then
                         if not j then
                             j = imports.table.clone(cItem.__TMP, true)
                         end
@@ -166,7 +155,7 @@ cItem = {
                         end
                     end
                 end
-                if cArgs[1].action == "set" then
+                if action == "set" then
                     cModule.setData(cArgs[1].identifier, datas, function(result, cArgs)
                         execFunction(callback, result, cArgs)
                     end, cArgs[2])
