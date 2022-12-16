@@ -89,23 +89,8 @@ cItem = {
                         end
                         local itemDatas = cModule.getData(identifier, items)
                         if not itemDatas then return resolve(itemDatas, cArgs) end
-
-                        for i = 1, imports.table.length(items) do
-                            local j = items[i]
-                            j[1] = "item_"..imports.tostring(j[1])
-                            j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
-                            local itemData = result[(j[1])]
-                            itemData = (itemData and imports.table.decode(itemData)) or false
-                            itemData = (itemData and itemData.data and (imports.type(itemData.data) == "table") and itemData.item and (imports.type(itemData.item) == "table") and itemData) or false
-                            itemData = itemData or imports.table.clone(cItem.__TMP, true)
-                            itemData.property.amount = (imports.math.max(0, imports.tonumber(itemData.property.amount) or 0)*((action == "push" and 1) or -1)) + j[2]
-                            items[i][2] = imports.table.encode(itemData)
-                        end
-                        resolve(cModule.setData(identifer, items), cArgs)
-
-
                         local __properties = {}
-                        for i, j in imports.pairs(result) do
+                        for i, j in imports.pairs(itemDatas) do
                             j = (j and imports.table.decode(j)) or false
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             if cArgs[1].action == "set" then
