@@ -114,6 +114,44 @@ dbify.mysql = {
             })
         end,
 
+        delete = function(...)
+            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.table.delete(table: tables)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.mysql.util.isConnected(reject) then return end
+                            local tables = dbify.mysql.util.fetchArg(_, cArgs)
+                            if not tables or (imports.type(tables) ~= "table") or (imports.table.length(tables) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            if not dbify.mysql.table.areValid(tables) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["tables_non-existent"], dbify.settings.credentials.database)) end
+                            local queryString, queryArguments = "DROP TABLE ", {}
+                            local __tables, redundantTables = {}, {}
+                            for i = 1, imports.table.length(tables), 1 do
+                                tables[i] = imports.tostring(tables[i])
+                                local j = tables[i]
+                                if not redundantTables[j] then
+                                    redundantTables[j] = true
+                                    imports.table.insert(__tables, j)
+                                end
+                            end
+                            tables = __tables
+                            for i = 1, imports.table.length(tables), 1 do
+                                local j = tables[i]
+                                imports.table.insert(queryArguments, j)
+                                queryString = queryString.."`??`"..(((i < imports.table.length(tables)) and ", ") or "")
+                            end
+                            print(queryString)
+                            iprint(queryArguments)
+                            resolve(imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
+        end,
+
         fetchContents = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
@@ -274,7 +312,6 @@ dbify.mysql = {
                             if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["table_non-existent"], tableName)) end
                             if not dbify.mysql.column.areValid(tableName, columns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["columns_non-existent"], tableName)) end
                             local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
-                            local redundantColumns = {}
                             local __columns, redundantColumns = {}, {}
                             for i = 1, imports.table.length(columns), 1 do
                                 columns[i] = imports.tostring(columns[i])

@@ -54,5 +54,6 @@ dbify.mysql.util = {
 
 dbify.mysql.error = {
     ["table_non-existent"] = "Table: '%s' non-existent",
+    ["tables_non-existent"] = "Database: '%s' doesn't contain enough specified tables(s) to process the query",
     ["columns_non-existent"] = "Table: '%s' doesn't contain enough specified column(s) to process the query"
 }
