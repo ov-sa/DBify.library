@@ -105,9 +105,9 @@ local template = [[
                                 local j = querySubArguments[i]
                                 imports.table.insert(queryArguments, j)
                             end
-                            queryStrings[1], queryStrings[2] = queryStrings[1]..")", queryStrings[2]..(((imports.table.length(queryArguments) <= 1) and "NULL") or "")..")"
+                            queryStrings[1], queryStrings[2] = queryStrings[1]..")", queryStrings[2]..")"
                             if dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.isAutoIncrement then
-                                imports.dbQuery(function(queryHandler, cArgs)
+                                imports.dbQuery(function(queryHandler)
                                     local _, _, identifierID = imports.dbPoll(queryHandler, 0)
                                     local result = imports.tonumber(identifierID) or false
                                     resolve(result, cArgs)
@@ -221,7 +221,7 @@ dbify.createModule = function(config)
     end
     config.structure = structure
     if not config.structure.key or (imports.table.length(config.structure) <= 0) then return false end
-    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName, config.structure[(config.structure.key)][1]}
+    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName}
     for i = 1, imports.table.length(config.structure), 1 do
         local j = config.structure[i]
         queryString = queryString.."`??` "..j[2]..(((i < imports.table.length(config.structure)) and ", ") or "")

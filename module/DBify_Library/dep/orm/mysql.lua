@@ -85,7 +85,7 @@ dbify.mysql = {
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = result or false
-                                resolve((result and isSoloFetch and result[1]) or false, cArgs)
+                                resolve((result and isSoloFetch and result[1]) or result, cArgs)
                             end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                         end)
                     )
