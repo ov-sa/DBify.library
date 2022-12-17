@@ -96,6 +96,30 @@ dbify.mysql = {
     },
 
     column = {
+        fetchList = function(...)
+            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.column.fetchList(string: tableName)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.mysql.util.isConnected(reject) then return end
+                            local tableName = dbify.mysql.util.fetchArg(_, cArgs)
+                            if not tableName or (imports.type(tableName) ~= "string") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["table_non-existent"], tableName)) end
+                            imports.dbQuery(function(queryHandler)
+                                local result = imports.dbPoll(queryHandler, 0)
+                                result = result or false
+                                resolve(result, cArgs)
+                            end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
+        end,
+
         isValid = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
