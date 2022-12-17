@@ -37,7 +37,7 @@ cItem = {
         data = {}
     },
     
-    modifyItemCount = function(syntaxMsg, action, ...)
+    modifyCount = function(syntaxMsg, action, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         return try({
@@ -50,7 +50,7 @@ cItem = {
                         local itemDatas = {}
                         for i = 1, imports.table.length(items), 1 do
                             local j = items[i]
-                            j[1] = "item_"..imports.tostring(j)
+                            j[1] = "item_"..imports.tostring(j[1])
                             j[2] = imports.math.max(0, imports.tonumber(j[2]) or 0)
                             imports.table.insert(itemDatas, j[1])
                         end
@@ -59,9 +59,9 @@ cItem = {
                         for i = 1, imports.table.length(items) do
                             local j = items[i]
                             local itemData = (itemDatas[(j[1])] and imports.table.decode(itemDatas[(j[1])])) or false
-                            itemData = (itemData and itemData.data and (imports.type(itemData.data) == "table") and itemData.item and (imports.type(itemData.item) == "table") and itemData) or false
+                            itemData = (itemData and itemData.data and (imports.type(itemData.data) == "table") and itemData.property and (imports.type(itemData.property) == "table") and itemData) or false
                             itemData = itemData or imports.table.clone(cItem.__TMP, true)
-                            itemData.property.amount = (imports.math.max(0, imports.tonumber(itemData.property.amount) or 0)*((action == "push" and 1) or -1)) + j[2]
+                            itemData.property.amount = imports.math.max(0, (imports.tonumber(itemData.property.amount) or 0) + (j[2]*(((action == "push") and 1) or -1)))
                             itemData = imports.table.encode(itemData)
                             j[2] = itemData
                         end
@@ -73,7 +73,7 @@ cItem = {
         })
     end,
 
-    modifyItemProp = function(syntaxMsg, action, isData, ...)
+    modifyProp = function(syntaxMsg, action, isData, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         return try({
@@ -178,32 +178,32 @@ end
 
 cModule.item = {
     add = function(...)
-        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-        return cItem.modifyItemCount(syntaxMsg, "push", ...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items)"
+        return cItem.modifyCount(syntaxMsg, "push", ...)
     end,
 
     remove = function(...)
-        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-        return cItem.modifyItemCount(syntaxMsg, "pop", ...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items)"
+        return cItem.modifyCount(syntaxMsg, "pop", ...)
     end,
 
     setProperty = function(...)
         local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-        return cItem.modifyItemProp(syntaxMsg, "set", false, ...)
+        return cItem.modifyProp(syntaxMsg, "set", false, ...)
     end,
 
     getProperty = function(...)
         local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-        return cItem.modifyItemProp(syntaxMsg, "get", false, ...)
+        return cItem.modifyProp(syntaxMsg, "get", false, ...)
     end,
 
     setData = function(...)
         local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-        return cItem.modifyItemProp(syntaxMsg, "set", true, ...)
+        return cItem.modifyProp(syntaxMsg, "set", true, ...)
     end,
 
     getData = function(...)
         local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-        return cItem.modifyItemProp(syntaxMsg, "get", true, ...)
+        return cItem.modifyProp(syntaxMsg, "get", true, ...)
     end
 }
