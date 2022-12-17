@@ -74,6 +74,46 @@ dbify.mysql = {
             })
         end,
 
+        areValid = function(...)
+            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.table.areValid(table: tables)"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.mysql.util.isConnected(reject) then return end
+                            local tables = dbify.mysql.util.fetchArg(_, cArgs)
+                            if not tables or (imports.type(tables) ~= "table") or (imports.table.length(tables) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            local queryString, queryArguments = "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND (", {dbify.settings.credentials.database}
+                            local __tables, redundantTables = {}, {}
+                            for i = 1, imports.table.length(tables), 1 do
+                                tables[i] = imports.tostring(tables[i])
+                                local j = tables[i]
+                                if not redundantTables[j] then
+                                    redundantTables[j] = true
+                                    imports.table.insert(__tables, j)
+                                end
+                            end
+                            tables = __tables
+                            for i = 1, imports.table.length(tables), 1 do
+                                local j = tables[i]
+                                imports.table.insert(queryArguments, j)
+                                queryString = queryString..(((i > 1) and " ") or "").."`table_name`=?"..(((i < imports.table.length(tables)) and " OR") or "")
+                            end
+                            queryString = queryString..")"
+                            imports.dbQuery(function(queryHandler)
+                                local result = imports.dbPoll(queryHandler, 0)
+                                result = ((result and (imports.table.length(result) >= imports.table.length(tables))) and true) or false
+                                resolve(result, cArgs)
+                            end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
+        end,
+
         fetchContents = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
