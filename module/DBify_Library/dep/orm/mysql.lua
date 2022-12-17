@@ -9,8 +9,8 @@ local imports = {
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
-    table = table,
     string = string,
+    table = table,
     assetify = assetify
 }
 
