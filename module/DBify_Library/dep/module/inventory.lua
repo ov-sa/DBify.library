@@ -74,15 +74,15 @@ cItem = {
         })
     end,
 
-    modifyItemProperty = function(syntaxMsg, action, ...)
+    modifyItemProp = function(syntaxMsg, action, isData, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
         if not cPromise then return false end
         return try({
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local identifier, items, properties = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-                        if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not properties or (imports.type(properties) ~= "table") or (imports.table.length(properties) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                        local identifier, items, props = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+                        if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not props or (imports.type(props) ~= "table") or (imports.table.length(props) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         items = imports.table.clone(items, true)
                         for i = 1, imports.table.length(items), 1 do
                             items[i] = "item_"..imports.tostring(items[i])
@@ -95,20 +95,25 @@ cItem = {
                             j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
                             j = j or imports.table.clone(cItem.__TMP, true)
                             if action == "set" then
-                                for k = 1, imports.table.length(properties), 1 do
-                                    local v = properties[k]
+                                for k = 1, imports.table.length(props), 1 do
+                                    local v = props[k]
                                     v[1] = imports.tostring(v[1])
-                                    if v[1] == "amount" then v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])]) end
-                                    j.property[(v[1])] = v[2]
+                                    if not isData then
+                                        if v[1] == "amount" then v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])]) end
+                                        j.property[(v[1])] = v[2]
+                                    else
+                                        j.data[(v[1])] = v[2]
+                                    end
                                 end
                                 imports.table.insert(__itemDatas, {i, imports.table.encode(j)})
                             else
                                 i = imports.string.gsub(i, "item_", "", 1)
                                 __itemDatas[i] = {}
-                                for k = 1, imports.table.length(properties), 1 do
-                                    properties[k] = imports.tostring(properties[k])
-                                    local v = properties[k]
-                                    __itemDatas[i][v] = j.property[v]
+                                for k = 1, imports.table.length(props), 1 do
+                                    props[k] = imports.tostring(props[k])
+                                    local v = props[k]
+                                    if not isData then __itemDatas[i][v] = j.property[v]
+                                    else __itemDatas[i][v] = j.data[v] end
                                 end
                             end
                         end
@@ -119,53 +124,7 @@ cItem = {
             end,
             catch = cPromise.reject
         })
-    end,
-
-    modifyItemData = function(syntaxMsg, action, ...)
-        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-        if not cPromise then return false end
-        return try({
-            exec = function(self)
-                return self:await(
-                    imports.assetify.thread:createPromise(function(resolve, reject)
-                        local identifier, items, datas = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-                        if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not datas or (imports.type(datas) ~= "table") or (imports.table.length(datas) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                        items = imports.table.clone(items, true)
-                        for i = 1, imports.table.length(items), 1 do
-                            items[i] = "item_"..imports.tostring(items[i])
-                        end
-                        local itemDatas = cModule.getData(identifier, items)
-                        if not itemDatas then return resolve(itemDatas, cArgs) end
-                        local __itemDatas = {}
-                        for i, j in imports.pairs(itemDatas) do
-                            j = (j and imports.table.decode(j)) or false
-                            j = (j and j.data and (imports.type(j.data) == "table") and j.property and (imports.type(j.property) == "table") and j) or false
-                            j = j or imports.table.clone(cItem.__TMP, true)
-                            if action == "set" then
-                                for k = 1, imports.table.length(datas), 1 do
-                                    local v = datas[k]
-                                    v[1] = imports.tostring(v[1])
-                                    j.data[(v[1])] = v[2]
-                                end
-                                imports.table.insert(__itemDatas, {i, imports.table.encode(j)})
-                            else
-                                i = imports.string.gsub(i, "item_", "", 1)
-                                __itemDatas[i] = {}
-                                for k = 1, imports.table.length(datas), 1 do
-                                    datas[k] = imports.tostring(datas[k])
-                                    local v = datas[k]
-                                    __itemDatas[i][v] = j.data[v]
-                                end
-                            end
-                        end
-                        if action == "set" then resolve(cModule.setData(identifier, __itemDatas), cArgs)
-                        else resolve(__itemDatas, cArgs) end
-                    end)
-                )
-            end,
-            catch = cPromise.reject
-        })
-    end    
+    end 
 }
 
 
@@ -252,21 +211,21 @@ cItem = {
 
         setProperty = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-            return cItem.modifyItemProperty(syntaxMsg, "set", ...)
+            return cItem.modifyItemProp(syntaxMsg, "set", false, ...)
         end,
 
         getProperty = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-            return cItem.modifyItemProperty(syntaxMsg, "get", ...)
+            return cItem.modifyItemProp(syntaxMsg, "get", false, ...)
         end,
 
         setData = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-            return cItem.modifyItemProperty(syntaxMsg, "set", ...)
+            return cItem.modifyItemProp(syntaxMsg, "set", true, ...)
         end,
 
         getData = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-            return cItem.modifyItemProperty(syntaxMsg, "get", ...)
+            return cItem.modifyItemProp(syntaxMsg, "get", true, ...)
         end
     }

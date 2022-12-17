@@ -240,7 +240,7 @@ dbify.mysql = {
                                 queryStrings[1] = queryStrings[1].." `??`=?"..(((i < imports.table.length(dataColumns)) and ",") or "")
                                 local isValid = dbify.mysql.column.isValid(tableName, j[1])
                                 if not isValid then
-                                    imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", tableName, j[1])
+                                    imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", tableName, j[1])
                                 end
                             end
                             resolve(imports.dbExec(dbify.mysql.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs)
