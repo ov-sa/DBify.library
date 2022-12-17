@@ -7,7 +7,6 @@ local imports = {
     pairs = pairs,
     tonumber = tonumber,
     tostring = tostring,
-    addEventHandler = addEventHandler,
     dbQuery = dbQuery,
     dbPoll = dbPoll,
     dbExec = dbExec,
@@ -46,7 +45,7 @@ cItem = {
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
                         local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-                        if not identifer or (imports.type(identifer) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                        if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         items = imports.table.clone(items, true)
                         local itemDatas = {}
                         for i = 1, imports.table.length(items), 1 do
@@ -66,7 +65,7 @@ cItem = {
                             itemData = imports.table.encode(itemData)
                             j[2] = itemData
                         end
-                        resolve(cModule.setData(identifer, items), cArgs)
+                        resolve(cModule.setData(identifier, items), cArgs)
                     end)
                 )
             end,
@@ -125,105 +124,80 @@ cItem = {
     end 
 }
 
-
------------------
---[[ Utility ]]--
------------------
-
-
-    cModule.ensureItems = function(...)
-        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-        if not cPromise then return false end
-
-        local promise = function()
-            if not dbify.mysql.instance then return false end
-            local items, callback = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
-            if not items or (imports.type(items) ~= "table") then return false end
-            imports.dbQuery(function(queryHandler, cArgs)
-                local result = imports.dbPoll(queryHandler, 0)
-                local itemsToBeAdded, itemsToBeDeleted = {}, {}
-                if result and (imports.table.length(result) > 0) then
-                    for i = 1, imports.table.length(result), 1 do
-                        local j = result[i]
-                        local columnName = j["column_name"] or j[(string.upper("column_name"))]
-                        local itemIndex = imports.string.gsub(columnName, "item_", "", 1)
-                        if not cArgs[1].items[itemIndex] then
-                            imports.table.insert(itemsToBeDeleted, columnName)
-                        end
+cModule.ensureItems = function(...)
+    local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+    if not cPromise then return false end
+    local syntaxMsg = "dbify.module.inventory.ensureItems()"
+    return try({
+        exec = function(self)
+            return self:await(
+                imports.assetify.thread:createPromise(function(resolve, reject)
+                    if not dbify.mysql.util.isConnected(reject) then return end
+                    local items = dbify.fetchArg(_, cArgs)
+                    if not items or (imports.type(items) ~= "table") then return false end
+                    items = imports.table.clone(items, true)
+                    for i, j in imports.pairs(items) do
+                        items[i] = "item_"..imports.tostring(items[i])
                     end
-                end
-                for i, j in imports.pairs(cArgs[1].items) do
-                    imports.table.insert(itemsToBeAdded, "item_"..i)
-                end
-                cArgs[1].items = itemsToBeAdded
-                if imports.table.length(itemsToBeDeleted) > 0 then
-                    dbify.mysql.column.delete(cModule.__TMP.tableName, itemsToBeDeleted, function(result, cArgs)
+                    imports.dbQuery(function(queryHandler)
+                        local result = imports.dbPoll(queryHandler, 0)
+                        result = (result and (imports.table.length(result) > 0) and result) or false
                         if result then
-                            for i = 1, imports.table.length(cArgs[1].items), 1 do
-                                local j = cArgs[1].items[i]
-                                dbify.mysql.column.isValid(cModule.__TMP.tableName, j, function(isValid, cArgs)
-                                    if not isValid then
-                                        imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", cModule.__TMP.tableName, cArgs[1])
-                                    end
-                                    if cArgs[2] then
-                                        execFunction(callback, true, cArgs[2])
-                                    end
-                                end, j, ((i >= imports.table.length(cArgs[1].items)) and cArgs[2]) or false)
+                            local itemsToBeDeleted = {}
+                            for i = 1, imports.table.length(result), 1 do
+                                local j = result[i]
+                                local identifier = "column_name"
+                                local columnName = j[identifier] or j[(imports.string.upper(identifier))]
+                                if not items[columnName] then
+                                    imports.table.insert(itemsToBeDeleted, columnName)
+                                end
                             end
-                        else
-                            execFunction(callback, result, cArgs[2])
+                            if imports.table.length(itemsToBeDeleted) > 0 then
+                                dbify.mysql.column.delete(cModule.__TMP.tableName, itemsToBeDeleted)
+                            end
                         end
-                    end, cArgs[1], cArgs[2])
-                else
-                    for i = 1, imports.table.length(cArgs[1].items), 1 do
-                        local j = cArgs[1].items[i]
-                        dbify.mysql.column.isValid(cModule.__TMP.tableName, j, function(isValid, cArgs)
-                            if not isValid then
-                                imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", cModule.__TMP.tableName, cArgs[1])
+                        for i, j in imports.pairs(items) do
+                            if not dbify.mysql.column.isValid(cModule.__TMP.tableName, i) then
+                                imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", cModule.__TMP.tableName, cArgs[1])
                             end
-                            if cArgs[2] then
-                                execFunction(callback, true, cArgs[2])
-                            end
-                        end, j, ((i >= imports.table.length(cArgs[1].items)) and cArgs[2]) or false)
-                    end
-                end
-            end, {{{
-                items = items
-            }, cArgs}}, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, cModule.__TMP.tableName)
-            return true
-        end
-        if isAsync then promise(); return isAsync
-        else return promise() end
+                        end
+                        resolve(true, cArgs)
+                    end, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, cModule.__TMP.tableName)
+                end)
+            )
+        end,
+        catch = cPromise.reject
+    })
+end
+
+cModule.item = {
+    add = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
+        return cItem.modifyItemCount(syntaxMsg, "push", ...)
+    end,
+
+    remove = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
+        return cItem.modifyItemCount(syntaxMsg, "pop", ...)
+    end,
+
+    setProperty = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
+        return cItem.modifyItemProp(syntaxMsg, "set", false, ...)
+    end,
+
+    getProperty = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
+        return cItem.modifyItemProp(syntaxMsg, "get", false, ...)
+    end,
+
+    setData = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
+        return cItem.modifyItemProp(syntaxMsg, "set", true, ...)
+    end,
+
+    getData = function(...)
+        local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
+        return cItem.modifyItemProp(syntaxMsg, "get", true, ...)
     end
-
-    cModule.item = {
-        add = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-            return cItem.modifyItemCount(syntaxMsg, "push", ...)
-        end,
-
-        remove = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
-            return cItem.modifyItemCount(syntaxMsg, "pop", ...)
-        end,
-
-        setProperty = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-            return cItem.modifyItemProp(syntaxMsg, "set", false, ...)
-        end,
-
-        getProperty = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getProperty("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: properties)"
-            return cItem.modifyItemProp(syntaxMsg, "get", false, ...)
-        end,
-
-        setData = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.setData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-            return cItem.modifyItemProp(syntaxMsg, "set", true, ...)
-        end,
-
-        getData = function(...)
-            local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.getData("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..", table: items, table: datas)"
-            return cItem.modifyItemProp(syntaxMsg, "get", true, ...)
-        end
-    }
+}
