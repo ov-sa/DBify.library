@@ -142,8 +142,6 @@ dbify.mysql = {
                                 imports.table.insert(queryArguments, j)
                                 queryString = queryString.."`??`"..(((i < imports.table.length(tables)) and ", ") or "")
                             end
-                            print(queryString)
-                            iprint(queryArguments)
                             resolve(imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
                         end)
                     )
