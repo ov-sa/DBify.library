@@ -309,7 +309,7 @@ dbify.mysql = {
                             if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (imports.table.length(columns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                             if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["table_non-existent"], tableName)) end
                             if not dbify.mysql.column.areValid(tableName, columns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.error["columns_non-existent"], tableName)) end
-                            local queryString, queryArguments = "ALTER TABLE `??` DROP COLUMN ", {tableName}
+                            local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                             local __columns, redundantColumns = {}, {}
                             for i = 1, imports.table.length(columns), 1 do
                                 columns[i] = imports.tostring(columns[i])
@@ -323,7 +323,7 @@ dbify.mysql = {
                             for i = 1, imports.table.length(columns), 1 do
                                 local j = columns[i]
                                 imports.table.insert(queryArguments, j)
-                                queryString = queryString.."`??`"..(((i < imports.table.length(columns)) and ", ") or "")
+                                queryString = queryString.." DROP COLUMN `??`"..(((i < imports.table.length(columns)) and ", ") or "")
                             end
                             resolve(imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)), cArgs)
                         end)
