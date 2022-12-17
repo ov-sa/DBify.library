@@ -23,6 +23,34 @@ dbify.mysql = {
     instance = imports.dbConnect("mysql", "dbname="..(dbify.settings.credentials.database)..";host="..(dbify.settings.credentials.host)..";port="..(dbify.settings.credentials.port)..";charset=utf8;", dbify.settings.credentials.username, dbify.settings.credentials.password, dbify.settings.credentials.options) or false,
 
     table = {
+        fetchList = function(...)
+            local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
+            if not cPromise then return false end
+            local syntaxMsg = "dbify.mysql.table.fetchList()"
+            return try({
+                exec = function(self)
+                    return self:await(
+                        imports.assetify.thread:createPromise(function(resolve, reject)
+                            if not dbify.mysql.util.isConnected(reject) then return end
+                            imports.dbQuery(function(queryHandler)
+                                local result = imports.dbPoll(queryHandler, 0)
+                                result = result or false
+                                local __result = (result and {}) or result
+                                if __result then
+                                    local identifier = "table_name"
+                                    for i = 1, #result, 1 do
+                                        imports.table.insert(__result, result[i][identifier] or result[i][(imports.string.upper(identifier))])
+                                    end
+                                end
+                                resolve(__result, cArgs)
+                            end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=?", dbify.settings.credentials.database)
+                        end)
+                    )
+                end,
+                catch = cPromise.reject
+            })
+        end,
+    
         isValid = function(...)
             local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
             if not cPromise then return false end
@@ -111,8 +139,15 @@ dbify.mysql = {
                             imports.dbQuery(function(queryHandler)
                                 local result = imports.dbPoll(queryHandler, 0)
                                 result = result or false
-                                resolve(result, cArgs)
-                            end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
+                                local __result = (result and {}) or result
+                                if __result then
+                                    local identifier = "column_name"
+                                    for i = 1, #result, 1 do
+                                        imports.table.insert(__result, result[i][identifier] or result[i][(imports.string.upper(identifier))])
+                                    end
+                                end
+                                resolve(__result, cArgs)
+                            end, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=?", dbify.settings.credentials.database, tableName)
                         end)
                     )
                 end,
