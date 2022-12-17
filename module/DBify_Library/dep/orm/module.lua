@@ -130,11 +130,11 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local identifer = dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
+                            local identifier = dbify.mysql.util.fetchArg(_, cArgs)
+                            if not identifier or (imports.type(identifier) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            local isExisting = dbify.module["<moduleName>"].getData(identifier, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].__TMP.tableName, dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer), cArgs)
+                            resolve(imports.dbExec(dbify.mysql.instance, "DELETE FROM `??` WHERE `??`=?", dbify.module["<moduleName>"].__TMP.tableName, dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifier), cArgs)
                         end)
                     )
                 end,
@@ -150,11 +150,11 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            local isExisting = dbify.module["<moduleName>"].getData(identifer, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
+                            local identifier, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                            if not identifier or (imports.type(identifier) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            local isExisting = dbify.module["<moduleName>"].getData(identifier, {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1]})
                             if not isExisting then return resolve(isExisting, cArgs) end
-                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer} }), cArgs)                        
+                            resolve(dbify.mysql.data.set(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifier} }), cArgs)                        
                         end)
                     )
                 end,
@@ -170,9 +170,9 @@ local template = [[
                 exec = function(self)
                     return self:await(
                         imports.assetify.thread:createPromise(function(resolve, reject)
-                            local identifer, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
-                            if not identifer or (imports.type(identifer) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifer} }, true), cArgs)                        
+                            local identifier, dataColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                            if not identifier or (imports.type(identifier) ~= dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)].__TMP.type) or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                            resolve(dbify.mysql.data.get(dbify.module["<moduleName>"].__TMP.tableName, dataColumns, { {dbify.module["<moduleName>"].__TMP.structure[(dbify.module["<moduleName>"].__TMP.structure.key)][1], identifier} }, true), cArgs)                        
                         end)
                     )
                 end,
