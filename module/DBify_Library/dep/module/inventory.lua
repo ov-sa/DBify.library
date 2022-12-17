@@ -44,7 +44,7 @@ cItem = {
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local identifier, items = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+                        local identifier, items = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                         if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         items = imports.table.clone(items, true)
                         local itemDatas = {}
@@ -80,7 +80,7 @@ cItem = {
             exec = function(self)
                 return self:await(
                     imports.assetify.thread:createPromise(function(resolve, reject)
-                        local identifier, items, props = dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs), dbify.fetchArg(_, cArgs)
+                        local identifier, items, props = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                         if not identifier or (imports.type(identifier) ~= cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type) or not items or (imports.type(items) ~= "table") or (imports.table.length(items) <= 0) or not props or (imports.type(props) ~= "table") or (imports.table.length(props) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                         items = imports.table.clone(items, true)
                         for i = 1, imports.table.length(items), 1 do
@@ -133,17 +133,20 @@ cModule.ensureItems = function(...)
             return self:await(
                 imports.assetify.thread:createPromise(function(resolve, reject)
                     if not dbify.mysql.util.isConnected(reject) then return end
-                    local items = dbify.fetchArg(_, cArgs)
+                    local items = dbify.mysql.util.fetchArg(_, cArgs)
                     if not items or (imports.type(items) ~= "table") then return false end
                     items = imports.table.clone(items, true)
+                    local __items = {}
                     for i, j in imports.pairs(items) do
-                        items[i] = "item_"..imports.tostring(items[i])
+                        __items[("item_"..imports.tostring(i))] = true
                     end
+                    items = __items
+                    local cThread = imports.assetify.thread:getThread()
+                    local itemsToBeDeleted = {}
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
                         result = (result and (imports.table.length(result) > 0) and result) or false
                         if result then
-                            local itemsToBeDeleted = {}
                             for i = 1, imports.table.length(result), 1 do
                                 local j = result[i]
                                 local identifier = "column_name"
@@ -152,17 +155,20 @@ cModule.ensureItems = function(...)
                                     imports.table.insert(itemsToBeDeleted, columnName)
                                 end
                             end
-                            if imports.table.length(itemsToBeDeleted) > 0 then
-                                dbify.mysql.column.delete(cModule.__TMP.tableName, itemsToBeDeleted)
-                            end
                         end
-                        for i, j in imports.pairs(items) do
-                            if not dbify.mysql.column.isValid(cModule.__TMP.tableName, i) then
-                                imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", cModule.__TMP.tableName, cArgs[1])
-                            end
-                        end
-                        resolve(true, cArgs)
+                        cThread:resume()
                     end, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.settings.credentials.database, cModule.__TMP.tableName)
+                    cThread:pause()
+                    if imports.table.length(itemsToBeDeleted) > 0 then
+                        dbify.mysql.column.delete(cModule.__TMP.tableName, itemsToBeDeleted)
+                    end
+                    for i, j in imports.pairs(items) do
+                        if not dbify.mysql.column.isValid(cModule.__TMP.tableName, i) then
+                            print(i)
+                            imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", cModule.__TMP.tableName, i)
+                        end
+                    end
+                    resolve(true, cArgs)
                 end)
             )
         end,
