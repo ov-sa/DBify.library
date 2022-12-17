@@ -36,7 +36,7 @@ cItem = {
     __TMP = {
         property = { amount = 0 },
         data = {}
-    }
+    },
     
     modifyItemCount = function(syntaxMsg, action, ...)
         local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
@@ -101,9 +101,7 @@ cItem = {
                                     if not isData then
                                         if v[1] == "amount" then v[2] = imports.math.max(0, imports.tonumber(v[2]) or j.property[(v[1])]) end
                                         j.property[(v[1])] = v[2]
-                                    else
-                                        j.data[(v[1])] = v[2]
-                                    end
+                                    else j.data[(v[1])] = v[2] end
                                 end
                                 imports.table.insert(__itemDatas, {i, imports.table.encode(j)})
                             else
