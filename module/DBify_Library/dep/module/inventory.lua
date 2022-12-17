@@ -200,7 +200,7 @@ cItem = {
         add = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.add("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
             return cItem.modifyItemCount(syntaxMsg, "push", ...)
-        end
+        end,
 
         remove = function(...)
             local syntaxMsg = "dbify.module[\""..(cModule.__TMP.moduleName).."\"].item.remove("..(cModule.__TMP.structure[(cModule.__TMP.structure.key)].__TMP.type)..": "..(cModule.__TMP.structure[(cModule.__TMP.structure.key)][1])..")"
