@@ -174,7 +174,6 @@ cModule.ensureItems = function(...)
                     end
                     for i, j in imports.pairs(items) do
                         if not dbify.mysql.column.isValid(cModule.__TMP.tableName, i) then
-                            print(i)
                             imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", cModule.__TMP.tableName, i)
                         end
                     end
