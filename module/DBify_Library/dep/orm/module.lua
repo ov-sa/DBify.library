@@ -138,21 +138,12 @@ local template = [[
 
 dbify.module = {}
 dbify.createModule = function(config)
-    local cThread = imports.assetify.thread:getThread()
-    if not cThread then return false end
-    local syntaxMsg = "dbify.createModule(table: config)"
-    return cThread:await(
-        imports.assetify.thread:createPromise(function(resolve, reject)
-            if not config or (imports.type(config) ~= "table") then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-            config.moduleName = (config.moduleName and (imports.type(config.moduleName) == "string") and config.moduleName) or false
-            if not config.moduleName then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-            print("AA")
-            config.structure = dbify.mysql.table.create(config.tableName, config.structure)
-            if not config.structure then return resolve(false) end
-            iprint(config)
-            dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
-            dbify.module[(config.moduleName)].__TMP = config
-            resolve(dbify.module[(config.moduleName)])
-        end)
-    )
+    if not config or (imports.type(config) ~= "table") then return false end
+    config.moduleName = (config.moduleName and (imports.type(config.moduleName) == "string") and config.moduleName) or false
+    if not config.moduleName then return false end
+    config.structure = dbify.mysql.table.create(config.tableName, config.structure)
+    if not config.structure then return false end
+    dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
+    dbify.module[(config.moduleName)].__TMP = config
+    return dbify.module[(config.moduleName)]
 end
