@@ -28,10 +28,10 @@ if dbify.settings.syncNativeSerials then
         local serverPlayers = imports.getElementsByType("player")
         for i = 1, imports.table.length(serverPlayers), 1 do
             local playerSerial = imports.getPlayerSerial(serverPlayers[i])
-            dbify.module[(cModule.moduleName)].create(playerSerial)
+            cModule.create(playerSerial)
         end
         imports.addEventHandler("onPlayerJoin", root, function()
-            dbify.module[(cModule.moduleName)].create(imports.getPlayerSerial(source))
+            cModule.create(imports.getPlayerSerial(source))
         end)
     end)
 end
