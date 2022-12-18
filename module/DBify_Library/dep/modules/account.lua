@@ -17,25 +17,29 @@ local imports = {
 --[[ Module: Account ]]--
 -------------------------
 
-local cModule = dbify.createModule({
-    moduleName = "account",
-    tableName = "dbify_accounts",
-    structure = {
-        {"name", "VARCHAR(100) PRIMARY KEY"}
-    }
-})
+imports.assetify.thread:create(function()
+    try({
+        exec = function(self)
+            local cModule = dbify.createModule({
+                moduleName = "account",
+                tableName = "dbify_accounts",
+                structure = {
+                    {"name", "VARCHAR(100) PRIMARY KEY"}
+                }
+            })
 
-if dbify.settings.syncNativeAccounts then
-    imports.assetify.scheduler.execOnModuleLoad(function()
-        local serverPlayers = imports.getElementsByType("player")
-        for i = 1, imports.table.length(serverPlayers), 1 do
-            local playerAccount = imports.getPlayerAccount(serverPlayers[i])
-            if playerAccount and not imports.isGuestAccount(playerAccount) then
-                cModule.create(imports.getAccountName(playerAccount))
+            if not dbify.settings.syncNativeAccounts then return false end
+            local serverPlayers = imports.getElementsByType("player")
+            for i = 1, imports.table.length(serverPlayers), 1 do
+                local playerAccount = imports.getPlayerAccount(serverPlayers[i])
+                if playerAccount and not imports.isGuestAccount(playerAccount) then
+                    cModule.create(imports.getAccountName(playerAccount))
+                end
             end
-        end
-        imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-            cModule.create(imports.getAccountName(currAccount))
-        end)
-    end)
-end
+            imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
+                cModule.create(imports.getAccountName(currAccount))
+            end)
+        end,
+        catch = function(error) print(error) end
+    })
+end):resume()
