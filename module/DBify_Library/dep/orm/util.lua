@@ -2,7 +2,7 @@
 --[[ Imports ]]--
 -----------------
 
-loadstring(exports.assetify:import("threader"))()
+loadstring(exports.assetify_library:import("threader"))()
 local imports = {
     type = type,
     pairs = pairs,
