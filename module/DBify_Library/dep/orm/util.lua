@@ -1,3 +1,13 @@
+----------------------------------------------------------------
+--[[ Resource: DBify Library
+     Script: orm: util.lua
+     Author: vStudio
+     Developer(s): Aviril, Tron, Mario, Аниса
+     DOC: 11/10/2021
+     Desc: ORM Utilities ]]--
+----------------------------------------------------------------
+
+
 -----------------
 --[[ Imports ]]--
 -----------------

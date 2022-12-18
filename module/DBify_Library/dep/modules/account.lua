@@ -1,3 +1,13 @@
+----------------------------------------------------------------
+--[[ Resource: DBify Library
+     Script: modules: account.lua
+     Author: vStudio
+     Developer(s): Aviril, Tron, Mario, Аниса
+     DOC: 11/10/2021
+     Desc: Account Module ]]--
+----------------------------------------------------------------
+
+
 -----------------
 --[[ Imports ]]--
 -----------------
