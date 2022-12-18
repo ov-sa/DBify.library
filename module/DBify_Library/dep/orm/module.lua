@@ -141,8 +141,16 @@ dbify.createModule = function(config)
     if not config or (imports.type(config) ~= "table") then return false end
     config.moduleName = (config.moduleName and (imports.type(config.moduleName) == "string") and config.moduleName) or false
     if not config.moduleName then return false end
-    config.structure = dbify.mysql.table.create(config.tableName, config.structure)
+    config.structure = dbify.mysql.util.parseStructure(config.structure)
     if not config.structure then return false end
+    local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {config.tableName}
+    for i = 1, imports.table.length(config.structure), 1 do
+        local j = config.structure[i]
+        queryString = queryString.."`??` "..j[2]..(((i < imports.table.length(config.structure)) and ", ") or "")
+        imports.table.insert(queryArguments, j[1])
+    end
+    queryString = queryString..")"
+    if not imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments)) then return false end
     dbify.module[(config.moduleName)] = imports.loadstring(imports.string.gsub(template, "<moduleName>", config.moduleName))()
     dbify.module[(config.moduleName)].__TMP = config
     return dbify.module[(config.moduleName)]
