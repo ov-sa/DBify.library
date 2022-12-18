@@ -39,7 +39,7 @@ dbify.mysql.util = {
     },
 
     errorTypes = {
-        ["table_existent"] = "Table: '%s' already existing",
+        ["table_existent"] = "Table: '%s' already exists",
         ["table_non-existent"] = "Table: '%s' non-existent",
         ["tables_non-existent"] = "Database: '%s' doesn't contain enough specified tables(s) to process the query",
         ["columns_non-existent"] = "Table: '%s' doesn't contain enough specified column(s) to process the query"
