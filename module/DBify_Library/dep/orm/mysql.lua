@@ -4,7 +4,6 @@
 
 local imports = {
     type = type,
-    pairs = pairs,
     tostring = tostring,
     dbConnect = dbConnect,
     dbQuery = dbQuery,
@@ -108,40 +107,9 @@ dbify.mysql = {
                 imports.assetify.thread:createPromise(function(resolve, reject)
                     if not dbify.mysql.util.isConnected(reject) then return end
                     local tableName, structure = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
-                    if not tableName or (imports.type(tableName) ~= "string") or not structure or (imports.type(structure) ~= "table") or (imports.table.length(structure) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
-                    if dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["table_existent"], tableName)) end
-                    local __structure, redundantColumns = {}, {}
-                    for i = 1, imports.table.length(structure), 1 do
-                        local j = structure[i]
-                        j[1] = imports.tostring(j[1])
-                        if not redundantColumns[(j[1])] then
-                            redundantColumns[(j[1])] = true
-                            j[2] = imports.string.upper(imports.tostring(j[2]))
-                            local matchedIndex = (imports.string.find(j[2], ",") or (#j[2] + 1)) - 1
-                            j[2] = imports.string.sub(j[2], 0, matchedIndex)
-                            j.__TMP = {}
-                            for k, v in imports.pairs(dbify.mysql.util.keyTypes) do
-                                if imports.string.find(j[2], k) then
-                                    j.__TMP.type = v
-                                    j.__TMP.isAutoIncrement = (imports.string.find(j[2], "AUTO_INCREMENT") and true) or false
-                                    if j.__TMP.isAutoIncrement and (j.__TMP.type ~= "number") then return false end
-                                    j.__TMP.isNotNull = (imports.string.find(j[2], "NOT NULL") and true) or false
-                                    j.__TMP.hasDefaultValue = ((j.__TMP.isAutoIncrement or imports.string.find(j[2], "DEFAULT")) and true) or false
-                                    break
-                                end
-                            end
-                            j.__TMP.type = j.__TMP.type or "string"
-                            j.__TMP.isAutoIncrement = j.__TMP.isAutoIncrement or false
-                            imports.table.insert(__structure, j)
-                            if imports.string.find(j[2], "PRIMARY KEY") then
-                                if __structure.key then return false end
-                                j.__TMP.isNotNull = true
-                                __structure.key = imports.table.length(__structure)
-                            end
-                        end
-                    end
-                    structure = __structure
-                    if not structure.key or (imports.table.length(structure) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                    structure = dbify.mysql.util.parseStructure(structure)
+                    if not tableName or (imports.type(tableName) ~= "string") or not structure then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                    if dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["table_existent"], tableName)) end                    
                     local queryString, queryArguments = "CREATE TABLE IF NOT EXISTS `??` (", {tableName}
                     for i = 1, imports.table.length(structure), 1 do
                         local j = structure[i]
@@ -165,7 +133,7 @@ dbify.mysql = {
                     local tables = dbify.mysql.util.fetchArg(_, cArgs)
                     if not tables or (imports.type(tables) ~= "table") or (imports.table.length(tables) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                     if not dbify.mysql.table.areValid(tables) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["tables_non-existent"], dbify.settings.credentials.database)) end
-                    local queryString, queryArguments = "DROP TABLE ", {}
+                    local queryString, queryArguments = "DROP TABLE IF EXISTS ", {}
                     local __tables, redundantTables = {}, {}
                     for i = 1, imports.table.length(tables), 1 do
                         tables[i] = imports.tostring(tables[i])
