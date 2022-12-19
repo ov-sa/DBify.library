@@ -438,17 +438,18 @@ dbify.mysql = {
                     keyColumns, redundantColumns = __keyColumns, {}
                     if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["columns_non-existent"], tableName)) end
                     validateColumns = {}
+                    local dummyColumn, isDummyColumnAppended, isDummyColumnIncluded = keyColumns[1][1], false, false
                     for i = 1, imports.table.length(dataColumns), 1 do
                         dataColumns[i] = imports.tostring(dataColumns[i])
                         local j = dataColumns[i]
                         if not redundantColumns[j] then
                             redundantColumns[j] = true
+                            isDummyColumnIncluded = isDummyColumnIncluded or (j == dummyColumn) or false
                             imports.table.insert(__dataColumns, j)
                             imports.table.insert(validateColumns, j)
                         end
                     end
                     dataColumns = __dataColumns
-                    local dummyKeyColumn = keyColumns[1][1]
                     local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns, true)
                     if invalidColumns then
                         local validColumns = {}
@@ -465,7 +466,8 @@ dbify.mysql = {
                         dataColumns = validColumns
                     end
                     if imports.table.length(dataColumns) <= 0 then
-                        imports.table.insert(dataColumns, dummyKeyColumn)
+                        isDummyColumnAppended = true
+                        imports.table.insert(dataColumns, dummyColumn)
                     end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
@@ -482,7 +484,17 @@ dbify.mysql = {
                     end
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
-                        resolve((result and isSoloFetch and result[1]) or result, cArgs)
+                        result = (result and isSoloFetch and result[1]) or result
+                        if result and isDummyColumnAppended and not isDummyColumnIncluded then
+                            if isSoloFetch then result[dummyColumn] = nil
+                            else
+                                for i = 1, imports.table.length(result), 1 do
+                                    local j = result[i]
+                                    j[dummyColumn] = nil
+                                end
+                            end
+                        end
+                        resolve(result, cArgs)
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                 end)
             )
