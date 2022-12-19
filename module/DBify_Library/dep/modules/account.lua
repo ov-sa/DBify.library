@@ -36,14 +36,16 @@ local cModule = dbify.createModule({
 })
 
 if dbify.settings.syncNativeAccounts then
-    local serverPlayers = imports.getElementsByType("player")
-    for i = 1, imports.table.length(serverPlayers), 1 do
-        local playerAccount = imports.getPlayerAccount(serverPlayers[i])
-        if playerAccount and not imports.isGuestAccount(playerAccount) then
-            cModule.create(imports.getAccountName(playerAccount))
+    imports.assetify.thread:create(function(self)
+        local serverPlayers = imports.getElementsByType("player")
+        for i = 1, imports.table.length(serverPlayers), 1 do
+            local playerAccount = imports.getPlayerAccount(serverPlayers[i])
+            if playerAccount and not imports.isGuestAccount(playerAccount) then
+                cModule.create(imports.getAccountName(playerAccount))
+            end
         end
-    end
-    imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
-        cModule.create(imports.getAccountName(currAccount))
-    end)
+        imports.addEventHandler("onPlayerLogin", root, function(_, currAccount)
+            cModule.create(imports.getAccountName(currAccount))
+        end)
+    end):resume()
 end

@@ -34,11 +34,13 @@ local cModule = dbify.createModule({
 })
 
 if dbify.settings.syncNativeSerials then
-    local serverPlayers = imports.getElementsByType("player")
-    for i = 1, imports.table.length(serverPlayers), 1 do
-        cModule.create(imports.getPlayerSerial(serverPlayers[i]))
-    end
-    imports.addEventHandler("onPlayerJoin", root, function()
-        cModule.create(imports.getPlayerSerial(source))
-    end)
+    imports.assetify.thread:create(function(self)
+        local serverPlayers = imports.getElementsByType("player")
+        for i = 1, imports.table.length(serverPlayers), 1 do
+            cModule.create(imports.getPlayerSerial(serverPlayers[i]))
+        end
+        imports.addEventHandler("onPlayerJoin", root, function()
+            cModule.create(imports.getPlayerSerial(source))
+        end)
+    end):resume()
 end
