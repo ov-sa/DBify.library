@@ -501,13 +501,3 @@ dbify.mysql = {
         end
     }
 }
-
-assetify.timer:create(function()
-    async(function(self)
-        local result = dbify.mysql.column.areValid("accounts", {
-            "test",
-            "id"
-        }, true)
-        iprint(result)
-    end):resume()
-end, 1, 1)
