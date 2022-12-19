@@ -81,8 +81,9 @@ dbify.mysql = {
             return self:await(
                 imports.assetify.thread:createPromise(function(resolve, reject)
                     if not dbify.mysql.util.isConnected(reject) then return end
-                    local tables = dbify.mysql.util.fetchArg(_, cArgs)
+                    local tables, isFetchInvalid = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                     if not tables or (imports.type(tables) ~= "table") or (imports.table.length(tables) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                    isFetchInvalid = (isFetchInvalid and true) or false
                     local queryString, queryArguments = "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND (", {dbify.settings.credentials.database}
                     local __tables, redundantTables = {}, {}
                     for i = 1, imports.table.length(tables), 1 do
@@ -102,8 +103,20 @@ dbify.mysql = {
                     queryString = queryString..")"
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
-                        result = ((result and (imports.table.length(result) >= imports.table.length(tables))) and true) or false
-                        resolve(result, cArgs)
+                        result = result or false
+                        local areValid = ((result and (imports.table.length(result) >= imports.table.length(tables))) and true) or false
+                        if not isFetchInvalid then resolve(areValid, cArgs)
+                        elseif areValid then resolve(not areValid, cArgs)
+                        else
+                            local invalidTables = {}
+                            for i = 1, imports.table.length(result), 1 do
+                                local j = result[i]
+                                if not redundantTables[j] then
+                                    imports.table.insert(invalidTables, j)
+                                end
+                            end
+                            resolve(invalidTables, cArgs)
+                        end
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                 end)
             )
@@ -261,8 +274,9 @@ dbify.mysql = {
             return self:await(
                 imports.assetify.thread:createPromise(function(resolve, reject)
                     if not dbify.mysql.util.isConnected(reject) then return end
-                    local tableName, columns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
+                    local tableName, columns, isFetchInvalid = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                     if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (imports.table.length(columns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
+                    isFetchInvalid = (isFetchInvalid and true) or false
                     if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["table_non-existent"], tableName)) end
                     local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
                     local __columns, redundantColumns = {}, {}
@@ -283,8 +297,20 @@ dbify.mysql = {
                     queryString = queryString..")"
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
-                        result = ((result and (imports.table.length(result) >= imports.table.length(columns))) and true) or false
-                        resolve(result, cArgs)
+                        result = result or false
+                        local areValid = ((result and (imports.table.length(result) >= imports.table.length(columns))) and true) or false
+                        if not isFetchInvalid then resolve(areValid, cArgs)
+                        elseif areValid then resolve(not areValid, cArgs)
+                        else
+                            local invalidColumns = {}
+                            for i = 1, imports.table.length(result), 1 do
+                                local j = result[i]
+                                if not redundantColumns[j] then
+                                    imports.table.insert(invalidColumns, j)
+                                end
+                            end
+                            resolve(invalidColumns, cArgs)
+                        end
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                 end)
             )
