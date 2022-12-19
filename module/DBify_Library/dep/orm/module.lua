@@ -65,7 +65,9 @@ local template = [[
                             queryStrings[1], queryStrings[2] = queryStrings[1].."`??`"..((isNonLastIndex and ", ") or ""), queryStrings[2].."?"..((isNonLastIndex and ", ") or "")
                             imports.table.insert(queryArguments, j[1])
                             imports.table.insert(querySubArguments, queryArg)
-                            if j.__TMP.hasDefaultValue or (j.__TMP.isNotNull and (not queryArg or (imports.type(queryArg) ~= j.__TMP.type))) then
+                            local isArgNil = queryArg == nil
+                            local isArgMatched = imports.type(queryArg) == j.__TMP.type
+                            if (j.__TMP.hasDefaultValue and not isArgNil and not isArgMatched) or (not j.__TMP.hasDefaultValue and j.__TMP.isNotNull and not isArgMatched) then
                                 local syntaxMsg = "dbify.module[\"<moduleName>\"].create("
                                 for k = 1, imports.table.length(dbify.module["<moduleName>"].__TMP.structure), 1 do
                                     local v = dbify.module["<moduleName>"].__TMP.structure[k]
