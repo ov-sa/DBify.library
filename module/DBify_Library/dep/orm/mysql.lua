@@ -393,9 +393,12 @@ dbify.mysql = {
                     local queryLength = imports.table.length(queryArguments) - 1
                     local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns, true)
                     if invalidColumns then
+                        local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                         for i = 1, imports.table.length(invalidColumns), 1 do
-                            imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", tableName, invalidColumns[i])
+                            imports.table.insert(queryArguments, invalidColumns[i])
+                            queryString = queryString.." ADD COLUMN `??` MEDIUMTEXT"..(((i < imports.table.length(invalidColumns)) and ", ") or "")
                         end
+                        imports.dbExec(dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                     end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
