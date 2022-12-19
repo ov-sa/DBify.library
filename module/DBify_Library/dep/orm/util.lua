@@ -89,21 +89,46 @@ dbify.mysql.util = {
             if not redundantColumns[(j[1])] then
                 redundantColumns[(j[1])] = true
                 j[2] = imports.string.upper(imports.tostring(j[2]))
-                local matchedIndex = (imports.string.find(j[2], ",") or (#j[2] + 1)) - 1
-                j[2] = imports.string.sub(j[2], 0, matchedIndex)
+                local matchString = false
+                local isEnumIndex = imports.string.find(j[2], "ENUM")
+                if isEnumIndex then
+                    local preEnumMatch = imports.string.sub(j[2], 0, isEnumIndex)
+                    local isPreEnumMatched = imports.string.find(preEnumMatch, ",")
+                    if isPreEnumMatched then
+                        j[2] = imports.string.sub(preEnumMatch, 0, isPreEnumMatched - 1)
+                    else
+                        isEnumIndex = isEnumIndex + 4
+                        local __matchString = imports.string.sub(j[2], isEnumIndex, #j[2])
+                        local isEnumEnter, isEnumExit = false, false
+                        for i = 1, #__matchString, 1 do
+                            local character = imports.string.sub(__matchString, i, i)
+                            if character == "(" then
+                                if isEnumEnter then return false end
+                                isEnumEnter = true
+                            elseif character == ")" then
+                                if isEnumExit then return false end
+                                isEnumExit = true
+                                matchString = imports.string.sub(j[2], isEnumIndex + i, #j[2])
+                                break
+                            end
+                        end
+                    end
+                end
+                matchString = matchString or j[2]
+                j[2] = imports.string.sub(j[2], 0, (#j[2] - #matchString) + (imports.string.find(matchString, ",") or (#matchString + 1)) - 1)
                 j.__TMP = {}
                 for k, v in imports.pairs(dbify.mysql.util.keyTypes) do
                     if imports.string.find(j[2], k) then
                         j.__TMP.type = v
                         j.__TMP.isAutoIncrement = (imports.string.find(j[2], "AUTO_INCREMENT") and true) or false
                         if j.__TMP.isAutoIncrement and (j.__TMP.type ~= "number") then return false end
-                        j.__TMP.isNotNull = (imports.string.find(j[2], "NOT NULL") and true) or false
-                        j.__TMP.hasDefaultValue = ((j.__TMP.isAutoIncrement or imports.string.find(j[2], "DEFAULT")) and true) or false
                         break
                     end
                 end
                 j.__TMP.type = j.__TMP.type or "string"
                 j.__TMP.isAutoIncrement = j.__TMP.isAutoIncrement or false
+                j.__TMP.isNotNull = (imports.string.find(j[2], "NOT NULL") and true) or false
+                j.__TMP.hasDefaultValue = ((j.__TMP.isAutoIncrement or imports.string.find(j[2], "DEFAULT")) and true) or false
                 imports.table.insert(__structure, j)
                 if imports.string.find(j[2], "PRIMARY KEY") then
                     if __structure.key then return false end
