@@ -448,10 +448,20 @@ dbify.mysql = {
                         end
                     end
                     dataColumns = __dataColumns
-                    --TODO: CHECK FOR INVALID COLUMNS AND SET IT AS NIL IF NOT DETECTED
-                    local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns)
+                    local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns, true)
                     if invalidColumns then
-
+                        local validColumns = {}
+                        for i = 1, imports.table.length(invalidColumns), 1 do
+                            local j = invalidColumns[i]
+                            redundantColumns[j] = nil
+                        end
+                        for i = 1, imports.table.length(dataColumns), 1 do
+                            local j = dataColumns[i]
+                            if redundantColumns[j] then
+                                imports.table.insert(validColumns, j)
+                            end
+                        end
+                        dataColumns = validColumns
                     end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
@@ -468,8 +478,7 @@ dbify.mysql = {
                     end
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
-                        result = result or false
-                        resolve((result and isSoloFetch and result[1]) or false, cArgs)
+                        resolve((result and isSoloFetch and result[1]) or result, cArgs)
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                 end)
             )
