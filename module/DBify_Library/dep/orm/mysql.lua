@@ -448,6 +448,7 @@ dbify.mysql = {
                         end
                     end
                     dataColumns = __dataColumns
+                    local dummyKeyColumn = keyColumns[1][1]
                     local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns, true)
                     if invalidColumns then
                         local validColumns = {}
@@ -462,6 +463,9 @@ dbify.mysql = {
                             end
                         end
                         dataColumns = validColumns
+                    end
+                    if imports.table.length(dataColumns) <= 0 then
+                        imports.table.insert(dataColumns, dummyKeyColumn)
                     end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
