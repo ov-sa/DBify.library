@@ -264,7 +264,7 @@ dbify.mysql = {
                         local result = imports.dbPoll(queryHandler, 0)
                         result = ((result and (imports.table.length(result) > 0)) and true) or false
                         resolve(result, cArgs)
-                    end, dbify.mysql.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.settings.credentials.database, tableName, columnName)
+                    end, dbify.mysql.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.settings.credentials.database, tableName, columnName)
                 end)
             )
         end,
@@ -280,7 +280,7 @@ dbify.mysql = {
                     if not tableName or (imports.type(tableName) ~= "string") or not columns or (imports.type(columns) ~= "table") or (imports.table.length(columns) <= 0) then return dbify.mysql.util.throwError(reject, syntaxMsg) end
                     isFetchInvalid = (isFetchInvalid and true) or false
                     if not dbify.mysql.table.isValid(tableName) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["table_non-existent"], tableName)) end
-                    local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
+                    local queryString, queryArguments = "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.settings.credentials.database, tableName}
                     local __columns, redundantColumns = {}, {}
                     for i = 1, imports.table.length(columns), 1 do
                         columns[i] = imports.tostring(columns[i])
@@ -473,9 +473,9 @@ dbify.mysql = {
 
 assetify.timer:create(function()
     async(function(self)
-        local result = dbify.mysql.table.areValid({
+        local result = dbify.mysql.column.areValid("accounts", {
             "test",
-            "accounts"
+            "id"
         }, true)
         iprint(result)
     end):resume()
