@@ -67,7 +67,7 @@ local template = [[
                             imports.table.insert(querySubArguments, queryArg)
                             local isArgNil = queryArg == nil
                             local isArgMatched = imports.type(queryArg) == j.__TMP.type
-                            if (j.__TMP.hasDefaultValue and not isArgNil and not isArgMatched) or (not j.__TMP.hasDefaultValue and j.__TMP.isNotNull and not isArgMatched) then
+                            if (j.__TMP.hasDefaultValue and not isArgNil and not isArgMatched) or (not j.__TMP.hasDefaultValue and j.__TMP.isNotNull and (isArgNil or not isArgMatched)) then
                                 local syntaxMsg = "dbify.module[\"<moduleName>\"].create("
                                 for k = 1, imports.table.length(dbify.module["<moduleName>"].__TMP.structure), 1 do
                                     local v = dbify.module["<moduleName>"].__TMP.structure[k]
