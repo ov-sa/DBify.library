@@ -117,6 +117,7 @@ dbify.mysql = {
                             for i, j in imports.pairs(redundantTables) do
                                 imports.table.insert(invalidTables, i)
                             end
+                            invalidTables = ((imports.table.length(invalidTables) > 0) and invalidTables) or false
                             resolve(invalidTables, cArgs)
                         end
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
@@ -312,6 +313,7 @@ dbify.mysql = {
                             for i, j in imports.pairs(redundantColumns) do
                                 imports.table.insert(invalidColumns, i)
                             end
+                            invalidColumns = ((imports.table.length(invalidColumns) > 0) and invalidColumns) or false
                             resolve(invalidColumns, cArgs)
                         end
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
@@ -447,6 +449,10 @@ dbify.mysql = {
                     end
                     dataColumns = __dataColumns
                     --TODO: CHECK FOR INVALID COLUMNS AND SET IT AS NIL IF NOT DETECTED
+                    local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns)
+                    if invalidColumns then
+
+                    end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
                         imports.table.insert(queryArguments, j)
