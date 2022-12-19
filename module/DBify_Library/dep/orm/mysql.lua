@@ -360,7 +360,7 @@ dbify.mysql = {
                     local tableName, dataColumns, keyColumns = dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs), dbify.mysql.util.fetchArg(_, cArgs)
                     if not tableName or (imports.type(tableName) ~= "string") or not dataColumns or (imports.type(dataColumns) ~= "table") or (imports.table.length(dataColumns) <= 0) or not keyColumns or (imports.type(keyColumns) ~= "table") or (imports.table.length(keyColumns) <= 0) then return false end
                     local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {tableName}
-                    local __keyColumns, validateColumns, redundantColumns = {}, {}, {}
+                    local __keyColumns, __dataColumns, validateColumns, redundantColumns = {}, {}, {}, {}
                     for i = 1, imports.table.length(keyColumns), 1 do
                         local j = keyColumns[i]
                         j[1] = imports.tostring(j[1])
@@ -372,6 +372,17 @@ dbify.mysql = {
                     end
                     keyColumns, redundantColumns = __keyColumns, {}
                     if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["columns_non-existent"], tableName)) end
+                    validateColumns = {}
+                    for i = 1, imports.table.length(dataColumns), 1 do
+                        local j = dataColumns[i]
+                        j[1] = imports.tostring(j[1])
+                        if not redundantColumns[(j[1])] then
+                            redundantColumns[(j[1])] = true
+                            imports.table.insert(__dataColumns, j)
+                            imports.table.insert(validateColumns, j[1])
+                        end
+                    end
+                    dataColumns = __dataColumns
                     for i = 1, imports.table.length(keyColumns), 1 do
                         local j = keyColumns[i]
                         imports.table.insert(queryArguments, j[1])
@@ -379,19 +390,18 @@ dbify.mysql = {
                         queryStrings[2] = queryStrings[2].." `??`=?"..(((i < imports.table.length(keyColumns)) and " AND") or "")
                     end
                     local queryLength = imports.table.length(queryArguments) - 1
+                    local invalidColumns = dbify.mysql.column.areValid(tableName, validateColumns, true)
+                    if invalidColumns then
+                        for i = 1, imports.table.length(invalidColumns), 1 do
+                            local j = invalidColumns[i]
+                            imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", tableName, j)
+                        end
+                    end
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
-                        j[1] = imports.tostring(j[1])
-                        if not redundantColumns[(j[1])] then
-                            redundantColumns[(j[1])] = true
-                            imports.table.insert(queryArguments, imports.table.length(queryArguments) - queryLength + 1, j[1])
-                            imports.table.insert(queryArguments, imports.table.length(queryArguments) - queryLength + 1, imports.tostring(j[2]))
-                            queryStrings[1] = queryStrings[1].." `??`=?"..(((i < imports.table.length(dataColumns)) and ",") or "")
-                            local isValid = dbify.mysql.column.isValid(tableName, j[1])
-                            if not isValid then
-                                imports.dbExec(dbify.mysql.instance, "ALTER TABLE `??` ADD COLUMN `??` MEDIUMTEXT", tableName, j[1])
-                            end
-                        end
+                        imports.table.insert(queryArguments, imports.table.length(queryArguments) - queryLength + 1, j[1])
+                        imports.table.insert(queryArguments, imports.table.length(queryArguments) - queryLength + 1, imports.tostring(j[2]))
+                        queryStrings[1] = queryStrings[1].." `??`=?"..(((i < imports.table.length(dataColumns)) and ",") or "")
                     end
                     resolve(imports.dbExec(dbify.mysql.instance, queryStrings[1]..queryStrings[2], imports.table.unpack(queryArguments)), cArgs)
                 end)
