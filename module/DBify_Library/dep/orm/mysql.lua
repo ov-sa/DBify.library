@@ -431,6 +431,8 @@ dbify.mysql = {
                         end
                     end
                     keyColumns, redundantColumns = __keyColumns, {}
+                    if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["columns_non-existent"], tableName)) end
+                    validateColumns = {}
                     for i = 1, imports.table.length(dataColumns), 1 do
                         dataColumns[i] = imports.tostring(dataColumns[i])
                         local j = dataColumns[i]
@@ -441,7 +443,7 @@ dbify.mysql = {
                         end
                     end
                     dataColumns = __dataColumns
-                    if not dbify.mysql.column.areValid(tableName, validateColumns) then return dbify.mysql.util.throwError(reject, imports.string.format(dbify.mysql.util.errorTypes["columns_non-existent"], tableName)) end
+                    --TODO: CHECK FOR INVALID COLUMNS AND SET IT AS NIL IF NOT DETECTED
                     for i = 1, imports.table.length(dataColumns), 1 do
                         local j = dataColumns[i]
                         imports.table.insert(queryArguments, j)
