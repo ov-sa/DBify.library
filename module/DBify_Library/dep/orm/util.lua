@@ -31,22 +31,25 @@ local imports = {
 
 dbify.mysql.util = {
     keyTypes = {
+        ["BOOLEAN"] = "boolean",
         ["TINYINT"] = "number",
         ["SMALLINT"] = "number",
         ["MEDIUMINT"] = "number",
         ["INT"] = "number",
+        ["FLOAT"] = "number",
+        ["DOUBLE"] = "number",
         ["BIGINT"] = "number",
         ["VARCHAR"] = "string",
         ["CHAR"] = "string",
         ["BINARY"] = "string",
         ["VARBINARY"] = "string",
         ["TINYBLOB"] = "string",
-        ["TINYTEXT"] = "string",
         ["BLOB"] = "string",
-        ["TEXT"] = "string",
         ["MEDIUMBLOB"] = "string",
-        ["MEDIUMTEXT"] = "string",
         ["LONGBLOB"] = "string",
+        ["TINYTEXT"] = "string",
+        ["TEXT"] = "string",
+        ["MEDIUMTEXT"] = "string",
         ["LONGTEXT"] = "string"
     },
 
