@@ -412,7 +412,7 @@ dbify.mysql = {
                     queryString = queryString.." FROM `??` WHERE"
                     for i = 1, imports.table.length(keyColumns), 1 do
                         local j = keyColumns[i]
-                        imports.table.insert(queryArguments, imports.tostring(j[1]))
+                        imports.table.insert(queryArguments, j[1])
                         imports.table.insert(queryArguments, imports.tostring(j[2]))
                         queryString = queryString.." `??`=?"..(((i < imports.table.length(keyColumns)) and " AND") or "")
                     end
