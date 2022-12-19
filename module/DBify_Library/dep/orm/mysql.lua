@@ -217,7 +217,8 @@ dbify.mysql = {
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
                         result = result or false
-                        resolve((result and isSoloFetch and result[1]) or result, cArgs)
+                        if result and isSoloFetch then result = result[1] or false end
+                        resolve(result, cArgs)
                     end, dbify.mysql.instance, queryString, imports.table.unpack(queryArguments))
                 end)
             )
@@ -484,13 +485,13 @@ dbify.mysql = {
                     end
                     imports.dbQuery(function(queryHandler)
                         local result = imports.dbPoll(queryHandler, 0)
-                        result = (result and isSoloFetch and result[1]) or result
+                        result = result or false
+                        if result and isSoloFetch then result = result[1] or false end
                         if result and isDummyColumnAppended and not isDummyColumnIncluded then
                             if isSoloFetch then result[dummyColumn] = nil
                             else
                                 for i = 1, imports.table.length(result), 1 do
-                                    local j = result[i]
-                                    j[dummyColumn] = nil
+                                    result[i][dummyColumn] = nil
                                 end
                             end
                         end
