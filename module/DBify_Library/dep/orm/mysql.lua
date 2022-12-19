@@ -14,6 +14,7 @@
 
 local imports = {
     type = type,
+    pairs = pairs,
     tostring = tostring,
     dbConnect = dbConnect,
     dbQuery = dbQuery,
@@ -108,12 +109,13 @@ dbify.mysql = {
                         if not isFetchInvalid then resolve(areValid, cArgs)
                         elseif areValid then resolve(not areValid, cArgs)
                         else
-                            local invalidTables = {}
+                            local identifier, invalidTables = "table_name", {}
                             for i = 1, imports.table.length(result), 1 do
-                                local j = result[i]
-                                if not redundantTables[j] then
-                                    imports.table.insert(invalidTables, j)
-                                end
+                                local j = result[i][identifier] or result[i][(imports.string.upper(identifier))]
+                                redundantTables[j] = nil
+                            end
+                            for i, j in imports.pairs(redundantTables) do
+                                imports.table.insert(invalidTables, i)
                             end
                             resolve(invalidTables, cArgs)
                         end
@@ -302,12 +304,13 @@ dbify.mysql = {
                         if not isFetchInvalid then resolve(areValid, cArgs)
                         elseif areValid then resolve(not areValid, cArgs)
                         else
-                            local invalidColumns = {}
+                            local identifier, invalidColumns = "column_name", {}
                             for i = 1, imports.table.length(result), 1 do
-                                local j = result[i]
-                                if not redundantColumns[j] then
-                                    imports.table.insert(invalidColumns, j)
-                                end
+                                local j = result[i][identifier] or result[i][(imports.string.upper(identifier))]
+                                redundantColumns[j] = nil
+                            end
+                            for i, j in imports.pairs(redundantColumns) do
+                                imports.table.insert(invalidColumns, i)
                             end
                             resolve(invalidColumns, cArgs)
                         end
@@ -467,3 +470,13 @@ dbify.mysql = {
         end
     }
 }
+
+assetify.timer:create(function()
+    async(function(self)
+        local result = dbify.mysql.table.areValid({
+            "test",
+            "accounts"
+        }, true)
+        iprint(result)
+    end):resume()
+end, 1, 1)
