@@ -1,5 +1,5 @@
 encryptKey: "vStudio - Aviril"
-version: "2.2.3"
+version: "2.3.0"
 authors:
     -: "Aviril"
     -: "Tron"
