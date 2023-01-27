@@ -48,8 +48,8 @@ cItem = {
     },
     
     modifyCount = function(syntaxMsg, action, ...)
-        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-        if not cPromise then return false end
+        local self, cArgs = dbify.mysql.util.parseArgs(...)
+        if not self then return false end
         return try({
             exec = function(self)
                 return self:await(
@@ -79,13 +79,13 @@ cItem = {
                     end)
                 )
             end,
-            catch = cPromise.reject
+            catch = self.reject
         })
     end,
 
     modifyProp = function(syntaxMsg, action, isData, ...)
-        local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-        if not cPromise then return false end
+        local self, cArgs = dbify.mysql.util.parseArgs(...)
+        if not self then return false end
         return try({
             exec = function(self)
                 return self:await(
@@ -129,14 +129,14 @@ cItem = {
                     end)
                 )
             end,
-            catch = cPromise.reject
+            catch = self.reject
         })
     end 
 }
 
 cModule.ensureItems = function(...)
-    local cPromise, cArgs = dbify.mysql.util.parseArgs(...)
-    if not cPromise then return false end
+    local self, cArgs = dbify.mysql.util.parseArgs(...)
+    if not self then return false end
     local syntaxMsg = "dbify.module.inventory.ensureItems()"
     return try({
         exec = function(self)
@@ -181,7 +181,7 @@ cModule.ensureItems = function(...)
                 end)
             )
         end,
-        catch = cPromise.reject
+        catch = self.reject
     })
 end
 
