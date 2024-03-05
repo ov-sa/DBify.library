@@ -4,7 +4,7 @@
 
 **━ Maintainer(s):** [**Aviril**](https://github.com/Aviril), [**Mario**](https://github.com/OvileAmriam), [**Tron**](https://github.com/OvileAmriam), [**Anisa**](https://github.com/Anisa-Nur)
 
-**DBify Library** is an open-source Postgres based Async database management library made by **vStudio** for [Multi Theft Auto \(MTA\)](https://multitheftauto.com/).
+**DBify Library** is an open-source MySQL based Async database management library made by **vStudio** for [Multi Theft Auto \(MTA\)](https://multitheftauto.com/).
 
 **DBify** comes in ORM format with essential basic templates aiming towards gamemode perspective for efficient & reliable database management, thus giving you more time to focus on your gamemode rather than managing redundant database queries or reinventing the wheel. Moreover, DBify helps you to process your queries efficiently without freezing the server due to its Async nature.
 
