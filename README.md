@@ -1,6 +1,6 @@
 # ━ S Y N O P S I S
 
-![](https://raw.githubusercontent.com/ov-sa/DBify.library/Documentation/assets/dbify_banner.png)
+![](https://raw.githubusercontent.com/ov-studio/.github/main/profile/banner.png)
 
 **━ Maintainer(s):** [**Aviril**](https://github.com/Aviril), [**Mario**](https://github.com/OvileAmriam), [**Tron**](https://github.com/OvileAmriam), [**Anisa**](https://github.com/Anisa-Nur)
 
